@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>상담일지 — 돈암에듀플렉스</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#1a1a2e}
+.header{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);color:#fff;padding:24px 20px;text-align:center}
+.header h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.header p{font-size:13px;color:#b0c4de;font-weight:400}
+.container{max-width:700px;margin:0 auto;padding:16px}
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{flex:1;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;background:#e0e0e0;color:#666;transition:.2s}
+.tab.active{background:#1a1a2e;color:#fff}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.card h3{font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #c9a84c}
+label{display:block;font-size:13px;font-weight:600;color:#555;margin-bottom:4px;margin-top:12px}
+label:first-child{margin-top:0}
+input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;font-family:'Pretendard',sans-serif;transition:.2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#0f3460;box-shadow:0 0 0 3px rgba(15,52,96,.1)}
+textarea{resize:vertical;min-height:100px}
+.row{display:flex;gap:10px}
+.row>div{flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 24px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;font-family:'Pretendard',sans-serif}
+.btn-save{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff;width:100%;margin-top:16px}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(15,52,96,.3)}
+.btn-save:disabled{opacity:.5;transform:none;cursor:not-allowed}
+.btn-sub{background:#f0f0f0;color:#444;padding:8px 14px;font-size:13px;border-radius:8px}
+.btn-sub:hover{background:#e0e0e0}
+.btn-gold{background:linear-gradient(135deg,#c9a84c,#b8943e);color:#fff;padding:8px 14px;font-size:13px}
+.entry{background:#fff;border-radius:10px;padding:14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.05);cursor:pointer;transition:.2s;border-left:4px solid #c9a84c}
+.entry:hover{box-shadow:0 3px 10px rgba(0,0,0,.1)}
+.entry .e-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.entry .e-name{font-weight:700;font-size:15px}
+.entry .e-date{font-size:12px;color:#888}
+.entry .e-type{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:#eef;color:#336}
+.entry .e-preview{font-size:13px;color:#666;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{text-align:center;padding:40px 20px;color:#aaa;font-size:14px}
+.detail-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:100;justify-content:center;align-items:center;padding:16px}
+.detail-overlay.show{display:flex}
+.detail-box{background:#fff;border-radius:16px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto;padding:24px}
+.detail-box h3{font-size:17px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #c9a84c}
+.detail-row{margin-bottom:10px}
+.detail-row .dl{font-size:12px;color:#888;font-weight:600;margin-bottom:2px}
+.detail-row .dv{font-size:14px;line-height:1.6;white-space:pre-wrap}
+.detail-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+.search-bar{margin-bottom:14px}
+.search-bar input{background:#fff;border:1.5px solid #ddd}
+@media print{
+  body{background:#fff}
+  .header,.tabs,.search-bar,.detail-actions,.panel[data-panel="list"]{display:none}
+  .detail-overlay{position:static;background:none;display:block!important}
+  .detail-box{box-shadow:none;max-height:none;padding:0}
+}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;z-index:200;display:none;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📋 상담일지</h1>
+  <p>돈암에듀플렉스 교직원 전용</p>
+</div>
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('write')">✏️ 작성</button>
+    <button class="tab" onclick="switchTab('list')">📂 기록 (0)</button>
+  </div>
+
+  <div class="panel active" data-panel="write">
+    <div class="card">
+      <h3>상담 정보</h3>
+      <div class="row">
+        <div>
+          <label>상담일시</label>
+          <input type="datetime-local" id="sd_date">
+        </div>
+        <div>
+          <label>상담자</label>
+          <input type="text" id="sd_counselor" placeholder="매니저 이름">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>학생명</label>
+          <input type="text" id="sd_student" placeholder="학생 이름">
+        </div>
+        <div>
+          <label>학년</label>
+          <select id="sd_grade">
+            <option value="">선택</option>
+            <option>중1</option><option>중2</option><option>중3</option>
+            <option>고1</option><option>고2</option><option>고3</option>
+          </select>
+        </div>
+      </div>
+      <label>상담 유형</label>
+      <select id="sd_type">
+        <option value="">선택</option>
+        <option>정기상담</option>
+        <option>긴급상담</option>
+        <option>학부모상담</option>
+        <option>등록상담</option>
+        <option>포커싱미팅</option>
+        <option>기타</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <h3>상담 내용</h3>
+      <label>주요 상담 내용</label>
+      <textarea id="sd_content" placeholder="상담에서 다룬 주요 내용을 기록하세요" rows="5"></textarea>
+      <label>학습 현황 / 특이사항</label>
+      <textarea id="sd_status" placeholder="학습 진행 상태, 변화, 특이사항 등" rows="3"></textarea>
+      <label>후속 조치 / 약속사항</label>
+      <textarea id="sd_followup" placeholder="다음 상담까지 실행할 사항, 약속 등" rows="3"></textarea>
+    </div>
+
+    <button class="btn btn-save" id="saveBtn" onclick="saveEntry()">💾 저장하기</button>
+  </div>
+
+  <div class="panel" data-panel="list">
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍 학생명 또는 상담자로 검색..." oninput="filterEntries()">
+    </div>
+    <div id="entryList"></div>
+  </div>
+</div>
+
+<div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-box" id="detailBox"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DB_URL='https://donam-eduplex-default-rtdb.asia-southeast1.firebasedatabase.app/';
+const app=firebase.initializeApp({databaseURL:DB_URL});
+const db=firebase.database(app);
+const REF='donam_sangdam';
+let entries=[];
+
+// 초기 날짜 설정
+function initDate(){
+  const now=new Date();
+  now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+  document.getElementById('sd_date').value=now.toISOString().slice(0,16);
+}
+initDate();
+
+// 탭 전환
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['write','list'][i]===t));
+  document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.dataset.panel===t));
+  if(t==='list') loadEntries();
+}
+
+// 저장
+async function saveEntry(){
+  const fields={
+    date:document.getElementById('sd_date').value,
+    counselor:document.getElementById('sd_counselor').value.trim(),
+    student:document.getElementById('sd_student').value.trim(),
+    grade:document.getElementById('sd_grade').value,
+    type:document.getElementById('sd_type').value,
+    content:document.getElementById('sd_content').value.trim(),
+    status:document.getElementById('sd_status').value.trim(),
+    followup:document.getElementById('sd_followup').value.trim()
+  };
+  if(!fields.student){showToast('❌ 학생명을 입력하세요');return}
+  if(!fields.content){showToast('❌ 상담 내용을 입력하세요');return}
+
+  const btn=document.getElementById('saveBtn');
+  btn.disabled=true;btn.textContent='저장 중...';
+  try{
+    fields.createdAt=Date.now();
+    await db.ref(REF).push(fields);
+    showToast('✅ 저장되었습니다');
+    // 폼 초기화
+    ['sd_counselor','sd_student','sd_content','sd_status','sd_followup'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('sd_grade').value='';
+    document.getElementById('sd_type').value='';
+    initDate();
+  }catch(e){
+    showToast('❌ 저장 실패: '+e.message);
+  }
+  btn.disabled=false;btn.textContent='💾 저장하기';
+}
+
+// 목록 로드
+function loadEntries(){
+  db.ref(REF).orderByChild('createdAt').limitToLast(100).once('value',snap=>{
+    entries=[];
+    snap.forEach(c=>{const d=c.val();d._key=c.key;entries.push(d)});
+    entries.reverse();
+    updateListTab();
+    renderEntries(entries);
+  });
+}
+
+function updateListTab(){
+  document.querySelectorAll('.tab')[1].textContent='📂 기록 ('+entries.length+')';
+}
+
+function renderEntries(list){
+  const el=document.getElementById('entryList');
+  if(!list.length){el.innerHTML='<div class="empty">저장된 상담일지가 없습니다</div>';return}
+  el.innerHTML=list.map(e=>`
+    <div class="entry" onclick="showDetail('${e._key}')">
+      <div class="e-top">
+        <span class="e-name">${esc(e.student)} ${e.grade?'('+esc(e.grade)+')':''}</span>
+        <span class="e-date">${formatDate(e.date)}</span>
+      </div>
+      ${e.type?'<span class="e-type">'+esc(e.type)+'</span>':''}
+      <div class="e-preview">${esc(e.content)}</div>
+    </div>
+  `).join('');
+}
+
+function filterEntries(){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  if(!q){renderEntries(entries);return}
+  renderEntries(entries.filter(e=>(e.student||'').toLowerCase().includes(q)||(e.counselor||'').toLowerCase().includes(q)));
+}
+
+// 상세 보기
+function showDetail(key){
+  const e=entries.find(x=>x._key===key);
+  if(!e)return;
+  document.getElementById('detailBox').innerHTML=`
+    <h3>${esc(e.student)} ${e.grade?'('+esc(e.grade)+')':''} — 상담일지</h3>
+    <div class="detail-row"><div class="dl">상담일시</div><div class="dv">${formatDate(e.date)}</div></div>
+    <div class="detail-row"><div class="dl">상담자</div><div class="dv">${esc(e.counselor||'-')}</div></div>
+    <div class="detail-row"><div class="dl">상담 유형</div><div class="dv">${esc(e.type||'-')}</div></div>
+    <div class="detail-row"><div class="dl">주요 상담 내용</div><div class="dv">${esc(e.content||'-')}</div></div>
+    <div class="detail-row"><div class="dl">학습 현황 / 특이사항</div><div class="dv">${esc(e.status||'-')}</div></div>
+    <div class="detail-row"><div class="dl">후속 조치 / 약속사항</div><div class="dv">${esc(e.followup||'-')}</div></div>
+    <div class="detail-actions">
+      <button class="btn btn-sub" onclick="window.print()">🖨️ 인쇄</button>
+      <button class="btn btn-sub" onclick="deleteEntry('${key}')">🗑️ 삭제</button>
+      <button class="btn btn-gold" onclick="closeDetail()">닫기</button>
+    </div>
+  `;
+  document.getElementById('detailOverlay').classList.add('show');
+}
+
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('show')}
+
+async function deleteEntry(key){
+  if(!confirm('이 상담일지를 삭제하시겠습니까?'))return;
+  try{
+    await db.ref(REF+'/'+key).remove();
+    showToast('🗑️ 삭제되었습니다');
+    closeDetail();
+    loadEntries();
+  }catch(e){showToast('❌ 삭제 실패')}
+}
+
+// 유틸
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function formatDate(d){
+  if(!d)return'-';
+  try{const dt=new Date(d);return dt.getFullYear()+'.'+(dt.getMonth()+1)+'.'+dt.getDate()+' '+dt.getHours().toString().padStart(2,'0')+':'+dt.getMinutes().toString().padStart(2,'0')}catch(e){return d}
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';
+  setTimeout(()=>t.style.display='none',2500);
+}
+</script>
+</body>
+</html>
