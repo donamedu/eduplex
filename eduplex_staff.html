@@ -138,8 +138,6 @@
     .dash-day-event.dash-readonly{cursor:default;background:var(--bg);}
     .dash-day-event.dash-readonly:hover{background:var(--bg);}
     .dash-auto-tag{font-size:9.5px;font-weight:700;color:var(--text-light);background:var(--bg2);padding:1px 6px;border-radius:5px;margin-left:4px;}
-    .dash-mtg-btn{flex-shrink:0;background:var(--navy);color:#fff;border:none;border-radius:7px;padding:6px 11px;font-size:11.5px;font-weight:700;cursor:pointer;}
-    .dash-mtg-btn:hover{background:var(--navy-mid);}
 
     /* STUDY */
     .study-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;}
@@ -305,7 +303,7 @@
     <!-- 대시보드 (구 아카이브) -->
     <div class="panel active" id="panel-archive">
       <div class="panel-title">📁 돈암점 아카이브</div>
-      <div class="panel-sub">공통 일정과 최근 공지·회의록을 한눈에 확인하세요.</div>
+      <div class="panel-sub">공통 일정과 이번 주 할 일을 한눈에 확인하세요.</div>
 
       <div class="dash-wrap">
         <div class="dash-cal-card">
@@ -329,10 +327,6 @@
               <button class="dash-widget-add" onclick="todoOpenModal()">＋ 추가</button>
             </div>
             <div id="dashTodoList" class="dash-widget-list"><div class="dash-empty">불러오는 중...</div></div>
-          </div>
-          <div class="dash-widget">
-            <h4>📝 회의록 요약</h4>
-            <div id="dashMeetingList" class="dash-widget-list"><div class="dash-empty">불러오는 중...</div></div>
           </div>
         </div>
       </div>
@@ -373,31 +367,6 @@
         <div class="dash-modal-body" id="dashDayModalList"></div>
         <div class="dash-modal-footer">
           <button class="dash-save-btn" onclick="dashOpenEventFormForDay()">+ 이 날짜에 일정 추가</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 회의록 작성 모달 -->
-    <div class="dash-modal-overlay" id="mtgModalOverlay">
-      <div class="dash-modal">
-        <div class="dash-modal-hdr">
-          <h3 id="mtgModalTitle">회의록 작성</h3>
-          <button class="dash-modal-close" onclick="mtgCloseModal()">✕</button>
-        </div>
-        <div class="dash-modal-body">
-          <label>회의 날짜</label>
-          <input type="date" id="mtgFDate">
-          <label>회의 제목</label>
-          <input type="text" id="mtgFTitle" placeholder="예: 주간회의">
-          <label>회의록 (티로 요약본을 붙여넣으세요)</label>
-          <textarea id="mtgFBody" rows="7" placeholder="티로에서 복사한 회의 요약을 여기 붙여넣기"></textarea>
-          <label>이번 주 할 일 (한 줄에 하나씩)</label>
-          <textarea id="mtgFTodos" rows="4" placeholder="지환 상담 자료 준비&#10;7월 시간표 확정&#10;..."></textarea>
-          <input type="hidden" id="mtgFId">
-        </div>
-        <div class="dash-modal-footer">
-          <button class="dash-del-btn" id="mtgDelBtn" onclick="mtgDelete()">삭제</button>
-          <button class="dash-save-btn" onclick="mtgSave()">저장</button>
         </div>
       </div>
     </div>
@@ -582,7 +551,6 @@ var DASH_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyvnWGIIx6HJGpmxz
 
 var dashData = { events: [], notices: [], meetings: [] };
 var dashTodos = {};
-var dashMeetings = {};
 var dashViewYear, dashViewMonth; // 0-indexed month
 var dashSelectedDate = null;
 
@@ -605,14 +573,10 @@ function dashLoadData() {
       console.error('대시보드 데이터 로드 실패:', err);
     });
 
-  // 할 일 / 회의록은 Firebase에서 실시간 로드
+  // 할 일은 Firebase에서 실시간 로드
   db.ref('donam_dashboard/todos').on('value', function(snap) {
     dashTodos = snap.val() || {};
     dashRenderTodos();
-  });
-  db.ref('donam_dashboard/meetings').on('value', function(snap) {
-    dashMeetings = snap.val() || {};
-    dashRenderMeetings();
   });
 }
 
@@ -693,17 +657,10 @@ function dashOpenDayModal(dateStr) {
       var isScanned = String(ev['ID'] || '').indexOf('scan-') === 0;
       var clickAttr = isScanned ? '' : (' onclick="dashOpenEventForm(' + "'" + ev['ID'] + "'" + ')"');
       var tag = isScanned ? ' <span class="dash-auto-tag">자동감지</span>' : '';
-      var title = ev['제목'] || '';
-      var isMeeting = title.indexOf('회의') !== -1;
-      var mtgBtn = isMeeting
-        ? '<button class="dash-mtg-btn" onclick="event.stopPropagation();mtgOpenFromEvent(\'' + dateStr + '\',\'' + dashEsc(title).replace(/'/g,"\\'") + '\')">📝 회의록</button>'
-        : '';
       return '<div class="dash-day-event' + (isScanned ? ' dash-readonly' : '') + '"' + clickAttr + '>' +
-        '<div style="display:flex;align-items:center;gap:8px">' +
-        '<div style="flex:1"><div class="dtitle">' + dashEsc(title) + tag + '</div>' +
-        '<div class="dmeta">' + (ev['시간'] ? ev['시간'] : '') + (ev['작성자'] ? (ev['시간'] ? ' · ' : '') + dashEsc(ev['작성자']) : '') + '</div></div>' +
-        mtgBtn +
-        '</div></div>';
+        '<div class="dtitle">' + dashEsc(ev['제목'] || '') + tag + '</div>' +
+        '<div class="dmeta">' + (ev['시간'] ? ev['시간'] : '') + (ev['작성자'] ? (ev['시간'] ? ' · ' : '') + dashEsc(ev['작성자']) : '') + '</div>' +
+        '</div>';
     }).join('');
   }
   document.getElementById('dashDayModalOverlay').classList.add('show');
@@ -838,102 +795,6 @@ function todoToggle(key) {
 function todoDelete(key) {
   db.ref('donam_dashboard/todos/' + key).remove()
     .then(function(){ showToast('✓ 삭제 완료!'); });
-}
-
-// ── 회의록 (Firebase) ──
-function dashRenderMeetings() {
-  var el = document.getElementById('dashMeetingList');
-  if (!el) return;
-  var keys = Object.keys(dashMeetings);
-  if (!keys.length) { el.innerHTML = '<div class="dash-empty">등록된 회의록이 없습니다.</div>'; return; }
-  // 최신 회의가 위로 (날짜 내림차순, 같으면 키 내림차순)
-  keys.sort(function(a, b) {
-    var da = dashMeetings[a].date || '', dbb = dashMeetings[b].date || '';
-    if (da !== dbb) return dbb.localeCompare(da);
-    return b.localeCompare(a);
-  });
-  el.innerHTML = keys.slice(0, 5).map(function(k) {
-    var m = dashMeetings[k];
-    var preview = (m.body || '').length > 60 ? (m.body || '').slice(0, 60) + '…' : (m.body || '');
-    return '<div class="dash-widget-item" style="cursor:pointer" onclick="mtgOpenExisting(\'' + k + '\')">' +
-      '<b>' + dashEsc(m.title || '회의록') + '</b>' +
-      dashEsc(preview) +
-      '<br><span>' + (m.date || '') + ' · 클릭하면 전체 보기</span></div>';
-  }).join('');
-}
-
-// 회의록 모달: 달력의 회의 일정에서 열기 (제목/날짜 자동 채움)
-function mtgOpenFromEvent(dateStr, title) {
-  // 같은 날짜+제목의 기존 회의록이 있으면 그걸 불러오고, 없으면 새로 작성
-  var foundKey = null;
-  Object.keys(dashMeetings).forEach(function(k) {
-    var m = dashMeetings[k];
-    if (m.date === dateStr && m.title === title) foundKey = k;
-  });
-  if (foundKey) { mtgOpenExisting(foundKey); return; }
-  document.getElementById('mtgModalTitle').textContent = '회의록 작성';
-  document.getElementById('mtgFId').value = '';
-  document.getElementById('mtgFDate').value = dateStr;
-  document.getElementById('mtgFTitle').value = title || '';
-  document.getElementById('mtgFBody').value = '';
-  document.getElementById('mtgFTodos').value = '';
-  document.getElementById('mtgDelBtn').style.display = 'none';
-  document.getElementById('dashDayModalOverlay').classList.remove('show');
-  document.getElementById('mtgModalOverlay').classList.add('show');
-}
-
-function mtgOpenExisting(key) {
-  var m = dashMeetings[key];
-  if (!m) return;
-  document.getElementById('mtgModalTitle').textContent = '회의록 수정';
-  document.getElementById('mtgFId').value = key;
-  document.getElementById('mtgFDate').value = m.date || '';
-  document.getElementById('mtgFTitle').value = m.title || '';
-  document.getElementById('mtgFBody').value = m.body || '';
-  document.getElementById('mtgFTodos').value = (m.todos || []).join('\n');
-  document.getElementById('mtgDelBtn').style.display = 'inline-block';
-  document.getElementById('mtgModalOverlay').classList.add('show');
-}
-
-function mtgCloseModal() {
-  document.getElementById('mtgModalOverlay').classList.remove('show');
-}
-
-function mtgSave() {
-  var date = document.getElementById('mtgFDate').value;
-  var title = document.getElementById('mtgFTitle').value.trim();
-  var body = document.getElementById('mtgFBody').value.trim();
-  if (!date || !title) { showToast('날짜와 제목을 입력하세요.'); return; }
-
-  var todoLines = document.getElementById('mtgFTodos').value
-    .split('\n').map(function(s){return s.trim();}).filter(Boolean);
-
-  var id = document.getElementById('mtgFId').value;
-  var key = id || ('m' + Date.now());
-  var record = { date: date, title: title, body: body, todos: todoLines };
-
-  db.ref('donam_dashboard/meetings/' + key).set(record)
-    .then(function() {
-      // 회의록의 "이번 주 할 일"을 할 일 위젯에도 자동 반영 (새 항목으로 추가)
-      if (todoLines.length) {
-        var updates = {};
-        var base = Date.now();
-        todoLines.forEach(function(line, i) {
-          updates['t' + (base + i)] = { text: line, done: false, from: title };
-        });
-        return db.ref('donam_dashboard/todos').update(updates);
-      }
-    })
-    .then(function() { showToast('✓ 회의록 저장 완료!'); mtgCloseModal(); })
-    .catch(function(e) { showToast('⚠ 저장 실패: ' + e.message); });
-}
-
-function mtgDelete() {
-  var id = document.getElementById('mtgFId').value;
-  if (!id) return;
-  if (!confirm('이 회의록을 삭제할까요?')) return;
-  db.ref('donam_dashboard/meetings/' + id).remove()
-    .then(function() { showToast('✓ 삭제 완료!'); mtgCloseModal(); });
 }
 
 function showToast(msg) {
