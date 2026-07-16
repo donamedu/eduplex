@@ -149,6 +149,16 @@
     .mtg-card-author{font-size:11px;color:var(--text-light);margin-top:8px;}
     .dash-mtg-btn{flex-shrink:0;background:var(--navy);color:#fff;border:none;border-radius:7px;padding:6px 11px;font-size:11.5px;font-weight:700;cursor:pointer;}
     .dash-mtg-btn:hover{background:var(--navy-mid);}
+    /* 양식 자료실 */
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+    .form-card{background:var(--white);border:2px solid var(--border);border-radius:14px;padding:22px 20px;cursor:pointer;transition:all .18s;position:relative;box-shadow:var(--shadow);min-height:130px;display:flex;flex-direction:column;}
+    .form-card:hover{border-color:var(--navy);transform:translateY(-3px);box-shadow:var(--shadow-hover);}
+    .form-card .fc-icon{font-size:28px;margin-bottom:10px;}
+    .form-card h4{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:5px;}
+    .form-card p{font-size:12px;color:var(--text-sub);line-height:1.5;flex:1;}
+    .form-card .fc-open{font-size:11.5px;color:var(--navy);font-weight:600;margin-top:10px;}
+    .form-card-edit{position:absolute;top:10px;right:10px;background:var(--bg2);border:1px solid var(--border);color:var(--text-sub);border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer;}
+    .form-card-edit:hover{border-color:var(--navy);color:var(--navy);}
 
     /* STUDY */
     .study-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;}
@@ -297,6 +307,7 @@
     <nav class="sidebar-nav">
       <button class="s-btn active" onclick="showPanel(this,'archive')">📁 돈암점 아카이브</button>
       <button class="s-btn" onclick="showPanel(this,'meeting')">📝 회의록</button>
+      <button class="s-btn" onclick="showPanel(this,'forms')">📋 양식 자료실</button>
       <button class="s-btn" onclick="showPanel(this,'study')">📚 스터디</button>
       <button class="s-btn" onclick="showPanel(this,'info')">📰 정보</button>
       <button class="s-btn" onclick="openSangdam()">📋 상담일지</button>
@@ -383,6 +394,29 @@
       </div>
     </div>
 
+    <!-- 양식 자료 추가/수정 모달 -->
+    <div class="dash-modal-overlay" id="formModalOverlay">
+      <div class="dash-modal">
+        <div class="dash-modal-hdr">
+          <h3 id="formModalTitle">자료 추가</h3>
+          <button class="dash-modal-close" onclick="formCloseModal()">✕</button>
+        </div>
+        <div class="dash-modal-body">
+          <label>자료 이름</label>
+          <input type="text" id="formFName" placeholder="예: 7월 시간표">
+          <label>설명 (선택)</label>
+          <input type="text" id="formFDesc" placeholder="예: 1관 학습실 배정표">
+          <label>링크 (구글 시트/문서 주소)</label>
+          <input type="text" id="formFUrl" placeholder="https://docs.google.com/...">
+          <input type="hidden" id="formFId">
+        </div>
+        <div class="dash-modal-footer">
+          <button class="dash-del-btn" id="formDelBtn" onclick="formDelete()">삭제</button>
+          <button class="dash-save-btn" onclick="formSave()">저장</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 회의록 작성/수정 모달 -->
     <div class="dash-modal-overlay" id="mtgModalOverlay">
       <div class="dash-modal">
@@ -432,6 +466,16 @@
       <button class="add-btn" onclick="mtgOpenNew()">＋ 회의록 작성</button>
       <div class="mtg-list" id="mtgList">
         <div class="info-empty">아직 작성된 회의록이 없습니다.</div>
+      </div>
+    </div>
+
+    <!-- 양식 자료실 -->
+    <div class="panel" id="panel-forms">
+      <div class="panel-title">📋 양식 자료실</div>
+      <div class="panel-sub">자주 쓰는 구글 시트·문서 링크를 모아둡니다. 카드를 클릭하면 새 탭으로 열립니다.</div>
+      <button class="add-btn" onclick="formOpenNew()">＋ 자료 추가</button>
+      <div class="form-grid" id="formGrid">
+        <div class="info-empty">아직 등록된 자료가 없습니다.</div>
       </div>
     </div>
 
@@ -599,6 +643,7 @@ var DASH_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyvnWGIIx6HJGpmxz
 var dashData = { events: [], notices: [], meetings: [] };
 var dashTodos = {};
 var dashMtgs = {};
+var dashForms = {};
 var dashViewYear, dashViewMonth; // 0-indexed month
 var dashSelectedDate = null;
 
@@ -622,7 +667,7 @@ function dashLoadData() {
     });
 
   // 할 일은 Firebase에서 실시간 로드
-  db.ref('donam_dashboard/todos').on('value', function(snap) {
+  db.ref('donam_staff/dashboard_todos').on('value', function(snap) {
     dashTodos = snap.val() || {};
     dashRenderTodos();
   }, function(err) {
@@ -632,9 +677,15 @@ function dashLoadData() {
   });
 
   // 회의록은 Firebase에서 실시간 로드
-  db.ref('donam_dashboard/meetings').on('value', function(snap) {
+  db.ref('donam_staff/dashboard_meetings').on('value', function(snap) {
     dashMtgs = snap.val() || {};
     mtgRenderList();
+  });
+
+  // 양식 자료실은 Firebase에서 실시간 로드
+  db.ref('donam_staff/dashboard_forms').on('value', function(snap) {
+    dashForms = snap.val() || {};
+    formRenderGrid();
   });
 }
 
@@ -848,17 +899,17 @@ function todoSave() {
     var key = 't' + (base + i);
     updates[key] = { text: line, done: false };
   });
-  db.ref('donam_dashboard/todos').update(updates)
+  db.ref('donam_staff/dashboard_todos').update(updates)
     .then(function(){ showToast('✓ 추가 완료!'); todoCloseModal(); })
     .catch(function(e){ showToast('⚠ 저장 실패: ' + e.message); });
 }
 function todoToggle(key) {
   var cur = dashTodos[key];
   if (!cur) return;
-  db.ref('donam_dashboard/todos/' + key + '/done').set(!cur.done);
+  db.ref('donam_staff/dashboard_todos/' + key + '/done').set(!cur.done);
 }
 function todoDelete(key) {
-  db.ref('donam_dashboard/todos/' + key).remove()
+  db.ref('donam_staff/dashboard_todos/' + key).remove()
     .then(function(){ showToast('✓ 삭제 완료!'); });
 }
 
@@ -948,7 +999,7 @@ function mtgSave() {
     body: body,
     author: document.getElementById('mtgFAuthor').value.trim()
   };
-  db.ref('donam_dashboard/meetings/' + key).set(record)
+  db.ref('donam_staff/dashboard_meetings/' + key).set(record)
     .then(function() { showToast('✓ 회의록 저장 완료!'); mtgCloseModal(); })
     .catch(function(e) { showToast('⚠ 저장 실패: ' + e.message); });
 }
@@ -957,8 +1008,84 @@ function mtgDelete() {
   var id = document.getElementById('mtgFId').value;
   if (!id) return;
   if (!confirm('이 회의록을 삭제할까요?')) return;
-  db.ref('donam_dashboard/meetings/' + id).remove()
+  db.ref('donam_staff/dashboard_meetings/' + id).remove()
     .then(function() { showToast('✓ 삭제 완료!'); mtgCloseModal(); });
+}
+
+// ── 양식 자료실 (Firebase) ──
+function formRenderGrid() {
+  var el = document.getElementById('formGrid');
+  if (!el) return;
+  var keys = Object.keys(dashForms);
+  if (!keys.length) { el.innerHTML = '<div class="info-empty">아직 등록된 자료가 없습니다.</div>'; return; }
+  keys.sort(); // 생성 순
+  el.innerHTML = keys.map(function(k) {
+    var f = dashForms[k];
+    return '<div class="form-card" onclick="formOpen(\'' + k + '\')">' +
+      '<button class="form-card-edit" onclick="event.stopPropagation();formOpenExisting(\'' + k + '\')">✏️ 수정</button>' +
+      '<div class="fc-icon">📊</div>' +
+      '<h4>' + dashEsc(f.name || '') + '</h4>' +
+      '<p>' + dashEsc(f.desc || '') + '</p>' +
+      '<div class="fc-open">열기 →</div>' +
+      '</div>';
+  }).join('');
+}
+
+function formOpen(key) {
+  var f = dashForms[key];
+  if (f && f.url) window.open(f.url, '_blank');
+  else showToast('링크가 없습니다. 수정 버튼으로 등록해주세요.');
+}
+
+function formOpenNew() {
+  document.getElementById('formModalTitle').textContent = '자료 추가';
+  document.getElementById('formFId').value = '';
+  document.getElementById('formFName').value = '';
+  document.getElementById('formFDesc').value = '';
+  document.getElementById('formFUrl').value = '';
+  document.getElementById('formDelBtn').style.display = 'none';
+  document.getElementById('formModalOverlay').classList.add('show');
+}
+
+function formOpenExisting(key) {
+  var f = dashForms[key];
+  if (!f) return;
+  document.getElementById('formModalTitle').textContent = '자료 수정';
+  document.getElementById('formFId').value = key;
+  document.getElementById('formFName').value = f.name || '';
+  document.getElementById('formFDesc').value = f.desc || '';
+  document.getElementById('formFUrl').value = f.url || '';
+  document.getElementById('formDelBtn').style.display = 'inline-block';
+  document.getElementById('formModalOverlay').classList.add('show');
+}
+
+function formCloseModal() {
+  document.getElementById('formModalOverlay').classList.remove('show');
+}
+
+function formSave() {
+  var name = document.getElementById('formFName').value.trim();
+  var url = document.getElementById('formFUrl').value.trim();
+  if (!name) { showToast('자료 이름을 입력하세요.'); return; }
+
+  var id = document.getElementById('formFId').value;
+  var key = id || ('f' + Date.now());
+  var record = {
+    name: name,
+    desc: document.getElementById('formFDesc').value.trim(),
+    url: url
+  };
+  db.ref('donam_staff/dashboard_forms/' + key).set(record)
+    .then(function() { showToast('✓ 저장 완료!'); formCloseModal(); })
+    .catch(function(e) { showToast('⚠ 저장 실패: ' + e.message); });
+}
+
+function formDelete() {
+  var id = document.getElementById('formFId').value;
+  if (!id) return;
+  if (!confirm('이 자료를 삭제할까요?')) return;
+  db.ref('donam_staff/dashboard_forms/' + id).remove()
+    .then(function() { showToast('✓ 삭제 완료!'); formCloseModal(); });
 }
 
 function showToast(msg) {
