@@ -333,15 +333,8 @@
         <div class="dash-modal-body">
           <label>날짜</label>
           <input type="date" id="dashFDate">
-          <label>시간 (선택)</label>
-          <input type="time" id="dashFTime">
           <label>제목</label>
-          <input type="text" id="dashFTitle" placeholder="예: 학부모 상담">
-          <label>구분</label>
-          <select id="dashFCategory">
-            <option value="공통">공통</option>
-            <option value="원장님">원장님</option>
-          </select>
+          <input type="text" id="dashFTitle" placeholder="">
           <label>메모 (선택)</label>
           <textarea id="dashFMemo" rows="2" placeholder="메모"></textarea>
           <label>작성자</label>
@@ -631,7 +624,7 @@ function dashOpenDayModal(dateStr) {
   titleEl.textContent = (d.getMonth() + 1) + '월 ' + d.getDate() + '일 일정';
 
   if (!list.length) {
-    listEl.innerHTML = '<div class="dash-empty">등록된 공통/원장님 일정이 없습니다.</div>';
+    listEl.innerHTML = '<div class="dash-empty">등록된 일정이 없습니다.</div>';
   } else {
     listEl.innerHTML = list.map(function(ev) {
       var isScanned = String(ev['ID'] || '').indexOf('scan-') === 0;
@@ -639,7 +632,7 @@ function dashOpenDayModal(dateStr) {
       var tag = isScanned ? ' <span class="dash-auto-tag">자동감지</span>' : '';
       return '<div class="dash-day-event' + (isScanned ? ' dash-readonly' : '') + '"' + clickAttr + '>' +
         '<div class="dtitle">' + dashEsc(ev['제목'] || '') + tag + '</div>' +
-        '<div class="dmeta">' + (ev['시간'] ? ev['시간'] + ' · ' : '') + (ev['구분'] || '') + (ev['작성자'] ? ' · ' + dashEsc(ev['작성자']) : '') + '</div>' +
+        '<div class="dmeta">' + (ev['시간'] ? ev['시간'] : '') + (ev['작성자'] ? (ev['시간'] ? ' · ' : '') + dashEsc(ev['작성자']) : '') + '</div>' +
         '</div>';
     }).join('');
   }
@@ -663,9 +656,7 @@ function dashOpenEventForm(idOrNull) {
   document.getElementById('dashModalTitle').textContent = existing ? '일정 수정' : '일정 추가';
   document.getElementById('dashFId').value = existing ? existing['ID'] : '';
   document.getElementById('dashFDate').value = existing ? existing['날짜'] : (dashSelectedDate || '');
-  document.getElementById('dashFTime').value = existing ? (existing['시간'] || '') : '';
   document.getElementById('dashFTitle').value = existing ? (existing['제목'] || '') : '';
-  document.getElementById('dashFCategory').value = existing ? (existing['구분'] || '공통') : '공통';
   document.getElementById('dashFMemo').value = existing ? (existing['메모'] || '') : '';
   document.getElementById('dashFAuthor').value = existing ? (existing['작성자'] || '') : '';
   document.getElementById('dashDelBtn').style.display = existing ? 'inline-block' : 'none';
@@ -695,9 +686,9 @@ function dashSaveEvent() {
     action: id ? 'edit' : 'add',
     id: id,
     date: date,
-    time: document.getElementById('dashFTime').value,
+    time: '',
     title: title,
-    category: document.getElementById('dashFCategory').value,
+    category: '공통',
     memo: document.getElementById('dashFMemo').value,
     author: document.getElementById('dashFAuthor').value
   };
