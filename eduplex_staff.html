@@ -577,6 +577,10 @@ function dashLoadData() {
   db.ref('donam_dashboard/todos').on('value', function(snap) {
     dashTodos = snap.val() || {};
     dashRenderTodos();
+  }, function(err) {
+    console.error('할 일 로드 실패:', err);
+    var el = document.getElementById('dashTodoList');
+    if (el) el.innerHTML = '<div class="dash-empty">할 일을 불러오지 못했습니다.</div>';
   });
 }
 
