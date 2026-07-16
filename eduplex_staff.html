@@ -73,6 +73,68 @@
     .notion-btn{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:#fff;padding:12px 22px;border-radius:9px;font-size:14px;font-weight:700;transition:background .2s;}
     .notion-btn:hover{background:var(--navy-mid);}
 
+    /* DASHBOARD / CALENDAR */
+    .dash-wrap{display:flex;gap:24px;align-items:flex-start;}
+    .dash-cal-card{flex:1;min-width:0;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:var(--shadow);}
+    .dash-cal-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+    .dash-cal-title{font-family:'Noto Serif KR',serif;font-size:18px;font-weight:700;color:var(--navy);min-width:110px;text-align:center;}
+    .dash-nav-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--white);color:var(--navy);font-size:14px;cursor:pointer;}
+    .dash-nav-btn:hover{background:var(--bg2);}
+    .dash-today-btn{margin-left:6px;border:1px solid var(--border);background:var(--white);color:var(--text-sub);border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;}
+    .dash-today-btn:hover{background:var(--bg2);}
+    .dash-add-btn{margin-left:auto;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;transition:background .2s;}
+    .dash-add-btn:hover{background:var(--navy-mid);}
+    .dash-legend{display:flex;gap:16px;margin-bottom:14px;}
+    .dash-legend-item{font-size:12px;color:var(--text-sub);display:flex;align-items:center;gap:6px;}
+    .dash-dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+    .dash-dot-공통{background:var(--navy);}
+    .dash-dot-원장님{background:var(--gold-btn);}
+    .dash-cal-dow{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px;font-weight:700;color:var(--text-light);padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:6px;}
+    .dash-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:minmax(76px,auto);gap:4px;}
+    .dash-cal-cell{border-radius:9px;padding:6px;cursor:pointer;transition:background .15s;background:var(--bg);}
+    .dash-cal-cell.empty{background:transparent;cursor:default;}
+    .dash-cal-cell:not(.empty):hover{background:var(--bg2);}
+    .dash-cal-cell.today{outline:2px solid var(--gold-btn);outline-offset:-2px;}
+    .dash-daynum{font-size:12px;font-weight:700;color:var(--text-sub);margin-bottom:4px;}
+    .dash-cal-cell.today .dash-daynum{color:var(--navy);}
+    .dash-event-pill{font-size:10.5px;padding:2px 6px;border-radius:5px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;}
+    .dash-event-pill.dash-cat-공통{background:var(--navy);}
+    .dash-event-pill.dash-cat-원장님{background:var(--gold-btn);}
+    .dash-event-more{font-size:10px;color:var(--text-light);}
+    .dash-side{width:280px;flex-shrink:0;display:flex;flex-direction:column;gap:16px;}
+    .dash-widget{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);}
+    .dash-widget h4{font-size:13.5px;font-weight:700;color:var(--navy);margin-bottom:12px;}
+    .dash-widget-list{display:flex;flex-direction:column;gap:10px;}
+    .dash-widget-item{font-size:12.5px;color:var(--text-sub);border-left:2px solid var(--border);padding-left:10px;}
+    .dash-widget-item b{display:block;color:var(--text);font-size:13px;margin-bottom:2px;}
+    .dash-widget-item span{font-size:11px;color:var(--text-light);}
+    .dash-empty{font-size:12px;color:var(--text-light);}
+    .dash-side-note{font-size:11px;color:var(--text-light);text-align:center;}
+
+    /* MODAL */
+    .dash-modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,26,46,.45);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+    .dash-modal-overlay.show{display:flex;}
+    .dash-modal{background:var(--white);border-radius:16px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-hover);}
+    .dash-modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);}
+    .dash-modal-hdr h3{font-size:15.5px;font-weight:700;color:var(--navy);}
+    .dash-modal-close{background:none;border:none;font-size:16px;color:var(--text-light);cursor:pointer;}
+    .dash-modal-body{padding:18px 22px;display:flex;flex-direction:column;gap:4px;}
+    .dash-modal-body label{font-size:12px;font-weight:600;color:var(--text-sub);margin-top:8px;}
+    .dash-modal-body input,.dash-modal-body select,.dash-modal-body textarea{border:1.5px solid var(--border);border-radius:8px;padding:9px 11px;font-size:13.5px;color:var(--text);font-family:inherit;background:var(--white);}
+    .dash-modal-body input:focus,.dash-modal-body select:focus,.dash-modal-body textarea:focus{outline:none;border-color:var(--navy);}
+    .dash-modal-footer{display:flex;gap:10px;padding:16px 22px 20px;border-top:1px solid var(--border);}
+    .dash-save-btn{flex:1;background:var(--navy);color:#fff;border:none;border-radius:9px;padding:11px;font-size:13.5px;font-weight:700;cursor:pointer;}
+    .dash-save-btn:hover{background:var(--navy-mid);}
+    .dash-del-btn{background:var(--white);color:#dc2626;border:1px solid #f0c9c9;border-radius:9px;padding:11px 16px;font-size:13.5px;font-weight:700;cursor:pointer;}
+    .dash-del-btn:hover{background:#fdf2f2;}
+    .dash-day-event{border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;}
+    .dash-day-event:hover{background:var(--bg);}
+    .dash-day-event .dtitle{font-size:13.5px;font-weight:700;color:var(--text);}
+    .dash-day-event .dmeta{font-size:11px;color:var(--text-light);margin-top:2px;}
+    .dash-day-event.dash-readonly{cursor:default;background:var(--bg);}
+    .dash-day-event.dash-readonly:hover{background:var(--bg);}
+    .dash-auto-tag{font-size:9.5px;font-weight:700;color:var(--text-light);background:var(--bg2);padding:1px 6px;border-radius:5px;margin-left:4px;}
+
     /* STUDY */
     .study-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;}
     .study-tile{background:var(--white);border:2px solid var(--border);border-radius:14px;padding:28px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:185px;transition:all .2s;position:relative;box-shadow:var(--shadow);}
@@ -234,16 +296,86 @@
 
   <div class="content">
 
-    <!-- 아카이브 -->
+    <!-- 대시보드 (구 아카이브) -->
     <div class="panel active" id="panel-archive">
       <div class="panel-title">📁 돈암점 아카이브</div>
-      <div class="panel-sub">노션 아카이브 연결</div>
-      <div class="archive-card">
-        <div class="ac-icon">📌</div>
-        <div>
-          <h3>돈암점 아카이브</h3>
-          <p>2026 돈암 캘린더, 주간 회의록, 구성원 정보를 확인할 수 있습니다.<br>주간 회의는 계속 노션에서 진행됩니다.</p>
-          <a class="notion-btn" href="https://app.notion.com/p/353f56b229a581aab0d4c1fb6a7c4e41" target="_blank">📂 노션 아카이브 열기 →</a>
+      <div class="panel-sub">공통 일정과 최근 공지·회의록을 한눈에 확인하세요.</div>
+
+      <div class="dash-wrap">
+        <div class="dash-cal-card">
+          <div class="dash-cal-header">
+            <button class="dash-nav-btn" onclick="dashChangeMonth(-1)">←</button>
+            <div class="dash-cal-title" id="dashCalTitle">-</div>
+            <button class="dash-nav-btn" onclick="dashChangeMonth(1)">→</button>
+            <button class="dash-today-btn" onclick="dashGoToday()">오늘</button>
+            <button class="dash-add-btn" onclick="dashOpenEventForm(null)">+ 일정 추가</button>
+          </div>
+          <div class="dash-legend">
+            <span class="dash-legend-item"><i class="dash-dot dash-dot-공통"></i>공통</span>
+            <span class="dash-legend-item"><i class="dash-dot dash-dot-원장님"></i>원장님</span>
+          </div>
+          <div class="dash-cal-dow">
+            <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+          </div>
+          <div class="dash-cal-grid" id="dashCalGrid"></div>
+        </div>
+
+        <div class="dash-side">
+          <div class="dash-widget">
+            <h4>📢 최근 공지</h4>
+            <div id="dashNoticeList" class="dash-widget-list"><div class="dash-empty">불러오는 중...</div></div>
+          </div>
+          <div class="dash-widget">
+            <h4>📝 회의록 요약</h4>
+            <div id="dashMeetingList" class="dash-widget-list"><div class="dash-empty">불러오는 중...</div></div>
+          </div>
+          <p class="dash-side-note">공지·회의록은 구글 시트에서 직접 관리합니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 일정 추가/수정 모달 -->
+    <div class="dash-modal-overlay" id="dashModalOverlay">
+      <div class="dash-modal">
+        <div class="dash-modal-hdr">
+          <h3 id="dashModalTitle">일정 추가</h3>
+          <button class="dash-modal-close" onclick="dashCloseModal()">✕</button>
+        </div>
+        <div class="dash-modal-body">
+          <label>날짜</label>
+          <input type="date" id="dashFDate">
+          <label>시간 (선택)</label>
+          <input type="time" id="dashFTime">
+          <label>제목</label>
+          <input type="text" id="dashFTitle" placeholder="예: 학부모 상담">
+          <label>구분</label>
+          <select id="dashFCategory">
+            <option value="공통">공통</option>
+            <option value="원장님">원장님</option>
+          </select>
+          <label>메모 (선택)</label>
+          <textarea id="dashFMemo" rows="2" placeholder="메모"></textarea>
+          <label>작성자</label>
+          <input type="text" id="dashFAuthor" placeholder="이름">
+          <input type="hidden" id="dashFId">
+        </div>
+        <div class="dash-modal-footer">
+          <button class="dash-del-btn" id="dashDelBtn" onclick="dashDeleteEvent()">삭제</button>
+          <button class="dash-save-btn" onclick="dashSaveEvent()">저장</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 날짜 클릭 시 일정 목록 모달 -->
+    <div class="dash-modal-overlay" id="dashDayModalOverlay">
+      <div class="dash-modal">
+        <div class="dash-modal-hdr">
+          <h3 id="dashDayModalTitle">일정</h3>
+          <button class="dash-modal-close" onclick="dashCloseDayModal()">✕</button>
+        </div>
+        <div class="dash-modal-body" id="dashDayModalList"></div>
+        <div class="dash-modal-footer">
+          <button class="dash-save-btn" onclick="dashOpenEventFormForDay()">+ 이 날짜에 일정 추가</button>
         </div>
       </div>
     </div>
@@ -403,6 +535,232 @@ var tileLinks = {};
 var customTileData = [];
 var infoData = [];
 
+// ──────────────────────────────────────────────
+// 대시보드 캘린더 (구글 시트 + Apps Script 연동)
+// ──────────────────────────────────────────────
+// ⚠️ 아래 URL을 Apps Script 배포 후 발급받은 웹앱 URL로 교체하세요.
+var DASH_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyvnWGIIx6HJGpmxzIv4_-h9x1pk9TuF3b6pD8IEX7-sWxqbq4oIzExzW6WGkgD_DGfAA/exec';
+
+var dashData = { events: [], notices: [], meetings: [] };
+var dashViewYear, dashViewMonth; // 0-indexed month
+var dashSelectedDate = null;
+
+function dashInit() {
+  var now = new Date();
+  dashViewYear = now.getFullYear();
+  dashViewMonth = now.getMonth();
+  dashRenderCalendar();
+  dashLoadData();
+}
+
+function dashLoadData() {
+  fetch(DASH_WEBAPP_URL)
+    .then(function(res) { return res.json(); })
+    .then(function(json) {
+      dashData.events = json.events || [];
+      dashData.notices = json.notices || [];
+      dashData.meetings = json.meetings || [];
+      dashRenderCalendar();
+      dashRenderNotices();
+      dashRenderMeetings();
+    })
+    .catch(function(err) {
+      console.error('대시보드 데이터 로드 실패:', err);
+      var g = document.getElementById('dashNoticeList');
+      if (g) g.innerHTML = '<div class="dash-empty">불러오기 실패 — 웹앱 URL 설정을 확인하세요.</div>';
+    });
+}
+
+function dashChangeMonth(delta) {
+  dashViewMonth += delta;
+  if (dashViewMonth < 0) { dashViewMonth = 11; dashViewYear--; }
+  if (dashViewMonth > 11) { dashViewMonth = 0; dashViewYear++; }
+  dashRenderCalendar();
+}
+
+function dashGoToday() {
+  var now = new Date();
+  dashViewYear = now.getFullYear();
+  dashViewMonth = now.getMonth();
+  dashRenderCalendar();
+}
+
+function dashPad(n) { return n < 10 ? '0' + n : '' + n; }
+
+function dashRenderCalendar() {
+  var titleEl = document.getElementById('dashCalTitle');
+  var gridEl = document.getElementById('dashCalGrid');
+  if (!titleEl || !gridEl) return;
+
+  titleEl.textContent = dashViewYear + '년 ' + (dashViewMonth + 1) + '월';
+
+  var firstDay = new Date(dashViewYear, dashViewMonth, 1).getDay();
+  var daysInMonth = new Date(dashViewYear, dashViewMonth + 1, 0).getDate();
+  var todayStr = (function(){ var t=new Date(); return t.getFullYear()+'-'+dashPad(t.getMonth()+1)+'-'+dashPad(t.getDate()); })();
+
+  var eventsByDate = {};
+  dashData.events.forEach(function(ev) {
+    var d = ev['날짜'];
+    if (!d) return;
+    if (!eventsByDate[d]) eventsByDate[d] = [];
+    eventsByDate[d].push(ev);
+  });
+
+  var html = '';
+  for (var i = 0; i < firstDay; i++) {
+    html += '<div class="dash-cal-cell empty"></div>';
+  }
+  for (var day = 1; day <= daysInMonth; day++) {
+    var dateStr = dashViewYear + '-' + dashPad(dashViewMonth + 1) + '-' + dashPad(day);
+    var isToday = dateStr === todayStr;
+    var dayEvents = eventsByDate[dateStr] || [];
+    var pillsHtml = '';
+    dayEvents.slice(0, 3).forEach(function(ev) {
+      pillsHtml += '<div class="dash-event-pill dash-cat-' + (ev['구분'] || '공통') + '">' + dashEsc(ev['제목'] || '') + '</div>';
+    });
+    if (dayEvents.length > 3) {
+      pillsHtml += '<div class="dash-event-more">+' + (dayEvents.length - 3) + '개 더보기</div>';
+    }
+    html += '<div class="dash-cal-cell' + (isToday ? ' today' : '') + '" onclick="dashOpenDayModal(\'' + dateStr + '\')">' +
+      '<div class="dash-daynum">' + day + '</div>' + pillsHtml + '</div>';
+  }
+  gridEl.innerHTML = html;
+}
+
+function dashEsc(s) {
+  return String(s).replace(/[&<>"']/g, function(c) {
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+
+function dashOpenDayModal(dateStr) {
+  dashSelectedDate = dateStr;
+  var list = dashData.events.filter(function(ev) { return ev['날짜'] === dateStr; });
+  var titleEl = document.getElementById('dashDayModalTitle');
+  var listEl = document.getElementById('dashDayModalList');
+  var d = new Date(dateStr);
+  titleEl.textContent = (d.getMonth() + 1) + '월 ' + d.getDate() + '일 일정';
+
+  if (!list.length) {
+    listEl.innerHTML = '<div class="dash-empty">등록된 공통/원장님 일정이 없습니다.</div>';
+  } else {
+    listEl.innerHTML = list.map(function(ev) {
+      var isScanned = String(ev['ID'] || '').indexOf('scan-') === 0;
+      var clickAttr = isScanned ? '' : (' onclick="dashOpenEventForm(' + "'" + ev['ID'] + "'" + ')"');
+      var tag = isScanned ? ' <span class="dash-auto-tag">자동감지</span>' : '';
+      return '<div class="dash-day-event' + (isScanned ? ' dash-readonly' : '') + '"' + clickAttr + '>' +
+        '<div class="dtitle">' + dashEsc(ev['제목'] || '') + tag + '</div>' +
+        '<div class="dmeta">' + (ev['시간'] ? ev['시간'] + ' · ' : '') + (ev['구분'] || '') + (ev['작성자'] ? ' · ' + dashEsc(ev['작성자']) : '') + '</div>' +
+        '</div>';
+    }).join('');
+  }
+  document.getElementById('dashDayModalOverlay').classList.add('show');
+}
+
+function dashCloseDayModal() {
+  document.getElementById('dashDayModalOverlay').classList.remove('show');
+}
+
+function dashOpenEventFormForDay() {
+  dashCloseDayModal();
+  dashOpenEventForm(null);
+}
+
+function dashOpenEventForm(idOrNull) {
+  var existing = null;
+  if (idOrNull) {
+    existing = dashData.events.find(function(ev) { return ev['ID'] === idOrNull; });
+  }
+  document.getElementById('dashModalTitle').textContent = existing ? '일정 수정' : '일정 추가';
+  document.getElementById('dashFId').value = existing ? existing['ID'] : '';
+  document.getElementById('dashFDate').value = existing ? existing['날짜'] : (dashSelectedDate || '');
+  document.getElementById('dashFTime').value = existing ? (existing['시간'] || '') : '';
+  document.getElementById('dashFTitle').value = existing ? (existing['제목'] || '') : '';
+  document.getElementById('dashFCategory').value = existing ? (existing['구분'] || '공통') : '공통';
+  document.getElementById('dashFMemo').value = existing ? (existing['메모'] || '') : '';
+  document.getElementById('dashFAuthor').value = existing ? (existing['작성자'] || '') : '';
+  document.getElementById('dashDelBtn').style.display = existing ? 'inline-block' : 'none';
+  document.getElementById('dashDayModalOverlay').classList.remove('show');
+  document.getElementById('dashModalOverlay').classList.add('show');
+}
+
+function dashCloseModal() {
+  document.getElementById('dashModalOverlay').classList.remove('show');
+}
+
+function dashPostAction(payload) {
+  return fetch(DASH_WEBAPP_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Apps Script CORS 회피용
+    body: JSON.stringify(payload)
+  }).then(function(res) { return res.json(); });
+}
+
+function dashSaveEvent() {
+  var date = document.getElementById('dashFDate').value;
+  var title = document.getElementById('dashFTitle').value.trim();
+  if (!date || !title) { showToast('날짜와 제목을 입력하세요.'); return; }
+
+  var id = document.getElementById('dashFId').value;
+  var payload = {
+    action: id ? 'edit' : 'add',
+    id: id,
+    date: date,
+    time: document.getElementById('dashFTime').value,
+    title: title,
+    category: document.getElementById('dashFCategory').value,
+    memo: document.getElementById('dashFMemo').value,
+    author: document.getElementById('dashFAuthor').value
+  };
+
+  dashPostAction(payload).then(function(res) {
+    if (res.ok) {
+      showToast('일정이 저장되었습니다.');
+      dashCloseModal();
+      dashLoadData();
+    } else {
+      showToast('저장 실패: ' + (res.error || '알 수 없는 오류'));
+    }
+  }).catch(function() { showToast('저장 중 오류가 발생했습니다.'); });
+}
+
+function dashDeleteEvent() {
+  var id = document.getElementById('dashFId').value;
+  if (!id) return;
+  if (!confirm('이 일정을 삭제할까요?')) return;
+
+  dashPostAction({ action: 'delete', id: id }).then(function(res) {
+    if (res.ok) {
+      showToast('일정이 삭제되었습니다.');
+      dashCloseModal();
+      dashLoadData();
+    } else {
+      showToast('삭제 실패: ' + (res.error || '알 수 없는 오류'));
+    }
+  }).catch(function() { showToast('삭제 중 오류가 발생했습니다.'); });
+}
+
+function dashRenderNotices() {
+  var el = document.getElementById('dashNoticeList');
+  if (!el) return;
+  var items = dashData.notices.slice().sort(function(a, b) { return (b['날짜'] || '').localeCompare(a['날짜'] || ''); }).slice(0, 5);
+  if (!items.length) { el.innerHTML = '<div class="dash-empty">등록된 공지가 없습니다.</div>'; return; }
+  el.innerHTML = items.map(function(n) {
+    return '<div class="dash-widget-item"><b>' + dashEsc(n['제목'] || '') + '</b>' + dashEsc(n['내용'] || '') + '<br><span>' + (n['날짜'] || '') + (n['작성자'] ? ' · ' + dashEsc(n['작성자']) : '') + '</span></div>';
+  }).join('');
+}
+
+function dashRenderMeetings() {
+  var el = document.getElementById('dashMeetingList');
+  if (!el) return;
+  var items = dashData.meetings.slice().sort(function(a, b) { return (b['날짜'] || '').localeCompare(a['날짜'] || ''); }).slice(0, 5);
+  if (!items.length) { el.innerHTML = '<div class="dash-empty">등록된 회의록이 없습니다.</div>'; return; }
+  el.innerHTML = items.map(function(m) {
+    var linkHtml = m['링크'] ? ' · <a href="' + m['링크'] + '" target="_blank">원문 →</a>' : '';
+    return '<div class="dash-widget-item"><b>' + dashEsc(m['제목'] || '') + '</b>' + dashEsc(m['요약'] || '') + '<br><span>' + (m['날짜'] || '') + linkHtml + '</span></div>';
+  }).join('');
+}
+
 function showToast(msg) {
   var t = document.getElementById('staffToast');
   if (!t) {
@@ -469,6 +827,9 @@ function loadStaffData() {
   // 성장센터도 함께 로드
   gcLoad('CM');
   gcLoad('TM');
+
+  // 대시보드 캘린더도 함께 로드
+  dashInit();
 }
 
 // 관리자 링크 자동 로그인
