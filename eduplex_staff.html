@@ -701,7 +701,7 @@ function dashLoadScanned() {
     });
 }
 
-// 자동감지 일정 + 직접 등록한 일정(Firebase)을 하나로 합침
+// 자동감지 일정 + 직접 등록한 일정 + 회의록을 하나로 합침
 function dashMergeEvents() {
   var manual = Object.keys(dashEvents).map(function(k) {
     var ev = dashEvents[k];
@@ -715,7 +715,28 @@ function dashMergeEvents() {
       'ID': k
     };
   });
-  dashData.events = dashScanned.concat(manual);
+
+  // 회의록 탭에서 작성한 회의록도 캘린더에 표시.
+  // 단, 같은 날짜+제목이 이미 시트 자동감지로 잡혀 있으면 중복이므로 제외.
+  var mtgs = Object.keys(dashMtgs).filter(function(k) {
+    var m = dashMtgs[k];
+    return !dashScanned.some(function(ev) {
+      return ev['날짜'] === m.date && ev['제목'] === m.title;
+    });
+  }).map(function(k) {
+    var m = dashMtgs[k];
+    return {
+      '날짜': m.date || '',
+      '시간': '',
+      '제목': m.title || '',
+      '구분': '공통',
+      '메모': '',
+      '작성자': m.author || '',
+      'ID': 'mtg:' + k
+    };
+  });
+
+  dashData.events = dashScanned.concat(manual).concat(mtgs);
 }
 
 function dashLoadData() {
@@ -748,6 +769,8 @@ function dashLoadData() {
   db.ref('donam_staff/dashboard_meetings').on('value', function(snap) {
     dashMtgs = snap.val() || {};
     mtgRenderList();
+    dashMergeEvents();
+    dashRenderCalendar();
   });
 
   // 양식 자료실은 Firebase에서 실시간 로드
@@ -831,14 +854,28 @@ function dashOpenDayModal(dateStr) {
     listEl.innerHTML = '<div class="dash-empty">등록된 일정이 없습니다.</div>';
   } else {
     listEl.innerHTML = list.map(function(ev) {
-      var isScanned = String(ev['ID'] || '').indexOf('scan-') === 0;
-      var clickAttr = isScanned ? '' : (' onclick="dashOpenEventForm(' + "'" + ev['ID'] + "'" + ')"');
-      var tag = isScanned ? ' <span class="dash-auto-tag">자동감지</span>' : '';
+      var evId = String(ev['ID'] || '');
+      var isScanned = evId.indexOf('scan-') === 0;
+      var isMtgRecord = evId.indexOf('mtg:') === 0;   // 회의록 탭에서 작성된 회의록
       var title = ev['제목'] || '';
+
+      var clickAttr = '';
+      if (isMtgRecord) {
+        clickAttr = ' onclick="mtgOpenExisting(\'' + evId.slice(4) + '\')"';
+      } else if (!isScanned) {
+        clickAttr = ' onclick="dashOpenEventForm(\'' + evId + '\')"';
+      }
+
+      var tag = isScanned ? ' <span class="dash-auto-tag">자동감지</span>'
+              : (isMtgRecord ? ' <span class="dash-auto-tag">회의록</span>' : '');
+
       var isMeeting = title.indexOf('회의') !== -1;
-      var mtgBtn = isMeeting
+      var mtgBtn = (isMeeting && !isMtgRecord)
         ? '<button class="dash-mtg-btn" onclick="event.stopPropagation();mtgOpenFromEvent(\'' + dateStr + '\',\'' + dashEsc(title).replace(/'/g, "\\'") + '\')">📝 회의록</button>'
-        : '';
+        : (isMtgRecord
+            ? '<button class="dash-mtg-btn" onclick="event.stopPropagation();mtgOpenExisting(\'' + evId.slice(4) + '\')">📝 회의록</button>'
+            : '');
+
       return '<div class="dash-day-event' + (isScanned ? ' dash-readonly' : '') + '"' + clickAttr + '>' +
         '<div style="display:flex;align-items:center;gap:8px">' +
         '<div style="flex:1"><div class="dtitle">' + dashEsc(title) + tag + '</div>' +
