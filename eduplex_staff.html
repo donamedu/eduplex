@@ -162,7 +162,10 @@
     .form-chip.on{background:var(--navy);color:#fff;border-color:var(--navy);}
     .fchip-cnt{font-size:10px;padding:0 5px;border-radius:5px;background:var(--bg2);color:var(--navy);}
     .form-chip.on .fchip-cnt{background:rgba(255,255,255,.25);color:#fff;}
-    .form-section{margin-bottom:26px;}
+    .form-section{margin-bottom:20px;padding:10px;border-radius:12px;border:2px dashed transparent;transition:background .15s,border-color .15s;}
+    .form-section.drop-on{border-color:var(--navy);background:var(--bg2);}
+    .form-card[draggable="true"]{cursor:grab;}
+    .form-card.dragging{opacity:.4;cursor:grabbing;}
     .form-section-lbl{font-size:11px;font-weight:700;color:var(--text-light);letter-spacing:.08em;margin-bottom:11px;display:flex;align-items:center;gap:8px;}
     .form-section-lbl::after{content:'';flex:1;height:1px;background:var(--border);}
     .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
@@ -463,7 +466,7 @@
           <label>설명 (선택)</label>
           <input type="text" id="formFDesc" placeholder="예: 1관 학습실 배정표">
           <label>담당자 (비워두면 공용)</label>
-          <input type="text" id="formFOwner" placeholder="예: 이유민">
+          <input type="text" id="formFOwner" placeholder="예: 김진혁">
           <label>링크 (구글 시트/문서 주소)</label>
           <input type="text" id="formFUrl" placeholder="https://docs.google.com/...">
           <input type="hidden" id="formFId">
@@ -530,7 +533,7 @@
     <!-- 양식 자료실 -->
     <div class="panel" id="panel-forms">
       <div class="panel-title">📋 양식 자료실</div>
-      <div class="panel-sub">자주 쓰는 구글 시트·문서 링크를 모아둡니다. 카드를 클릭하면 새 탭으로 열립니다.</div>
+      <div class="panel-sub">자주 쓰는 구글 시트·문서 링크를 모아둡니다. 카드를 클릭하면 새 탭으로 열리고, 다른 담당자 영역으로 끌어다 놓으면 이동합니다.</div>
       <button class="add-btn" onclick="formOpenNew()">＋ 자료 추가</button>
       <div class="form-chips" id="formFilters"></div>
       <div id="formGrid">
@@ -1261,13 +1264,17 @@ function formRenderGrid() {
   var html = '';
   owners.forEach(function(o) {
     if (!isAll && formSel.indexOf(o) === -1) return;
-    html += '<div class="form-section">' +
+    var oEsc = String(o).replace(/'/g, "\\'");
+    html += '<div class="form-section"' +
+      ' ondragover="formDragOver(event)" ondragleave="formDragLeave(event)" ondrop="formDrop(event,\'' + oEsc + '\')">' +
       '<div class="form-section-lbl">' + dashEsc(o) + '</div>' +
       '<div class="form-grid">' +
       groups[o].map(function(k) {
         var f = dashForms[k];
         var when = formWhen(f.lastUsed);
-        return '<div class="form-card" onclick="formOpen(\'' + k + '\')">' +
+        return '<div class="form-card" draggable="true"' +
+          ' ondragstart="formDragStart(event,\'' + k + '\')" ondragend="formDragEnd(event)"' +
+          ' onclick="formOpen(\'' + k + '\')">' +
           '<button class="form-card-edit" onclick="event.stopPropagation();formOpenExisting(\'' + k + '\')">✏️ 수정</button>' +
           '<h4>' + dashEsc(f.name || '') + '</h4>' +
           '<p>' + dashEsc(f.desc || '') + '</p>' +
@@ -1277,6 +1284,54 @@ function formRenderGrid() {
       '</div></div>';
   });
   el.innerHTML = html;
+}
+
+// ── 카드 드래그로 담당자 옮기기 ──
+var formDragKey = null;
+var formDragEndAt = 0;
+
+function formDragStart(e, key) {
+  formDragKey = key;
+  e.dataTransfer.effectAllowed = 'move';
+  try { e.dataTransfer.setData('text/plain', key); } catch (_) {}
+  e.currentTarget.classList.add('dragging');
+}
+
+function formDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  var secs = document.querySelectorAll('.form-section.drop-on');
+  for (var i = 0; i < secs.length; i++) secs[i].classList.remove('drop-on');
+  formDragKey = null;
+  formDragEndAt = Date.now();   // 드래그 직후의 클릭(=시트 열기) 방지
+}
+
+function formDragOver(e) {
+  if (!formDragKey) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drop-on');
+}
+
+function formDragLeave(e) {
+  // 자식 요소로 이동한 경우는 무시 (깜빡임 방지)
+  if (e.relatedTarget && e.currentTarget.contains(e.relatedTarget)) return;
+  e.currentTarget.classList.remove('drop-on');
+}
+
+function formDrop(e, owner) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drop-on');
+  var key = formDragKey;
+  formDragKey = null;
+  formDragEndAt = Date.now();
+  if (!key || !dashForms[key]) return;
+
+  var cur = String(dashForms[key].owner || '').trim() || '공용';
+  if (cur === owner) return;
+
+  db.ref('donam_staff/dashboard_forms/' + key + '/owner').set(owner === '공용' ? '' : owner)
+    .then(function() { showToast('✓ ' + owner + ' 쪽으로 옮겼습니다.'); })
+    .catch(function(err) { showToast('⚠ 이동 실패: ' + err.message); });
 }
 
 // 마지막 열람 시각을 읽기 쉽게 표시
@@ -1304,6 +1359,7 @@ function formToggleFilter(owner) {
 }
 
 function formOpen(key) {
+  if (Date.now() - formDragEndAt < 300) return;  // 드래그 직후의 클릭은 무시
   var f = dashForms[key];
   if (f && f.url) {
     window.open(f.url, '_blank');
