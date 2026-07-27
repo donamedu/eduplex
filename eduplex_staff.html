@@ -87,6 +87,7 @@
     .dash-sheet-btn{border:1px solid var(--border);background:var(--white);color:var(--text-sub);border-radius:8px;padding:9px 13px;font-size:12.5px;font-weight:600;cursor:pointer;}
     .dash-sheet-btn:hover{background:var(--bg2);color:var(--navy);}
     .sheet-help{font-size:11.5px;color:var(--text-light);line-height:1.6;margin:6px 0;}
+    .ct-name{font-size:15px;font-weight:700;color:var(--navy);padding:8px 11px;background:var(--bg2);border-radius:8px;}
     .dash-cal-dow{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px;font-weight:700;color:var(--text-light);padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:6px;}
     .dash-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:minmax(76px,auto);gap:4px;}
     .dash-cal-cell{border-radius:9px;padding:6px;cursor:pointer;transition:background .15s;background:var(--bg);}
@@ -400,6 +401,28 @@
       </div>
     </div>
 
+    <!-- CT 시트 연결 모달 -->
+    <div class="dash-modal-overlay" id="ctModalOverlay">
+      <div class="dash-modal">
+        <div class="dash-modal-hdr">
+          <h3>🔗 CT 시트 연결</h3>
+          <button class="dash-modal-close" onclick="ctCloseModal()">✕</button>
+        </div>
+        <div class="dash-modal-body">
+          <label>CT</label>
+          <div class="ct-name" id="ctFTitle"></div>
+          <label>구글 시트 주소</label>
+          <input type="text" id="ctFUrl" placeholder="https://docs.google.com/spreadsheets/...">
+          <p class="sheet-help">한 번 등록하면 다음부터는 캘린더에서 이 CT를 클릭하는 것만으로 시트가 새 탭에 열립니다.<br>띄어쓰기와 이름 순서가 달라도(혁-이CT / 혁-이 CT / 이-혁 CT) 같은 CT로 인식합니다.</p>
+          <input type="hidden" id="ctFKey">
+        </div>
+        <div class="dash-modal-footer">
+          <button class="dash-del-btn" id="ctDelBtn" onclick="ctDelete()">연결 해제</button>
+          <button class="dash-save-btn" onclick="ctSave()">저장</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 시트 연결 설정 모달 -->
     <div class="dash-modal-overlay" id="sheetIdModalOverlay">
       <div class="dash-modal">
@@ -670,6 +693,7 @@ var dashScanned = [];   // 시트에서 자동 감지된 일정
 var dashEvents = {};    // 웹에서 직접 등록한 일정 (Firebase)
 var dashSheetId = '';   // 이번 달 일일 일정표 시트 ID (Firebase)
 var dashTodos = {};
+var dashCtLinks = {};       // CT 이름별 구글 시트 링크
 var todoEditingKey = null;  // 인라인 수정 중인 할 일 키
 var dashMtgs = {};
 var dashForms = {};
@@ -781,6 +805,11 @@ function dashLoadData() {
     dashForms = snap.val() || {};
     formRenderGrid();
   });
+
+  // CT 시트 링크
+  db.ref('donam_staff/dashboard_ctLinks').on('value', function(snap) {
+    dashCtLinks = snap.val() || {};
+  });
 }
 
 function dashChangeMonth(delta) {
@@ -861,9 +890,13 @@ function dashOpenDayModal(dateStr) {
       var isScanned = evId.indexOf('scan-') === 0;
       var isMtgRecord = evId.indexOf('mtg:') === 0;   // 회의록 탭에서 작성된 회의록
       var title = ev['제목'] || '';
+      var isCT = title.toUpperCase().indexOf('CT') !== -1;
+      var safeTitle = dashEsc(title).replace(/'/g, "\\'");
 
       var clickAttr = '';
-      if (isMtgRecord) {
+      if (isCT) {
+        clickAttr = ' onclick="ctOpen(\'' + safeTitle + '\')"';
+      } else if (isMtgRecord) {
         clickAttr = ' onclick="mtgOpenExisting(\'' + evId.slice(4) + '\')"';
       } else if (!isScanned) {
         clickAttr = ' onclick="dashOpenEventForm(\'' + evId + '\')"';
@@ -873,17 +906,22 @@ function dashOpenDayModal(dateStr) {
               : (isMtgRecord ? ' <span class="dash-auto-tag">회의록</span>' : '');
 
       var isMeeting = title.indexOf('회의') !== -1;
-      var mtgBtn = (isMeeting && !isMtgRecord)
-        ? '<button class="dash-mtg-btn" onclick="event.stopPropagation();mtgOpenFromEvent(\'' + dateStr + '\',\'' + dashEsc(title).replace(/'/g, "\\'") + '\')">📝 회의록</button>'
-        : (isMtgRecord
-            ? '<button class="dash-mtg-btn" onclick="event.stopPropagation();mtgOpenExisting(\'' + evId.slice(4) + '\')">📝 회의록</button>'
-            : '');
+      var rightBtn = '';
+      if (isCT) {
+        rightBtn = '<button class="dash-mtg-btn" onclick="event.stopPropagation();ctOpenModal(\'' + safeTitle + '\')" title="이 CT의 시트 링크 등록·변경">🔗</button>';
+      } else if (isMeeting && !isMtgRecord) {
+        rightBtn = '<button class="dash-mtg-btn" onclick="event.stopPropagation();mtgOpenFromEvent(\'' + dateStr + '\',\'' + safeTitle + '\')">📝 회의록</button>';
+      } else if (isMtgRecord) {
+        rightBtn = '<button class="dash-mtg-btn" onclick="event.stopPropagation();mtgOpenExisting(\'' + evId.slice(4) + '\')">📝 회의록</button>';
+      }
 
-      return '<div class="dash-day-event' + (isScanned ? ' dash-readonly' : '') + '"' + clickAttr + '>' +
+      var readonlyClass = (isScanned && !isCT) ? ' dash-readonly' : '';
+
+      return '<div class="dash-day-event' + readonlyClass + '"' + clickAttr + '>' +
         '<div style="display:flex;align-items:center;gap:8px">' +
         '<div style="flex:1"><div class="dtitle">' + dashEsc(title) + tag + '</div>' +
         '<div class="dmeta">' + (ev['시간'] ? ev['시간'] : '') + (ev['작성자'] ? (ev['시간'] ? ' · ' : '') + dashEsc(ev['작성자']) : '') + '</div></div>' +
-        mtgBtn +
+        rightBtn +
         '</div></div>';
     }).join('');
   }
@@ -1229,6 +1267,59 @@ function formDelete() {
   if (!confirm('이 자료를 삭제할까요?')) return;
   db.ref('donam_staff/dashboard_forms/' + id).remove()
     .then(function() { showToast('✓ 삭제 완료!'); formCloseModal(); });
+}
+
+// ── CT 시트 링크 ──
+// 표기가 달라도 같은 CT로 인식하도록 키를 정규화합니다.
+//   · 공백 무시     : '혁-이 CT' = '혁-이CT'
+//   · 순서 무시     : '혁-이 CT' = '이-혁 CT'
+//   · 영문 대소문자 : 'ct' = 'CT'
+function ctNormKey(title) {
+  var s = String(title || '').replace(/\s+/g, '').toUpperCase();
+  var names = s.replace(/CT/g, '');                 // 'CT' 떼어내고 이름 조합만 남김
+  var parts = names.split('-').filter(function(x) { return x; });
+  parts.sort();                                      // 순서 무관하게 정렬
+  return parts.join('-') + 'CT';
+}
+
+// CT 일정을 클릭했을 때: 등록된 시트가 있으면 새 탭으로 열고, 없으면 등록창을 띄움
+function ctOpen(title) {
+  var rec = dashCtLinks[ctNormKey(title)];
+  if (rec && rec.url) window.open(rec.url, '_blank');
+  else ctOpenModal(title);
+}
+
+function ctOpenModal(title) {
+  var key = ctNormKey(title);
+  var rec = dashCtLinks[key] || {};
+  document.getElementById('ctFTitle').textContent = title;
+  document.getElementById('ctFKey').value = key;
+  document.getElementById('ctFUrl').value = rec.url || '';
+  document.getElementById('ctDelBtn').style.display = rec.url ? 'inline-block' : 'none';
+  document.getElementById('ctModalOverlay').classList.add('show');
+}
+
+function ctCloseModal() {
+  document.getElementById('ctModalOverlay').classList.remove('show');
+}
+
+function ctSave() {
+  var key = document.getElementById('ctFKey').value;
+  var url = document.getElementById('ctFUrl').value.trim();
+  if (!key) return;
+  if (!url) { showToast('시트 주소를 입력하세요.'); return; }
+  db.ref('donam_staff/dashboard_ctLinks/' + key)
+    .set({ label: document.getElementById('ctFTitle').textContent, url: url })
+    .then(function() { showToast('✓ CT 시트 연결 완료!'); ctCloseModal(); })
+    .catch(function(e) { showToast('⚠ 저장 실패: ' + e.message); });
+}
+
+function ctDelete() {
+  var key = document.getElementById('ctFKey').value;
+  if (!key) return;
+  if (!confirm('이 CT의 시트 연결을 해제할까요?')) return;
+  db.ref('donam_staff/dashboard_ctLinks/' + key).remove()
+    .then(function() { showToast('✓ 연결 해제 완료!'); ctCloseModal(); });
 }
 
 function showToast(msg) {
