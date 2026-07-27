@@ -462,7 +462,7 @@
           <label>설명 (선택)</label>
           <input type="text" id="formFDesc" placeholder="예: 1관 학습실 배정표">
           <label>담당자 (비워두면 공용)</label>
-          <input type="text" id="formFOwner" placeholder="예: 이유민">
+          <input type="text" id="formFOwner" placeholder="예: 김진혁">
           <label>링크 (구글 시트/문서 주소)</label>
           <input type="text" id="formFUrl" placeholder="https://docs.google.com/...">
           <input type="hidden" id="formFId">
@@ -1218,12 +1218,21 @@ function formRenderGrid() {
   }
 
   // 담당자별로 묶기 (담당자 비어 있으면 '공용')
-  keys.sort();
   var groups = {};
   keys.forEach(function(k) {
     var owner = String(dashForms[k].owner || '').trim() || '공용';
     if (!groups[owner]) groups[owner] = [];
     groups[owner].push(k);
+  });
+
+  // 각 그룹 안에서는 최근에 열었거나 등록한 자료가 맨 앞
+  Object.keys(groups).forEach(function(o) {
+    groups[o].sort(function(a, b) {
+      var ta = dashForms[a].lastUsed || 0;
+      var tb = dashForms[b].lastUsed || 0;
+      if (ta !== tb) return tb - ta;
+      return b.localeCompare(a); // 기록이 없으면 나중에 만든 것이 앞
+    });
   });
 
   // '공용'을 맨 앞으로, 나머지는 가나다순
@@ -1272,7 +1281,11 @@ function formSetFilter(owner) {
 
 function formOpen(key) {
   var f = dashForms[key];
-  if (f && f.url) window.open(f.url, '_blank');
+  if (f && f.url) {
+    window.open(f.url, '_blank');
+    // 최근에 연 자료가 맨 앞으로 오도록 기록
+    db.ref('donam_staff/dashboard_forms/' + key + '/lastUsed').set(Date.now());
+  }
   else showToast('링크가 없습니다. 수정 버튼으로 등록해주세요.');
 }
 
@@ -1315,7 +1328,8 @@ function formSave() {
     name: name,
     desc: document.getElementById('formFDesc').value.trim(),
     owner: document.getElementById('formFOwner').value.trim(),
-    url: url
+    url: url,
+    lastUsed: Date.now()
   };
   db.ref('donam_staff/dashboard_forms/' + key).set(record)
     .then(function() { showToast('✓ 저장 완료!'); formCloseModal(); })
