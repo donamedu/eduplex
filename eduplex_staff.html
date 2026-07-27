@@ -170,6 +170,7 @@
     .form-card:hover{border-color:var(--navy);transform:translateY(-3px);box-shadow:var(--shadow-hover);}
     .form-card h4{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:5px;padding-right:62px;}
     .form-card p{font-size:12px;color:var(--text-sub);line-height:1.5;}
+    .form-card .fc-when{font-size:10.5px;color:var(--text-light);margin-top:9px;}
     .form-card-edit{position:absolute;top:10px;right:10px;background:var(--bg2);border:1px solid var(--border);color:var(--text-sub);border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer;}
     .form-card-edit:hover{border-color:var(--navy);color:var(--navy);}
 
@@ -462,7 +463,7 @@
           <label>설명 (선택)</label>
           <input type="text" id="formFDesc" placeholder="예: 1관 학습실 배정표">
           <label>담당자 (비워두면 공용)</label>
-          <input type="text" id="formFOwner" placeholder="예: 김진혁">
+          <input type="text" id="formFOwner" placeholder="예: 이유민">
           <label>링크 (구글 시트/문서 주소)</label>
           <input type="text" id="formFUrl" placeholder="https://docs.google.com/...">
           <input type="hidden" id="formFId">
@@ -704,7 +705,7 @@ var dashEvents = {};    // 웹에서 직접 등록한 일정 (Firebase)
 var dashSheetId = '';   // 이번 달 일일 일정표 시트 ID (Firebase)
 var dashTodos = {};
 var dashCtLinks = {};       // CT 이름별 구글 시트 링크
-var formFilter = '전체';    // 양식 자료실 담당자 필터
+var formSel = [];           // 양식 자료실에서 선택된 담당자들 (비어 있으면 전체)
 var todoEditingKey = null;  // 인라인 수정 중인 할 일 키
 var dashMtgs = {};
 var dashForms = {};
@@ -1242,14 +1243,16 @@ function formRenderGrid() {
     return a.localeCompare(b, 'ko');
   });
 
-  // 선택된 담당자가 사라졌으면 전체로 되돌림
-  if (formFilter !== '전체' && owners.indexOf(formFilter) === -1) formFilter = '전체';
+  // 사라진 담당자는 선택 목록에서 제거
+  formSel = formSel.filter(function(o) { return owners.indexOf(o) !== -1; });
+  var isAll = formSel.length === 0;
 
-  // 필터 칩 (데이터에서 자동 생성)
+  // 필터 칩 (데이터에서 자동 생성 / 담당자는 여러 개 동시 선택 가능)
   if (chipEl) {
     chipEl.innerHTML = ['전체'].concat(owners).map(function(o) {
+      var on = (o === '전체') ? isAll : (formSel.indexOf(o) !== -1);
       var cnt = (o === '전체') ? keys.length : groups[o].length;
-      return '<button class="form-chip' + (formFilter === o ? ' on' : '') + '" onclick="formSetFilter(\'' +
+      return '<button class="form-chip' + (on ? ' on' : '') + '" onclick="formToggleFilter(\'' +
         String(o).replace(/'/g, "\\'") + '\')">' + dashEsc(o) + '<span class="fchip-cnt">' + cnt + '</span></button>';
     }).join('');
   }
@@ -1257,16 +1260,18 @@ function formRenderGrid() {
   // 담당자별 섹션
   var html = '';
   owners.forEach(function(o) {
-    if (formFilter !== '전체' && formFilter !== o) return;
+    if (!isAll && formSel.indexOf(o) === -1) return;
     html += '<div class="form-section">' +
       '<div class="form-section-lbl">' + dashEsc(o) + '</div>' +
       '<div class="form-grid">' +
       groups[o].map(function(k) {
         var f = dashForms[k];
+        var when = formWhen(f.lastUsed);
         return '<div class="form-card" onclick="formOpen(\'' + k + '\')">' +
           '<button class="form-card-edit" onclick="event.stopPropagation();formOpenExisting(\'' + k + '\')">✏️ 수정</button>' +
           '<h4>' + dashEsc(f.name || '') + '</h4>' +
           '<p>' + dashEsc(f.desc || '') + '</p>' +
+          '<div class="fc-when">' + (when ? '마지막 열람 · ' + when : '아직 연 적 없음') + '</div>' +
           '</div>';
       }).join('') +
       '</div></div>';
@@ -1274,8 +1279,27 @@ function formRenderGrid() {
   el.innerHTML = html;
 }
 
-function formSetFilter(owner) {
-  formFilter = owner;
+// 마지막 열람 시각을 읽기 쉽게 표시
+function formWhen(ts) {
+  if (!ts) return '';
+  var d = new Date(ts), now = new Date();
+  var d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  var n0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  var diff = Math.round((n0 - d0) / 86400000);
+  if (diff <= 0) return '오늘 ' + dashPad(d.getHours()) + ':' + dashPad(d.getMinutes());
+  if (diff === 1) return '어제 ' + dashPad(d.getHours()) + ':' + dashPad(d.getMinutes());
+  if (diff < 7) return diff + '일 전';
+  return (d.getMonth() + 1) + '월 ' + d.getDate() + '일';
+}
+
+function formToggleFilter(owner) {
+  if (owner === '전체') {
+    formSel = [];
+  } else {
+    var i = formSel.indexOf(owner);
+    if (i === -1) formSel.push(owner);
+    else formSel.splice(i, 1);
+  }
   formRenderGrid();
 }
 
@@ -1294,7 +1318,7 @@ function formOpenNew() {
   document.getElementById('formFId').value = '';
   document.getElementById('formFName').value = '';
   document.getElementById('formFDesc').value = '';
-  document.getElementById('formFOwner').value = (formFilter !== '전체' && formFilter !== '공용') ? formFilter : '';
+  document.getElementById('formFOwner').value = (formSel.length === 1 && formSel[0] !== '공용') ? formSel[0] : '';
   document.getElementById('formFUrl').value = '';
   document.getElementById('formDelBtn').style.display = 'none';
   document.getElementById('formModalOverlay').classList.add('show');
