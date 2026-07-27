@@ -109,7 +109,7 @@
     .dash-todo-check{flex-shrink:0;width:16px;height:16px;margin-top:1px;cursor:pointer;accent-color:var(--navy);}
     .dash-todo-text{flex:1;line-height:1.5;word-break:break-word;cursor:text;border-radius:4px;padding:2px 4px;margin:-2px -4px;}
     .dash-todo-text:hover{background:var(--bg2);}
-    .dash-todo-text[contenteditable="true"]{background:var(--white);box-shadow:0 0 0 1.5px var(--navy);outline:none;}
+    .dash-todo-text:focus{background:var(--white);box-shadow:0 0 0 1.5px var(--navy);outline:none;}
     .dash-todo-text.done{text-decoration:line-through;color:var(--text-light);}
     .dash-todo-del{flex-shrink:0;background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;padding:0 2px;}
     .dash-todo-del:hover{color:#dc2626;}
@@ -980,48 +980,49 @@ function dashRenderTodos() {
     var doneClass = t.done ? ' done' : '';
     return '<div class="dash-todo-item">' +
       '<input type="checkbox" class="dash-todo-check"' + (t.done ? ' checked' : '') + ' onclick="todoToggle(\'' + k + '\')">' +
-      '<span class="dash-todo-text' + doneClass + '" id="todoTxt-' + k + '" title="클릭하면 수정할 수 있습니다" onmousedown="todoEnableEdit(this,\'' + k + '\')">' + dashEsc(t.text || '') + '</span>' +
+      '<span class="dash-todo-text' + doneClass + '" id="todoTxt-' + k + '" data-key="' + k + '"' +
+        ' contenteditable="true" spellcheck="false" title="클릭해서 바로 수정할 수 있습니다"' +
+        ' onfocus="todoEditFocus(this)" onblur="todoEditBlur(this)"' +
+        ' onkeydown="todoEditKey(event,this)" onpaste="todoEditPaste(event)">' +
+        dashEsc(t.text || '') + '</span>' +
       '<button class="dash-todo-del" onclick="todoDelete(\'' + k + '\')">✕</button>' +
       '</div>';
   }).join('');
 }
 
-// 할 일 텍스트를 클릭하면 모양 그대로 커서가 생겨 바로 수정됨
-function todoEnableEdit(span, key) {
-  if (span.getAttribute('contenteditable') === 'true') return;
+// ── 할 일 인라인 수정 ──
+// 텍스트를 클릭하면 그 자리에 커서가 생기고, Enter 또는 다른 곳 클릭 시 저장됩니다.
+function todoEditFocus(span) {
+  span.dataset.orig = span.textContent;
+  todoEditingKey = span.dataset.key;
+}
 
-  var orig = span.textContent;
-  span.setAttribute('contenteditable', 'true');
-  span.spellcheck = false;
-  todoEditingKey = key;
+function todoEditBlur(span) {
+  var key = span.dataset.key;
+  var orig = span.dataset.orig != null ? span.dataset.orig : span.textContent;
+  todoEditingKey = null;
 
-  var done = false;
-  function finish(save) {
-    if (done) return;
-    done = true;
-    span.setAttribute('contenteditable', 'false');
-    todoEditingKey = null;
-    var val = span.textContent.replace(/\s+/g, ' ').trim();
-    if (save && val && val !== orig) {
-      db.ref('donam_staff/dashboard_todos/' + key + '/text').set(val)
-        .then(function() { showToast('✓ 수정 완료!'); })
-        .catch(function(e) { showToast('⚠ 수정 실패: ' + e.message); dashRenderTodos(); });
-    } else {
-      dashRenderTodos(); // 취소하거나 변경 없으면 원래대로
-    }
+  var val = span.textContent.replace(/\s+/g, ' ').trim();
+
+  if (val && val !== orig) {
+    db.ref('donam_staff/dashboard_todos/' + key + '/text').set(val)
+      .then(function() { showToast('✓ 수정 완료!'); })
+      .catch(function(e) { showToast('⚠ 수정 실패: ' + e.message); dashRenderTodos(); });
+  } else {
+    // 변경이 없거나 내용을 다 지운 경우 → 원래 내용으로 되돌림
+    span.textContent = orig;
   }
+}
 
-  span.onkeydown = function(e) {
-    if (e.key === 'Enter') { e.preventDefault(); span.blur(); }
-    else if (e.key === 'Escape') { e.preventDefault(); span.textContent = orig; span.blur(); }
-  };
-  span.onblur = function() { finish(true); };
-  // 붙여넣기는 서식 없이 텍스트만
-  span.onpaste = function(e) {
-    e.preventDefault();
-    var text = ((e.clipboardData || window.clipboardData).getData('text') || '').replace(/\s+/g, ' ');
-    document.execCommand('insertText', false, text);
-  };
+function todoEditKey(e, span) {
+  if (e.key === 'Enter') { e.preventDefault(); span.blur(); }
+  else if (e.key === 'Escape') { e.preventDefault(); span.textContent = span.dataset.orig || ''; span.blur(); }
+}
+
+function todoEditPaste(e) {
+  e.preventDefault();
+  var t = ((e.clipboardData || window.clipboardData).getData('text') || '').replace(/\s+/g, ' ');
+  document.execCommand('insertText', false, t);
 }
 
 function todoOpenModal() {
