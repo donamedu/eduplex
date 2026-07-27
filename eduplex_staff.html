@@ -107,7 +107,10 @@
     .dash-todo-item{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--text-sub);padding:7px 0;border-bottom:1px solid var(--border);}
     .dash-todo-item:last-child{border-bottom:none;}
     .dash-todo-check{flex-shrink:0;width:16px;height:16px;margin-top:1px;cursor:pointer;accent-color:var(--navy);}
-    .dash-todo-text{flex:1;line-height:1.5;word-break:break-word;}
+    .dash-todo-text{flex:1;line-height:1.5;word-break:break-word;cursor:text;border-radius:4px;padding:1px 3px;margin:-1px -3px;}
+    .dash-todo-text:hover{background:var(--bg2);}
+    .dash-todo-edit{width:100%;border:1.5px solid var(--navy);border-radius:5px;padding:3px 6px;font-size:12.5px;font-family:inherit;color:var(--text);background:var(--white);}
+    .dash-todo-edit:focus{outline:none;}
     .dash-todo-text.done{text-decoration:line-through;color:var(--text-light);}
     .dash-todo-del{flex-shrink:0;background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;padding:0 2px;}
     .dash-todo-del:hover{color:#dc2626;}
@@ -668,6 +671,7 @@ var dashScanned = [];   // 시트에서 자동 감지된 일정
 var dashEvents = {};    // 웹에서 직접 등록한 일정 (Firebase)
 var dashSheetId = '';   // 이번 달 일일 일정표 시트 ID (Firebase)
 var dashTodos = {};
+var todoEditingKey = null;  // 인라인 수정 중인 할 일 키
 var dashMtgs = {};
 var dashForms = {};
 var dashViewYear, dashViewMonth; // 0-indexed month
@@ -967,6 +971,7 @@ function sheetIdSave() {
 function dashRenderTodos() {
   var el = document.getElementById('dashTodoList');
   if (!el) return;
+  if (todoEditingKey) return; // 수정 중이면 화면을 다시 그리지 않음
   var keys = Object.keys(dashTodos);
   if (!keys.length) { el.innerHTML = '<div class="dash-empty">등록된 할 일이 없습니다.</div>'; return; }
   // 생성 순서(키에 타임스탬프 포함)대로 정렬
@@ -976,10 +981,48 @@ function dashRenderTodos() {
     var doneClass = t.done ? ' done' : '';
     return '<div class="dash-todo-item">' +
       '<input type="checkbox" class="dash-todo-check"' + (t.done ? ' checked' : '') + ' onclick="todoToggle(\'' + k + '\')">' +
-      '<span class="dash-todo-text' + doneClass + '">' + dashEsc(t.text || '') + '</span>' +
+      '<span class="dash-todo-text' + doneClass + '" id="todoTxt-' + k + '" title="클릭하면 수정할 수 있습니다" onclick="todoStartEdit(\'' + k + '\')">' + dashEsc(t.text || '') + '</span>' +
       '<button class="dash-todo-del" onclick="todoDelete(\'' + k + '\')">✕</button>' +
       '</div>';
   }).join('');
+}
+
+// 할 일 텍스트를 클릭하면 그 자리에서 입력창으로 바뀜
+function todoStartEdit(key) {
+  var span = document.getElementById('todoTxt-' + key);
+  if (!span || todoEditingKey) return;
+  var cur = (dashTodos[key] && dashTodos[key].text) || '';
+
+  todoEditingKey = key;
+  span.innerHTML = '';
+  var input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'dash-todo-edit';
+  input.value = cur;
+  span.appendChild(input);
+  input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
+
+  var finished = false;
+  function finish(save) {
+    if (finished) return;
+    finished = true;
+    var val = input.value.trim();
+    todoEditingKey = null;
+    if (save && val && val !== cur) {
+      db.ref('donam_staff/dashboard_todos/' + key + '/text').set(val)
+        .then(function() { showToast('✓ 수정 완료!'); })
+        .catch(function(e) { showToast('⚠ 수정 실패: ' + e.message); dashRenderTodos(); });
+    } else {
+      dashRenderTodos(); // 취소하거나 변경 없으면 원래대로 되돌림
+    }
+  }
+
+  input.onkeydown = function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+  };
+  input.onblur = function() { finish(true); };
 }
 
 function todoOpenModal() {
