@@ -187,8 +187,22 @@
     .stu-sec-lbl::after{content:'';flex:1;height:1px;background:var(--border);}
     .stu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
     .stu-card{background:var(--white);border:1.5px solid var(--border);border-radius:11px;padding:12px 14px;cursor:grab;transition:all .15s;box-shadow:var(--shadow);}
+    /* 담당 매니저별 파스텔 색상 */
+    .stu-card.c0{background:#eef4fc;border-color:#cbdcf3;}
+    .stu-card.c1{background:#fdf2ec;border-color:#f4dcc9;}
+    .stu-card.c2{background:#edf7ef;border-color:#c9e6cf;}
+    .stu-card.c3{background:#f7eefb;border-color:#e0cdec;}
+    .stu-card.c4{background:#fdfaea;border-color:#efe6bd;}
+    .stu-card.c5{background:#fceef3;border-color:#f0cfdd;}
+    .stu-card.c6{background:#e9f6f8;border-color:#c4e4ea;}
+    .stu-card.c7{background:#f4f2ea;border-color:#ded9c8;}
     .stu-card:hover{border-color:var(--navy);transform:translateY(-2px);box-shadow:var(--shadow-hover);}
     .stu-card.dragging{opacity:.4;cursor:grabbing;}
+    .mgr-dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+    .mgr-dot.c0{background:#7ba7dd;} .mgr-dot.c1{background:#e0a97e;}
+    .mgr-dot.c2{background:#7fbf95;} .mgr-dot.c3{background:#b08cc7;}
+    .mgr-dot.c4{background:#dfc46a;} .mgr-dot.c5{background:#dd8fae;}
+    .mgr-dot.c6{background:#6fb8c4;} .mgr-dot.c7{background:#b3a980;}
     .stu-card .sname{font-size:14px;font-weight:700;color:var(--navy);}
     .stu-card .smeta{font-size:11px;color:var(--text-light);margin-top:3px;}
     .stu-card .smemo{font-size:11px;color:var(--text-sub);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
@@ -1320,6 +1334,12 @@ function stuTypeLabel(t) {
   return (t === '미지정') ? '타입 미지정' : ('TYPE ' + t + ' · ' + STU_TYPE_NAMES[t]);
 }
 
+// 담당 매니저별 색상 (가나다순으로 서로 다른 색을 배정 — 겹치지 않음)
+var stuMgrColorMap = {};
+function stuMgrColor(m) {
+  return stuMgrColorMap[m] || 'c0';
+}
+
 function stuRender() {
   var board = document.getElementById('stuBoard');
   var chipEl = document.getElementById('stuMgrChips');
@@ -1340,6 +1360,10 @@ function stuRender() {
   });
   mgrs.sort(function(a, b) { return a.localeCompare(b, 'ko'); });
 
+  // 매니저별 색상 배정 (가나다순 → c0, c1, c2 ...)
+  stuMgrColorMap = {};
+  mgrs.forEach(function(m, i) { stuMgrColorMap[m] = 'c' + (i % 8); });
+
   stuMgrSel = stuMgrSel.filter(function(m) { return mgrs.indexOf(m) !== -1; });
   var allMgr = stuMgrSel.length === 0;
 
@@ -1348,8 +1372,9 @@ function stuRender() {
       var on = (m === '전체') ? allMgr : (stuMgrSel.indexOf(m) !== -1);
       var cnt = (m === '전체') ? dashStudents.length
               : dashStudents.filter(function(s) { return s.manager === m; }).length;
+      var dot = (m === '전체') ? '' : '<span class="mgr-dot ' + stuMgrColor(m) + '"></span>';
       return '<button class="form-chip' + (on ? ' on' : '') + '" onclick="stuToggleMgr(\'' +
-        String(m).replace(/'/g, "\\'") + '\')">' + dashEsc(m) + '<span class="fchip-cnt">' + cnt + '</span></button>';
+        String(m).replace(/'/g, "\\'") + '\')">' + dot + dashEsc(m) + '<span class="fchip-cnt">' + cnt + '</span></button>';
     }).join('');
   }
 
@@ -1385,7 +1410,7 @@ function stuRender() {
       (arr.length
         ? '<div class="stu-grid">' + arr.map(function(s) {
             var info = stuInfo[s.key] || {};
-            return '<div class="stu-card" draggable="true"' +
+            return '<div class="stu-card ' + stuMgrColor(s.manager) + '" draggable="true"' +
               ' ondragstart="stuDragStart(event,\'' + String(s.key).replace(/'/g, "\\'") + '\')"' +
               ' ondragend="stuDragEnd(event)"' +
               ' onclick="stuOpenModal(\'' + String(s.key).replace(/'/g, "\\'") + '\')">' +
@@ -1403,29 +1428,45 @@ function stuRender() {
 // ── 드래그 중 자동 스크롤 ──
 // 카드를 화면 위/아래 가장자리로 가져가면 목록이 저절로 스크롤됩니다.
 // (브라우저 기본 드래그는 스크롤을 안 해줘서 직접 구현)
+// 스크롤이 .content 안에서 일어날 수도, 창 전체에서 일어날 수도 있어
+// 실제로 스크롤 가능한 쪽을 찾아 움직입니다.
 var dragScrollY = 0;
 var dragScrollTimer = null;
 
-function dragTrackY(e) { dragScrollY = e.clientY; }
+function dragScrollBy(dy) {
+  var c = document.querySelector('.content');
+  if (c && c.scrollHeight > c.clientHeight + 2) {
+    var before = c.scrollTop;
+    c.scrollTop += dy;
+    if (c.scrollTop !== before) return;   // 안쪽에서 스크롤됨
+  }
+  window.scrollBy(0, dy);                 // 안 되면 창 전체를 스크롤
+}
+
+function dragScrollStep() {
+  if (!dragScrollY) return;
+  var vh = window.innerHeight;
+  var edge = 110;                         // 가장자리 감지 범위(px)
+  if (dragScrollY < edge) {
+    dragScrollBy(-Math.max(10, (edge - dragScrollY) / 2));
+  } else if (dragScrollY > vh - edge) {
+    dragScrollBy(Math.max(10, (dragScrollY - (vh - edge)) / 2));
+  }
+}
+
+function dragTrackY(e) {
+  dragScrollY = e.clientY;
+  dragScrollStep();                       // 이벤트마다 한 번 (타이머가 느릴 때 대비)
+}
 
 function dragAutoScrollStart() {
-  document.addEventListener('dragover', dragTrackY);
+  document.addEventListener('dragover', dragTrackY, true);
   if (dragScrollTimer) return;
-  dragScrollTimer = setInterval(function() {
-    var c = document.querySelector('.content');
-    if (!c) return;
-    var r = c.getBoundingClientRect();
-    var edge = 100;                       // 가장자리 감지 범위(px)
-    if (dragScrollY && dragScrollY < r.top + edge) {
-      c.scrollTop -= Math.max(8, (r.top + edge - dragScrollY) / 2.5);
-    } else if (dragScrollY && dragScrollY > r.bottom - edge) {
-      c.scrollTop += Math.max(8, (dragScrollY - (r.bottom - edge)) / 2.5);
-    }
-  }, 25);
+  dragScrollTimer = setInterval(dragScrollStep, 25);
 }
 
 function dragAutoScrollStop() {
-  document.removeEventListener('dragover', dragTrackY);
+  document.removeEventListener('dragover', dragTrackY, true);
   clearInterval(dragScrollTimer);
   dragScrollTimer = null;
   dragScrollY = 0;
