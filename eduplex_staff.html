@@ -177,24 +177,24 @@
     .stu-toolbar-right{display:flex;align-items:center;gap:12px;}
     .stu-toggle{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-sub);cursor:pointer;}
     .stu-toggle input{width:15px;height:15px;accent-color:var(--navy);cursor:pointer;}
-    .stu-sec{margin-bottom:22px;}
+    .stu-sec{margin-bottom:14px;padding:10px;border-radius:12px;border:2px dashed transparent;transition:background .15s,border-color .15s;}
+    .stu-sec.drop-on{border-color:var(--navy);background:var(--bg2);}
+    .stu-sec.empty{margin-bottom:6px;opacity:.6;}
+    .stu-sec.empty:hover{opacity:1;}
+    .stu-dropzone{font-size:11px;color:var(--text-light);border:1.5px dashed var(--border);border-radius:9px;padding:9px;text-align:center;}
     .stu-sec-lbl{font-size:11.5px;font-weight:700;color:var(--text-light);letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
     .stu-sec-lbl b{color:var(--navy);font-size:13px;letter-spacing:0;}
     .stu-sec-lbl::after{content:'';flex:1;height:1px;background:var(--border);}
     .stu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
-    .stu-card{background:var(--white);border:1.5px solid var(--border);border-radius:11px;padding:12px 14px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow);}
+    .stu-card{background:var(--white);border:1.5px solid var(--border);border-radius:11px;padding:12px 14px;cursor:grab;transition:all .15s;box-shadow:var(--shadow);}
     .stu-card:hover{border-color:var(--navy);transform:translateY(-2px);box-shadow:var(--shadow-hover);}
+    .stu-card.dragging{opacity:.4;cursor:grabbing;}
     .stu-card .sname{font-size:14px;font-weight:700;color:var(--navy);}
     .stu-card .smeta{font-size:11px;color:var(--text-light);margin-top:3px;}
     .stu-card .smemo{font-size:11px;color:var(--text-sub);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
     .stu-grade-badge{display:inline-block;font-size:10px;font-weight:700;background:var(--bg2);color:var(--navy);padding:1px 7px;border-radius:6px;margin-left:5px;}
     .stu-modal-name{font-size:18px;font-weight:700;color:var(--navy);padding:10px 12px;background:var(--bg2);border-radius:9px;display:flex;align-items:center;gap:8px;}
     .stu-mgr-badge{font-size:11px;font-weight:600;color:var(--text-sub);background:var(--white);padding:2px 9px;border-radius:8px;}
-    .stu-type-picker{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;}
-    .stu-type-btn{padding:8px 0;border-radius:7px;border:1.5px solid var(--border);background:var(--white);color:var(--text-sub);font-size:12.5px;font-weight:700;cursor:pointer;transition:all .12s;}
-    .stu-type-btn:hover{border-color:var(--navy);color:var(--navy);}
-    .stu-type-btn.on{background:var(--navy);color:#fff;border-color:var(--navy);}
-    .stu-type-btn.none{grid-column:span 2;font-size:11.5px;font-weight:600;}
 
     /* 공용 버튼 · 빈 목록 안내 */
     .add-btn{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;padding:10px 20px;border-radius:8px;font-size:13.5px;font-weight:600;border:none;cursor:pointer;margin-bottom:22px;transition:background .2s;}
@@ -449,7 +449,7 @@
           <div class="stu-modal-name"><span id="stuMName"></span><span class="stu-mgr-badge" id="stuMMgr"></span></div>
 
           <label>타입</label>
-          <div class="stu-type-picker" id="stuTypePicker"></div>
+          <select id="stuMType"></select>
 
           <label>학년</label>
           <select id="stuMGrade">
@@ -1307,6 +1307,15 @@ function ctDelete() {
 
 // ── 학생 관리 ──
 var STU_TYPES = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
+var STU_TYPE_NAMES = {
+  1:'엄친아',    2:'모범생',   3:'학원 kids',     4:'꼭두각시',
+  5:'협상이',    6:'허영이',   7:'아웃사이더',     8:'고집쟁이',
+  9:'유리구슬',  10:'오지랖',  11:'성실이',       12:'학습실 지킴이',
+  13:'예민이',   14:'마음 콩밭', 15:'마니아',      16:'무심이'
+};
+function stuTypeLabel(t) {
+  return (t === '미지정') ? '타입 미지정' : ('TYPE ' + t + ' · ' + STU_TYPE_NAMES[t]);
+}
 
 function stuRender() {
   var board = document.getElementById('stuBoard');
@@ -1344,7 +1353,6 @@ function stuRender() {
   var q = (document.getElementById('stuSearch').value || '').replace(/\s+/g, '');
   var onlyUntyped = document.getElementById('stuOnlyUntyped').checked;
 
-  // 조건에 맞는 학생만 추리기
   var list = dashStudents.filter(function(s) {
     if (!allMgr && stuMgrSel.indexOf(s.manager) === -1) return false;
     if (q && s.name.indexOf(q) === -1) return false;
@@ -1352,11 +1360,6 @@ function stuRender() {
     if (onlyUntyped && info.type) return false;
     return true;
   });
-
-  if (!list.length) {
-    board.innerHTML = '<div class="info-empty">조건에 맞는 학생이 없습니다.</div>';
-    return;
-  }
 
   // 타입별로 묶기
   var byType = {};
@@ -1366,25 +1369,80 @@ function stuRender() {
     byType[t].push(s);
   });
 
-  var order = STU_TYPES.filter(function(t) { return byType[t]; });
-  if (byType['미지정']) order.push('미지정');
+  // 16개 타입 + 미지정을 항상 모두 표시 (비어 있어도 끌어다 놓을 수 있게)
+  var order = STU_TYPES.concat(['미지정']);
 
   board.innerHTML = order.map(function(t) {
-    var label = (t === '미지정') ? '타입 미지정' : ('TYPE ' + t);
-    return '<div class="stu-sec">' +
-      '<div class="stu-sec-lbl"><b>' + label + '</b> ' + byType[t].length + '명</div>' +
-      '<div class="stu-grid">' +
-      byType[t].map(function(s) {
-        var info = stuInfo[s.key] || {};
-        return '<div class="stu-card" onclick="stuOpenModal(\'' + String(s.key).replace(/'/g, "\\'") + '\')">' +
-          '<div class="sname">' + dashEsc(s.name) +
-            (info.grade ? '<span class="stu-grade-badge">' + dashEsc(info.grade) + '</span>' : '') + '</div>' +
-          '<div class="smeta">' + dashEsc(s.manager) + '</div>' +
-          (info.memo ? '<div class="smemo">' + dashEsc(info.memo) + '</div>' : '') +
-          '</div>';
-      }).join('') +
-      '</div></div>';
+    var arr = byType[t] || [];
+    var tv = String(t).replace(/'/g, "\\'");
+    return '<div class="stu-sec' + (arr.length ? '' : ' empty') + '"' +
+      ' ondragover="stuDragOver(event)" ondragleave="stuDragLeave(event)" ondrop="stuDrop(event,\'' + tv + '\')">' +
+      '<div class="stu-sec-lbl"><b>' + dashEsc(stuTypeLabel(t)) + '</b> ' +
+        (arr.length ? arr.length + '명' : '') + '</div>' +
+      (arr.length
+        ? '<div class="stu-grid">' + arr.map(function(s) {
+            var info = stuInfo[s.key] || {};
+            return '<div class="stu-card" draggable="true"' +
+              ' ondragstart="stuDragStart(event,\'' + String(s.key).replace(/'/g, "\\'") + '\')"' +
+              ' ondragend="stuDragEnd(event)"' +
+              ' onclick="stuOpenModal(\'' + String(s.key).replace(/'/g, "\\'") + '\')">' +
+              '<div class="sname">' + dashEsc(s.name) +
+                (info.grade ? '<span class="stu-grade-badge">' + dashEsc(info.grade) + '</span>' : '') + '</div>' +
+              '<div class="smeta">' + dashEsc(s.manager) + '</div>' +
+              (info.memo ? '<div class="smemo">' + dashEsc(info.memo) + '</div>' : '') +
+              '</div>';
+          }).join('') + '</div>'
+        : '<div class="stu-dropzone">여기로 끌어다 놓기</div>') +
+      '</div>';
   }).join('');
+}
+
+// ── 학생 카드 드래그로 타입 옮기기 ──
+var stuDragKey = null;
+var stuDragEndAt = 0;
+
+function stuDragStart(e, key) {
+  stuDragKey = key;
+  e.dataTransfer.effectAllowed = 'move';
+  try { e.dataTransfer.setData('text/plain', key); } catch (_) {}
+  e.currentTarget.classList.add('dragging');
+}
+
+function stuDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  var secs = document.querySelectorAll('.stu-sec.drop-on');
+  for (var i = 0; i < secs.length; i++) secs[i].classList.remove('drop-on');
+  stuDragKey = null;
+  stuDragEndAt = Date.now();
+}
+
+function stuDragOver(e) {
+  if (!stuDragKey) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drop-on');
+}
+
+function stuDragLeave(e) {
+  if (e.relatedTarget && e.currentTarget.contains(e.relatedTarget)) return;
+  e.currentTarget.classList.remove('drop-on');
+}
+
+function stuDrop(e, t) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drop-on');
+  var key = stuDragKey;
+  stuDragKey = null;
+  stuDragEndAt = Date.now();
+  if (!key) return;
+
+  var newType = (t === '미지정') ? null : parseInt(t, 10);
+  var cur = (stuInfo[key] && stuInfo[key].type) || null;
+  if (cur === newType) return;
+
+  db.ref('donam_staff/dashboard_students/' + key + '/type').set(newType)
+    .then(function() { showToast('✓ ' + stuTypeLabel(t) + '(으)로 옮겼습니다.'); })
+    .catch(function(err) { showToast('⚠ 이동 실패: ' + err.message); });
 }
 
 function stuToggleMgr(m) {
@@ -1398,6 +1456,7 @@ function stuToggleMgr(m) {
 }
 
 function stuOpenModal(key) {
+  if (Date.now() - stuDragEndAt < 300) return;  // 드래그 직후 클릭은 무시
   var s = null;
   for (var i = 0; i < dashStudents.length; i++) {
     if (dashStudents[i].key === key) { s = dashStudents[i]; break; }
@@ -1405,25 +1464,21 @@ function stuOpenModal(key) {
   if (!s) return;
   var info = stuInfo[key] || {};
 
+  // 타입 드롭다운 채우기
+  var sel = document.getElementById('stuMType');
+  sel.innerHTML = '<option value="">선택 안 함</option>' +
+    STU_TYPES.map(function(t) {
+      return '<option value="' + t + '">' + t + '. ' + STU_TYPE_NAMES[t] + '</option>';
+    }).join('');
+  sel.value = info.type ? String(info.type) : '';
+
   document.getElementById('stuMKey').value = key;
   document.getElementById('stuMName').textContent = s.name;
   document.getElementById('stuMMgr').textContent = s.manager;
   document.getElementById('stuMGrade').value = info.grade || '';
   document.getElementById('stuMMemo').value = info.memo || '';
-  stuRenderTypePicker(info.type || null);
   document.getElementById('stuModalOverlay').classList.add('show');
 }
-
-var stuPickedType = null;
-function stuRenderTypePicker(cur) {
-  stuPickedType = cur;
-  var el = document.getElementById('stuTypePicker');
-  el.innerHTML = STU_TYPES.map(function(t) {
-    return '<button class="stu-type-btn' + (cur === t ? ' on' : '') + '" onclick="stuPickType(' + t + ')">' + t + '</button>';
-  }).join('') +
-  '<button class="stu-type-btn none' + (cur ? '' : ' on') + '" onclick="stuPickType(null)">미지정</button>';
-}
-function stuPickType(t) { stuRenderTypePicker(t); }
 
 function stuCloseModal() {
   document.getElementById('stuModalOverlay').classList.remove('show');
@@ -1432,8 +1487,9 @@ function stuCloseModal() {
 function stuSave() {
   var key = document.getElementById('stuMKey').value;
   if (!key) return;
+  var tv = document.getElementById('stuMType').value;
   var record = {
-    type: stuPickedType || null,
+    type: tv ? parseInt(tv, 10) : null,
     grade: document.getElementById('stuMGrade').value,
     memo: document.getElementById('stuMMemo').value.trim()
   };
