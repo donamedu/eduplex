@@ -1123,6 +1123,7 @@ function formDragStart(e, key) {
   e.dataTransfer.effectAllowed = 'move';
   try { e.dataTransfer.setData('text/plain', key); } catch (_) {}
   e.currentTarget.classList.add('dragging');
+  dragAutoScrollStart();
 }
 
 function formDragEnd(e) {
@@ -1131,6 +1132,7 @@ function formDragEnd(e) {
   for (var i = 0; i < secs.length; i++) secs[i].classList.remove('drop-on');
   formDragKey = null;
   formDragEndAt = Date.now();   // 드래그 직후의 클릭(=시트 열기) 방지
+  dragAutoScrollStop();
 }
 
 function formDragOver(e) {
@@ -1149,6 +1151,7 @@ function formDragLeave(e) {
 function formDrop(e, owner) {
   e.preventDefault();
   e.currentTarget.classList.remove('drop-on');
+  dragAutoScrollStop();
   var key = formDragKey;
   formDragKey = null;
   formDragEndAt = Date.now();
@@ -1397,6 +1400,37 @@ function stuRender() {
   }).join('');
 }
 
+// ── 드래그 중 자동 스크롤 ──
+// 카드를 화면 위/아래 가장자리로 가져가면 목록이 저절로 스크롤됩니다.
+// (브라우저 기본 드래그는 스크롤을 안 해줘서 직접 구현)
+var dragScrollY = 0;
+var dragScrollTimer = null;
+
+function dragTrackY(e) { dragScrollY = e.clientY; }
+
+function dragAutoScrollStart() {
+  document.addEventListener('dragover', dragTrackY);
+  if (dragScrollTimer) return;
+  dragScrollTimer = setInterval(function() {
+    var c = document.querySelector('.content');
+    if (!c) return;
+    var r = c.getBoundingClientRect();
+    var edge = 100;                       // 가장자리 감지 범위(px)
+    if (dragScrollY && dragScrollY < r.top + edge) {
+      c.scrollTop -= Math.max(8, (r.top + edge - dragScrollY) / 2.5);
+    } else if (dragScrollY && dragScrollY > r.bottom - edge) {
+      c.scrollTop += Math.max(8, (dragScrollY - (r.bottom - edge)) / 2.5);
+    }
+  }, 25);
+}
+
+function dragAutoScrollStop() {
+  document.removeEventListener('dragover', dragTrackY);
+  clearInterval(dragScrollTimer);
+  dragScrollTimer = null;
+  dragScrollY = 0;
+}
+
 // ── 학생 카드 드래그로 타입 옮기기 ──
 var stuDragKey = null;
 var stuDragEndAt = 0;
@@ -1406,6 +1440,7 @@ function stuDragStart(e, key) {
   e.dataTransfer.effectAllowed = 'move';
   try { e.dataTransfer.setData('text/plain', key); } catch (_) {}
   e.currentTarget.classList.add('dragging');
+  dragAutoScrollStart();
 }
 
 function stuDragEnd(e) {
@@ -1414,6 +1449,7 @@ function stuDragEnd(e) {
   for (var i = 0; i < secs.length; i++) secs[i].classList.remove('drop-on');
   stuDragKey = null;
   stuDragEndAt = Date.now();
+  dragAutoScrollStop();
 }
 
 function stuDragOver(e) {
@@ -1431,6 +1467,7 @@ function stuDragLeave(e) {
 function stuDrop(e, t) {
   e.preventDefault();
   e.currentTarget.classList.remove('drop-on');
+  dragAutoScrollStop();
   var key = stuDragKey;
   stuDragKey = null;
   stuDragEndAt = Date.now();
