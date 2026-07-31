@@ -211,6 +211,15 @@
     .stu-grade-badge{display:inline-block;font-size:10px;font-weight:700;background:var(--bg2);color:var(--navy);padding:1px 7px;border-radius:6px;margin-left:5px;}
     .stu-modal-name{font-size:18px;font-weight:700;color:var(--navy);padding:10px 12px;background:var(--bg2);border-radius:9px;display:flex;align-items:center;gap:8px;}
     .stu-mgr-badge{font-size:11px;font-weight:600;color:var(--text-sub);background:var(--white);padding:2px 9px;border-radius:8px;}
+    .stu-link-row{display:flex;gap:5px;margin-bottom:5px;align-items:center;}
+    .stu-link-row .lk-name{width:34%;flex-shrink:0;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12.5px;font-family:inherit;color:var(--text);background:var(--white);}
+    .stu-link-row .lk-url{flex:1;min-width:0;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12.5px;font-family:inherit;color:var(--text);background:var(--white);}
+    .stu-link-row input:focus{outline:none;border-color:var(--navy);}
+    .lk-btn{flex-shrink:0;width:28px;height:32px;border:1px solid var(--border);background:var(--white);border-radius:7px;cursor:pointer;font-size:12px;color:var(--text-sub);}
+    .lk-btn:hover{border-color:var(--navy);color:var(--navy);}
+    .lk-del:hover{border-color:#dc2626;color:#dc2626;}
+    .stu-link-add{margin-top:4px;background:var(--bg2);border:1px dashed var(--border);color:var(--text-sub);border-radius:8px;padding:8px;font-size:12px;font-weight:600;cursor:pointer;width:100%;}
+    .stu-link-add:hover{border-color:var(--navy);color:var(--navy);}
 
     /* 공용 버튼 · 빈 목록 안내 */
     .add-btn{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;padding:10px 20px;border-radius:8px;font-size:13.5px;font-weight:600;border:none;cursor:pointer;margin-bottom:22px;transition:background .2s;}
@@ -484,6 +493,11 @@
 
           <label>메모</label>
           <textarea id="stuMMemo" rows="4" placeholder="특이사항, 상담 포인트 등"></textarea>
+
+          <label>관리 시트 · 링크</label>
+          <div id="stuLinkRows"></div>
+          <button class="stu-link-add" onclick="stuAddLinkRow()">＋ 링크 추가</button>
+
           <input type="hidden" id="stuMKey">
         </div>
         <div class="dash-modal-footer">
@@ -1474,7 +1488,8 @@ function stuRender() {
               ' onclick="stuOpenModal(\'' + String(s.key).replace(/'/g, "\\'") + '\')">' +
               '<div class="sname">' + dashEsc(s.name) +
                 (info.grade ? '<span class="stu-grade-badge">' + dashEsc(info.grade) + '</span>' : '') + '</div>' +
-              '<div class="smeta">' + dashEsc(s.manager) + '</div>' +
+              '<div class="smeta">' + dashEsc(s.manager) +
+                ((info.links && info.links.length) ? ' · 🔗' + info.links.length : '') + '</div>' +
               (info.memo ? '<div class="smemo">' + dashEsc(info.memo) + '</div>' : '') +
               '</div>';
           }).join('') + '</div>'
@@ -1591,6 +1606,50 @@ function stuToggleMgr(m) {
   stuRender();
 }
 
+// ── 학생별 관리 링크 (여러 개 등록 가능) ──
+function stuRenderLinkRows(links) {
+  var el = document.getElementById('stuLinkRows');
+  el.innerHTML = '';
+  var arr = (links && links.length) ? links : [{ name: '', url: '' }];
+  arr.forEach(function(l) { stuAppendLinkRow(l.name, l.url); });
+}
+
+function stuAppendLinkRow(name, url) {
+  var el = document.getElementById('stuLinkRows');
+  var row = document.createElement('div');
+  row.className = 'stu-link-row';
+  row.innerHTML =
+    '<input type="text" class="lk-name" placeholder="이름 (예: 단원관리표)">' +
+    '<input type="text" class="lk-url" placeholder="https://...">' +
+    '<button class="lk-btn lk-open" title="새 탭으로 열기">↗</button>' +
+    '<button class="lk-btn lk-del" title="이 줄 지우기">✕</button>';
+  row.querySelector('.lk-name').value = name || '';
+  row.querySelector('.lk-url').value = url || '';
+  row.querySelector('.lk-open').onclick = function() {
+    var u = row.querySelector('.lk-url').value.trim();
+    if (u) window.open(u, '_blank');
+    else showToast('주소를 먼저 입력하세요.');
+  };
+  row.querySelector('.lk-del').onclick = function() {
+    row.remove();
+    if (!el.children.length) stuAppendLinkRow('', '');   // 최소 한 줄은 남김
+  };
+  el.appendChild(row);
+}
+
+function stuAddLinkRow() { stuAppendLinkRow('', ''); }
+
+function stuCollectLinks() {
+  var out = [];
+  var rows = document.querySelectorAll('#stuLinkRows .stu-link-row');
+  for (var i = 0; i < rows.length; i++) {
+    var n = rows[i].querySelector('.lk-name').value.trim();
+    var u = rows[i].querySelector('.lk-url').value.trim();
+    if (u) out.push({ name: n, url: u });
+  }
+  return out;
+}
+
 function stuOpenModal(key) {
   if (Date.now() - stuDragEndAt < 300) return;  // 드래그 직후 클릭은 무시
   var s = null;
@@ -1613,6 +1672,7 @@ function stuOpenModal(key) {
   document.getElementById('stuMMgr').textContent = s.manager;
   document.getElementById('stuMGrade').value = info.grade || '';
   document.getElementById('stuMMemo').value = info.memo || '';
+  stuRenderLinkRows(info.links);
   document.getElementById('stuModalOverlay').classList.add('show');
 }
 
@@ -1627,7 +1687,8 @@ function stuSave() {
   var record = {
     type: tv ? parseInt(tv, 10) : null,
     grade: document.getElementById('stuMGrade').value,
-    memo: document.getElementById('stuMMemo').value.trim()
+    memo: document.getElementById('stuMMemo').value.trim(),
+    links: stuCollectLinks()
   };
   db.ref('donam_staff/dashboard_students/' + key).set(record)
     .then(function() { showToast('✓ 저장 완료!'); stuCloseModal(); })
