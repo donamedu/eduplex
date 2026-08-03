@@ -521,6 +521,9 @@
       <div class="panel-title">📋 양식 자료실</div>
       <div class="panel-sub">자주 쓰는 구글 시트·문서 링크를 모아둡니다. 카드를 클릭하면 새 탭으로 열리고, 다른 담당자 영역으로 끌어다 놓으면 이동합니다.</div>
       <button class="add-btn" onclick="formOpenNew()">＋ 자료 추가</button>
+      <div class="stu-toolbar">
+        <input type="text" id="formSearch" class="stu-search" placeholder="🔍 자료 이름·설명 검색" oninput="formRenderGrid()">
+      </div>
       <div class="form-chips" id="formFilters"></div>
       <div id="formGrid">
         <div class="info-empty">아직 등록된 자료가 없습니다.</div>
@@ -1174,16 +1177,30 @@ function formRenderGrid() {
     }).join('');
   }
 
-  // 담당자별 섹션
+  // 담당자별 섹션 (검색어가 있으면 해당 자료만)
+  var qEl = document.getElementById('formSearch');
+  var q = (qEl ? qEl.value : '').replace(/\s+/g, '').toLowerCase();
+  var hit = 0;
   var html = '';
+
   owners.forEach(function(o) {
     if (!isAll && formSel.indexOf(o) === -1) return;
+
+    var items = groups[o].filter(function(k) {
+      if (!q) return true;
+      var f = dashForms[k];
+      var hay = ((f.name || '') + (f.desc || '')).replace(/\s+/g, '').toLowerCase();
+      return hay.indexOf(q) !== -1;
+    });
+    if (!items.length) return;
+    hit += items.length;
+
     var oEsc = String(o).replace(/'/g, "\\'");
     html += '<div class="form-section"' +
       ' ondragover="formDragOver(event)" ondragleave="formDragLeave(event)" ondrop="formDrop(event,\'' + oEsc + '\')">' +
       '<div class="form-section-lbl">' + dashEsc(o) + '</div>' +
       '<div class="form-grid">' +
-      groups[o].map(function(k) {
+      items.map(function(k) {
         var f = dashForms[k];
         var when = formWhen(f.lastUsed);
         return '<div class="form-card" draggable="true"' +
@@ -1197,7 +1214,8 @@ function formRenderGrid() {
       }).join('') +
       '</div></div>';
   });
-  el.innerHTML = html;
+
+  el.innerHTML = hit ? html : '<div class="info-empty">조건에 맞는 자료가 없습니다.</div>';
 }
 
 // ── 카드 드래그로 담당자 옮기기 ──
@@ -1619,7 +1637,7 @@ function stuAppendLinkRow(name, url) {
   var row = document.createElement('div');
   row.className = 'stu-link-row';
   row.innerHTML =
-    '<input type="text" class="lk-name" placeholder="이름 (예: 포트폴리오)">' +
+    '<input type="text" class="lk-name" placeholder="이름 (예: 단원관리표)">' +
     '<input type="text" class="lk-url" placeholder="https://...">' +
     '<button class="lk-btn lk-open" title="새 탭으로 열기">↗</button>' +
     '<button class="lk-btn lk-del" title="이 줄 지우기">✕</button>';
