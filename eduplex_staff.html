@@ -511,6 +511,9 @@
       <div class="panel-title">📝 회의록</div>
       <div class="panel-sub">달력의 회의 일정을 클릭하거나, 아래 버튼으로 회의록을 작성할 수 있습니다.</div>
       <button class="add-btn" onclick="mtgOpenNew()">＋ 회의록 작성</button>
+      <div class="stu-toolbar">
+        <input type="text" id="mtgSearch" class="stu-search" placeholder="🔍 제목·내용·날짜 검색" oninput="mtgRenderList()">
+      </div>
       <div class="mtg-list" id="mtgList">
         <div class="info-empty">아직 작성된 회의록이 없습니다.</div>
       </div>
@@ -1032,6 +1035,20 @@ function mtgRenderList() {
   if (!el) return;
   var keys = Object.keys(dashMtgs);
   if (!keys.length) { el.innerHTML = '<div class="info-empty">아직 작성된 회의록이 없습니다.</div>'; return; }
+
+  // 검색 (제목 · 내용 · 작성자 · 날짜)
+  var qEl = document.getElementById('mtgSearch');
+  var q = (qEl ? qEl.value : '').replace(/\s+/g, '').toLowerCase();
+  if (q) {
+    keys = keys.filter(function(k) {
+      var m = dashMtgs[k];
+      var hay = ((m.title || '') + (m.body || '') + (m.author || '') + (m.date || ''))
+        .replace(/\s+/g, '').toLowerCase();
+      return hay.indexOf(q) !== -1;
+    });
+    if (!keys.length) { el.innerHTML = '<div class="info-empty">검색 결과가 없습니다.</div>'; return; }
+  }
+
   // 최신순 (날짜 내림차순, 같으면 키 내림차순)
   keys.sort(function(a, b) {
     var da = dashMtgs[a].date || '', dbb = dashMtgs[b].date || '';
