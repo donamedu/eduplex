@@ -1057,9 +1057,9 @@ function renderNews(items){
       </a>
       <!-- 텍스트 -->
       <div class="news-body">
-        <div class="news-tag" id="ntag-${i}" contenteditable="true" data-ph="태그">${esc(item.tag)}</div>
-        <div class="news-title" id="ntitle-${i}" contenteditable="true" data-ph="제목을 입력하세요">${esc(item.title)}</div>
-        <div class="news-sub" id="nsub-${i}" contenteditable="true" data-ph="설명을 입력하세요">${esc(item.sub)}</div>
+        <div class="news-tag" id="ntag-${i}" ${isAdmin?'contenteditable="true"':''} data-ph="태그">${esc(item.tag)}</div>
+        <div class="news-title" id="ntitle-${i}" ${isAdmin?'contenteditable="true"':''} data-ph="제목을 입력하세요">${esc(item.title)}</div>
+        <div class="news-sub" id="nsub-${i}" ${isAdmin?'contenteditable="true"':''} data-ph="설명을 입력하세요">${esc(item.sub)}</div>
       </div>
       <!-- 편집 바: 편집 모드에서만 보임 -->
       <div class="news-edit-bar">
