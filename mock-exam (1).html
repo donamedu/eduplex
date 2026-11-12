@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>모의고사 분석 상담</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Gowun+Batang:wght@700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* 레이아웃: 상단 5단계 진행 막대 + 단계별 작업판. 보고서는 테마와 무관한 흰 종이(이미지 저장용) */
+:root{
+  --bg:#eef2f7; --surface:#ffffff; --surface2:#f6f8fb; --ink:#16233a; --muted:#56667c; --line:#d6dee9;
+  --accent:#1f4e8c; --accent-soft:#e3ecf8; --mark:#d2433b; --mark-soft:#fbe7e5; --hl:#ffe66d; --ok:#2f8a5b; --ok-soft:#e2f3ea;
+  --p-bg:#ffffff; --p-ink:#16233a; --p-muted:#5b6b80; --p-line:#e2e7ee; --p-accent:#1f4e8c; --p-mark:#d2433b; --p-hl:#fff0a0; --p-soft:#f2f6fb;
+  --f-ui:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-display:"Gowun Batang","AppleMyungjo","Batang",serif;
+  --f-num:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1520; --surface:#16202d; --surface2:#1b2737; --ink:#e5ebf3; --muted:#9aa8ba; --line:#2b394b;
+  --accent:#7aaaf0; --accent-soft:#1d3150; --mark:#ff6f63; --mark-soft:#3a1f1f; --hl:#e8c93a; --ok:#5cc28b; --ok-soft:#183427; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1520; --surface:#16202d; --surface2:#1b2737; --ink:#e5ebf3; --muted:#9aa8ba; --line:#2b394b;
+  --accent:#7aaaf0; --accent-soft:#1d3150; --mark:#ff6f63; --mark-soft:#3a1f1f; --hl:#e8c93a; --ok:#5cc28b; --ok-soft:#183427; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.55;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 0}
+.brand{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.brand h1{font-family:var(--f-display);font-size:21px;margin:0;letter-spacing:-.01em}
+.brand small{color:var(--muted);font-size:13px}
+.brand .who{margin-left:auto;font-size:13px;color:var(--muted)}
+nav.steps{display:flex;gap:4px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
+nav.steps button{flex:0 0 auto;border:0;background:none;font:inherit;color:var(--muted);padding:8px 12px 10px;border-bottom:3px solid transparent;cursor:pointer;display:flex;gap:8px;align-items:center;white-space:nowrap}
+nav.steps button .n{font-family:var(--f-num);font-size:12px;width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;border:1.5px solid currentColor}
+nav.steps button .who{font-size:11px;padding:1px 6px;border-radius:8px;background:var(--surface2)}
+nav.steps button[aria-current="true"]{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+nav.steps button[aria-current="true"] .n{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.intro{margin:20px 0 14px;display:grid;gap:4px}
+.intro h2{font-size:20px;margin:0;text-wrap:balance}
+.intro p{margin:0;color:var(--muted);max-width:68ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
+.stack{display:grid;gap:14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+label.f{display:grid;gap:4px;font-size:13px;color:var(--muted);min-width:0}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:7px;padding:8px 10px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:62px;line-height:1.5}
+.btn{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.btn.small{padding:4px 10px;font-size:13px}
+.btn.ghost{border-color:transparent;background:none;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.hint{font-size:13px;color:var(--muted)}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:10px;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.tag.ex{background:var(--hl);color:#3a3000;border-color:transparent}
+table.t{border-collapse:collapse;width:100%;font-size:14px}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:middle}
+table.t th{font-size:12px;color:var(--muted);font-weight:600}
+table.t input{padding:5px 7px;width:72px}
+.tw{overflow-x:auto}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+/* subject tabs */
+.subtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.subtabs button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:20px;padding:6px 14px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.subtabs button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.subtabs .cnt{font-family:var(--f-num);font-size:12px;opacity:.8}
+/* OMR grid */
+.scorebar{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:baseline;margin-bottom:12px}
+.scorebar .big{font-family:var(--f-num);font-size:34px;font-weight:600;letter-spacing:-.02em}
+.scorebar .big small{font-size:16px;color:var(--muted)}
+.scorebar .lost{color:var(--mark);font-family:var(--f-num);font-weight:600}
+.omr{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
+.omr button{font:inherit;position:relative;height:52px;border:1.5px solid var(--line);background:var(--surface2);border-radius:8px;cursor:pointer;color:var(--ink);display:grid;place-items:center;padding:0}
+.omr button .q{font-family:var(--f-num);font-weight:600;font-size:16px;line-height:1}
+.omr button .p{font-size:10px;color:var(--muted);line-height:1}
+.omr button .in{display:grid;gap:3px;justify-items:center}
+.omr button.x{border-color:var(--mark);background:var(--mark-soft);color:var(--mark)}
+.omr button.x::after{content:"";position:absolute;inset:7px;border:2px solid var(--mark);border-radius:50%;opacity:.55}
+.omr button.x.done::before{content:"";position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--ok)}
+/* wrong item cards */
+.wlist{display:grid;gap:10px;margin-top:16px}
+.witem{border:1px solid var(--line);border-left:4px solid var(--mark);border-radius:8px;padding:12px 14px;background:var(--surface);display:grid;gap:10px}
+.witem.done{border-left-color:var(--ok)}
+.whead{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.whead .qn{font-family:var(--f-num);font-weight:600;font-size:17px}
+.whead select{width:auto;max-width:100%;padding:4px 8px;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:13px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:18px;padding:5px 12px;cursor:pointer;text-align:left}
+.chip .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--surface)}
+.sents{display:grid;gap:6px}
+.sent{font:inherit;text-align:left;border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:8px;padding:9px 12px;cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+.sent .box{flex:0 0 18px;height:18px;border:1.5px solid var(--muted);border-radius:4px;margin-top:2px}
+.sent[aria-pressed="true"]{border-color:var(--ok);background:var(--ok-soft)}
+.sent[aria-pressed="true"] .box{background:var(--ok);border-color:var(--ok)}
+.chosen{font-size:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.easy{font-size:12px;color:var(--muted)}
+/* diagnosis */
+.dsub{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:18px}
+@media (max-width:760px){.dsub{grid-template-columns:1fr}}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{background:var(--surface2);border-radius:8px;padding:10px}
+.kpi b{display:block;font-family:var(--f-num);font-size:22px}
+.kpi span{font-size:12px;color:var(--muted)}
+.kpi.hl b{background:linear-gradient(transparent 55%,var(--hl) 55%);display:inline}
+.bars{display:grid;gap:6px;margin-top:10px}
+.bar{display:grid;grid-template-columns:96px 1fr auto;gap:8px;align-items:center;font-size:13px}
+.bar>span:last-child{white-space:nowrap}
+.bar .tr{height:12px;background:var(--surface2);border-radius:6px;overflow:hidden}
+.bar .fi{height:100%;border-radius:6px}
+.ppt{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:14px;display:grid;gap:4px}
+.ppt b{font-weight:600}
+.reset{font-size:12px;color:var(--muted);background:none;border:0;cursor:pointer;text-decoration:underline;padding:0;font:inherit}
+.secthead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 10px}
+.secthead h3{margin:0;font-size:17px}
+/* paper report (theme-independent) */
+.rwrap{overflow-x:auto;padding-bottom:6px}
+.paper{background:var(--p-bg);color:var(--p-ink);width:100%;max-width:760px;margin:0 auto;border-radius:6px;box-shadow:0 1px 0 var(--line),0 8px 30px rgba(20,35,60,.12);padding:34px 34px 28px;font-family:var(--f-ui)}
+.paper h2{font-family:var(--f-display);font-size:26px;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.paper .meta{display:flex;flex-wrap:wrap;gap:4px 16px;color:var(--p-muted);font-size:13px;margin-top:6px}
+.paper .rule{height:3px;background:var(--p-accent);margin:16px 0 4px;width:56px}
+.paper section{padding:16px 0;border-bottom:1px solid var(--p-line)}
+.paper section:last-of-type{border-bottom:0}
+.paper h4{margin:0 0 10px;font-size:15px;display:flex;gap:8px;align-items:baseline}
+.paper h4 .no{font-family:var(--f-num);color:var(--p-accent);font-size:13px}
+.paper p{margin:0}
+.paper .soft{background:var(--p-soft);border-radius:8px;padding:12px 14px}
+.paper .mut{color:var(--p-muted);font-size:13px}
+.trend{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;align-items:end}
+@media (max-width:560px){.trend{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.tcol{display:grid;gap:4px;justify-items:center;font-size:12px;min-width:0}
+.tbars{height:120px;display:flex;gap:5px;align-items:flex-end;width:100%;justify-content:center;border-bottom:1px solid var(--p-line)}
+.tbars div{width:34%;border-radius:4px 4px 0 0;position:relative}
+.tbars .pv{background:#c9d3e0}
+.tbars .cu{background:var(--p-accent)}
+.tbars span{position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-family:var(--f-num);font-size:11px;color:var(--p-ink);white-space:nowrap}
+.tcol .d{font-family:var(--f-num);font-weight:600}
+.up{color:var(--ok)} .down{color:var(--p-mark)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--p-muted);margin-top:10px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.top3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.t3card{border:1px solid var(--p-line);border-radius:8px;padding:10px 12px;min-width:0}
+.t3card .s{font-weight:600;margin-bottom:6px;display:flex;justify-content:space-between;gap:6px}
+.t3card ol{margin:0;padding:0;list-style:none;display:grid;gap:5px;font-size:13px}
+.t3card li{display:grid;grid-template-columns:18px 1fr auto;gap:6px;align-items:center}
+.t3card li .r{font-family:var(--f-num);font-size:12px;color:var(--p-muted)}
+.t3card li .v{font-family:var(--f-num);font-size:12px}
+.pt{display:grid;gap:10px}
+.ptrow{display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:start}
+.ptrow .s{font-weight:700;font-size:14px;padding-top:2px}
+.ptrow p{font-size:14px}
+.one{margin-top:6px;font-size:14px;background:linear-gradient(transparent 58%,var(--p-hl) 58%);display:inline;font-weight:600}
+.pot{display:grid;gap:9px}
+.potrow{display:grid;grid-template-columns:72px 1fr 160px;gap:10px;align-items:center;font-size:13px}
+.ptrack{height:18px;background:var(--p-soft);border-radius:4px;display:flex;overflow:hidden}
+.ptrack .a{background:var(--p-accent)}
+.ptrack .b{background:repeating-linear-gradient(45deg,#f2c94c,#f2c94c 4px,#f8dc80 4px,#f8dc80 8px)}
+.potrow .g{font-family:var(--f-num);font-size:12px;text-align:right}
+.plan{display:grid;gap:8px;font-size:14px}
+.plan li{margin-left:18px}
+.foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:18px;font-size:12px;color:var(--p-muted)}
+.sign{border-top:1px solid var(--p-line);padding-top:8px;min-width:160px}
+.ptable{width:100%;border-collapse:collapse;font-size:13px}
+.ptable th,.ptable td{border-bottom:1px solid var(--p-line);padding:7px 6px;text-align:center}
+.ptable th{color:var(--p-muted);font-weight:600;font-size:12px}
+.ptable td:first-child,.ptable th:first-child{text-align:left}
+.cause{display:grid;gap:10px}
+.cause .c{display:grid;grid-template-columns:72px 1fr;gap:12px;font-size:14px}
+.cause .c b{font-size:14px}
+.ev{font-size:12px;color:var(--p-muted);margin-top:2px}
+.homes{display:grid;gap:8px;font-size:14px;margin:0;padding-left:18px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px 0}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(10,18,30,.6);z-index:20;display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.modal .box{background:var(--surface);border-radius:12px;max-width:560px;width:100%;max-height:100%;overflow:auto;padding:18px;display:grid;gap:12px}
+.modal img{width:100%;border:1px solid var(--line);border-radius:6px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:9px 16px;border-radius:20px;font-size:14px;z-index:30}
+.navfoot{display:flex;justify-content:space-between;gap:8px;margin-top:18px;flex-wrap:wrap}
+.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:8px}
+@media (prefers-reduced-motion:no-preference){.sent,.chip,.omr button{transition:background .12s,border-color .12s}}
+@media (max-width:520px){.paper{padding:22px 16px}.ptrow,.cause .c{grid-template-columns:1fr;gap:2px}.potrow{grid-template-columns:56px 1fr 96px}.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.bar{grid-template-columns:78px 1fr auto}}
+
+/* v2: 학생 목록 · 성장 기록 · 실천 체크 · 시험 관리 · 지점 현황 */
+.mainnav{display:flex;gap:4px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
+.mainnav button{flex:0 0 auto;border:0;background:none;font:inherit;color:var(--muted);padding:8px 12px 10px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.mainnav button[aria-current="true"]{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.banner{margin-top:14px;padding:10px 14px;border-radius:8px;background:var(--hl);color:#3a3000;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.banner.info{background:var(--accent-soft);color:var(--ink)}
+.banner .btn{background:rgba(255,255,255,.7);border-color:transparent;color:#3a3000}
+.crumb{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:18px 0 4px}
+.crumb h2{margin:0;font-size:22px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.scard{font:inherit;text-align:left;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;cursor:pointer;display:grid;gap:8px;min-width:0}
+.scard:hover{border-color:var(--accent)}
+.scard .nm{font-size:17px;font-weight:600;display:flex;justify-content:space-between;gap:8px}
+.pills{display:flex;flex-wrap:wrap;gap:4px}
+.pill{font-size:12px;padding:2px 8px;border-radius:10px;border:1px solid var(--line);color:var(--muted);background:var(--surface2)}
+.pill.on{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.pill.warn{background:var(--mark-soft);color:var(--mark);border-color:transparent}
+.pill.acc{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.tile b{display:block;font-family:var(--f-num);font-size:26px;font-weight:600}
+.tile span{font-size:13px;color:var(--muted)}
+.sm{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.smc{border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--surface);min-width:0}
+.smc h5{margin:0 0 6px;font-size:14px;display:flex;justify-content:space-between}
+.mbars{height:90px;display:flex;gap:6px;align-items:flex-end;border-bottom:1px solid var(--line)}
+.mbars div{flex:1;border-radius:3px 3px 0 0;background:var(--accent);opacity:.45;position:relative;min-width:0}
+.mbars div.last{opacity:1}
+.mbars span{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-family:var(--f-num);font-size:11px;color:var(--ink)}
+.mlab{display:flex;gap:6px;font-size:11px;color:var(--muted);margin-top:3px}
+.mlab span{flex:1;text-align:center;min-width:0;overflow:hidden;white-space:nowrap}
+.heat{border-collapse:collapse;font-size:13px;width:100%}
+.heat th,.heat td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:center}
+.heat th:first-child,.heat td:first-child{text-align:left;white-space:nowrap}
+.heat td.v{font-family:var(--f-num);border-radius:4px}
+.weeks{display:grid;gap:8px}
+.week{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);display:grid;gap:8px}
+.week.future{opacity:.55}
+.week .wh{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:14px}
+.ck{font:inherit;font-size:13px;border:1.5px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer;display:flex;gap:8px;align-items:flex-start;text-align:left;min-width:0}
+.ck .box{flex:0 0 16px;height:16px;border:1.5px solid var(--muted);border-radius:4px;margin-top:2px}
+.ck[aria-pressed="true"]{border-color:var(--ok);background:var(--ok-soft)}
+.ck[aria-pressed="true"] .box{background:var(--ok);border-color:var(--ok)}
+.ckgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px}
+.meter{height:10px;background:var(--surface2);border-radius:5px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--ok)}
+.goaltbl input{width:76px}
+.substeps{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line);margin-top:8px}
+.substeps button{flex:0 0 auto;border:0;background:none;font:inherit;color:var(--muted);padding:8px 10px;border-bottom:3px solid transparent;cursor:pointer;display:flex;gap:6px;align-items:center;white-space:nowrap;font-size:14px}
+.substeps button .n{font-family:var(--f-num);font-size:11px;width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;border:1.5px solid currentColor}
+.substeps button[aria-current="true"]{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.substeps button[aria-current="true"] .n{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+.substeps button.ok .n{border-color:var(--ok);color:var(--ok)}
+.modebar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.omr button .u{font-size:9px;color:var(--accent);line-height:1;max-width:46px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.omr button.brush{border-color:var(--accent);background:var(--accent-soft)}
+.inline-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:end}
+.big-goal{font-family:var(--f-num);font-size:13px}
+.paper .gtable{width:100%;border-collapse:collapse;font-size:13px}
+.paper .gtable th,.paper .gtable td{border-bottom:1px solid var(--p-line);padding:6px;text-align:center}
+.paper .gtable th{color:var(--p-muted);font-size:12px;font-weight:600}
+.paper .gtable td:first-child,.paper .gtable th:first-child{text-align:left}
+.ptrend{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.ptrend{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.ptc{display:grid;gap:3px;justify-items:center;font-size:12px;min-width:0}
+.ptb{height:110px;width:100%;display:flex;gap:3px;align-items:flex-end;justify-content:center;border-bottom:1px solid var(--p-line)}
+.ptb div{flex:1;max-width:22px;border-radius:3px 3px 0 0;background:#c9d3e0;position:relative}
+.ptb div.cur{background:var(--p-accent)}
+.ptb span{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-family:var(--f-num);font-size:10px;color:var(--p-ink);white-space:nowrap}
+.ptl{display:flex;gap:3px;width:100%;justify-content:center}
+.ptl span{flex:1;max-width:22px;text-align:center;font-size:9px;color:var(--p-muted);white-space:nowrap}
+.prate{display:flex;align-items:center;gap:10px;font-size:14px}
+.prate .meter{flex:1;max-width:240px;background:var(--p-soft)}
+.prate .meter i{background:#2f8a5b}
+
+[hidden]{display:none!important} img{max-width:100%}
+.login{max-width:380px;margin:48px auto;display:grid;gap:12px}
+.login .err{color:var(--mark);font-size:14px;min-height:1.2em}
+.who-out{font:inherit;font-size:12px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:12px;padding:2px 10px;cursor:pointer;margin-left:8px}
+
+/* v3 */
+.regain{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;background:var(--surface2);border:2px solid var(--hl);border-radius:10px;padding:12px 14px}
+.regain .bx{display:grid;gap:0;min-width:0}
+.regain .bx span{font-size:12px;color:var(--muted);white-space:nowrap}
+.regain .bx b{font-family:var(--f-num);font-size:30px;line-height:1.1;white-space:nowrap}
+.regain .bx b small{font-size:14px;color:var(--muted);font-weight:500}
+.regain .arr{font-size:26px;color:var(--ok);font-weight:700}
+.regain .to b{background:linear-gradient(transparent 58%,var(--hl) 58%)}
+.regain .plus{margin-left:auto;font-weight:700;font-size:15px;color:var(--ok);background:var(--ok-soft);border-radius:16px;padding:4px 12px;white-space:nowrap}
+.subline{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--muted);margin-top:8px}
+.subline b{color:var(--ink);font-family:var(--f-num);white-space:nowrap}
+.kpi span,.kpi b{white-space:nowrap}
+.regcell{white-space:nowrap;font-family:var(--f-num)}
+.regcell b{background:linear-gradient(transparent 58%,var(--hl) 58%)}
+.regcell .pl{color:var(--ok);font-weight:700;margin-left:4px}
+.potrow .g{white-space:nowrap}
+.ptc .mut{white-space:nowrap}
+.nextsub{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;flex-wrap:wrap}
+.backbar{display:flex;gap:8px;align-items:center;margin-top:12px}
+.custom-in{display:grid;gap:6px}
+.custom-in textarea{min-height:52px}
+.danger{color:var(--mark);border-color:var(--mark)}
+.weakgrp{display:grid;gap:8px}
+.weakgrp details summary{cursor:pointer;font-size:13px;color:var(--muted)}
+.plan-card{border:1px solid var(--p-line);border-radius:10px;padding:14px 16px;display:grid;gap:8px;break-inside:avoid}
+.plan-card h5{margin:0;font-size:17px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.plan-card .lab{font-size:12px;color:var(--p-muted);font-weight:600;letter-spacing:.02em}
+.plan-card .onebig{font-size:16px;font-weight:700;background:linear-gradient(transparent 58%,var(--p-hl) 58%);display:inline}
+.plan-grid{display:grid;gap:12px}
+.ckline{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.ckline span{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--p-muted);border:1px solid var(--p-line);border-radius:6px;padding:2px 8px}
+.ckline span i{display:inline-block;width:12px;height:12px;border:1.5px solid var(--p-muted);border-radius:3px}
+.etc-list{display:grid;gap:6px;font-size:14px}
+.etc-list div{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+@media (max-width:520px){.regain .bx b{font-size:24px}.regain .plus{margin-left:0}.potrow{grid-template-columns:56px 1fr 118px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <h1>모의고사 분석 상담</h1>
+      <small>돈암에듀플렉스 · 오답 원인 진단 → 처방 → 실천 → 다음 시험</small>
+      <span class="who" id="modeLine"></span>
+    </div>
+    <nav class="mainnav" id="mainnav" aria-label="메뉴"></nav>
+  </div>
+</header>
+<main class="wrap" id="app"><div class="empty" style="margin-top:24px">불러오는 중이에요…</div></main>
+<div id="modalRoot"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+/* ▼▼▼ Firebase 설정 ▼▼▼
+   홈페이지와 같은 Firebase(donam-eduplex)의 Realtime Database를 써요. 데이터는 'mock_counsel' 아래에만 저장돼요.
+   설정값은 모두 채워져 있어요(웹 앱 '모의고사 상담'). 바꿀 필요 없어요. */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDaq0C_HZQu5KkOik5x-27vctl4U724jqQ",
+  authDomain: "donam-eduplex.firebaseapp.com",
+  databaseURL: "https://donam-eduplex-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "donam-eduplex",
+  storageBucket: "donam-eduplex.firebasestorage.app",
+  messagingSenderId: "141722251822",
+  appId: "1:141722251822:web:60d509de0242aa1f5fe5bf"
+};
+/* ▲▲▲ Firebase 설정 끝 ▲▲▲ */
+</script>
+<script>
+const FACTORS = [{"s": "공통", "d": "공통", "t": "문제의 조건을 잘못 파악했어요.", "c": "읽기 실수"}, {"s": "공통", "d": "공통", "t": "중요한 부분을 구분하지 못해 읽는 속도와 풀이 시간을 조절하지 못했어요.(한 문제에 너무 오래 걸려서 뒤 문제를 못 풀었어요.)", "c": "시험 운영"}, {"s": "공통", "d": "공통", "t": "지문 근거 없이 느낌으로 답을 골랐어요.", "c": "읽기 실수"}, {"s": "공통", "d": "공통", "t": "시간에 쫓기고 불안해서 급하게 답을 정했어요.", "c": "시험 심리"}, {"s": "공통", "d": "", "t": "ㄱ·ㄴ·ㄷ 중 하나를 끝까지 읽지 않고 판단했어요. (문제를 끝까지 읽지 않았어요)", "c": "읽기 실수"}, {"s": "공통", "d": "", "t": "ㄱ·ㄴ·ㄷ 판단은 맞았는데 번호(①~⑤) 조합을 잘못 골랐어요.", "c": "답 선택·마킹"}, {"s": "공통", "d": "", "t": "OMR 마킹을 밀려 쓰거나 잘못 표시했어요.", "c": "답 선택·마킹"}, {"s": "공통", "d": "", "t": "긴장해서 아는 문제도 틀렸어요. (머리가 하얘졌어요)", "c": "시험 심리"}, {"s": "공통", "d": "", "t": "문제가 복잡해 보여서 풀어보지도 않고 찍었어요.", "c": "시험 심리"}, {"s": "공통", "d": "", "t": "선지 앞부분과 뒷부분 조건의 원인·결과 관계를 놓쳤어요.", "c": "읽기 실수"}, {"s": "공통", "d": "", "t": "'항상', '모든' 같은 단정적인 표현을 못 봤어요.", "c": "읽기 실수"}, {"s": "과학", "d": "", "t": "비슷한 개념끼리 구별하지 못했어요. (두 용어의 차이를 설명 못 해요)", "c": "개념 부족"}, {"s": "과학", "d": "", "t": "원리를 이해하지 못했어요. (왜 그렇게 되는지 설명이 막혀요)", "c": "개념 부족"}, {"s": "과학", "d": "", "t": "그래프·표·실험 자료에서 무엇을 봐야 하는지 몰랐어요.", "c": "풀이 적용"}, {"s": "과학", "d": "", "t": "해설을 보면 이해되는데, 혼자서는 개념을 문제에 연결하지 못했어요.", "c": "풀이 적용"}, {"s": "과학", "d": "", "t": "오답 정리를 안 해서 전에 틀린 유형을 또 틀렸어요.", "c": "공부 습관"}, {"s": "과학", "d": "", "t": "용어·단위·순서를 외우지 못했어요.", "c": "개념 부족"}, {"s": "과학", "d": "", "t": "벼락치기로 외워서 시험 때 기억이 안 났어요.", "c": "공부 습관"}, {"s": "과학", "d": "", "t": "기본 문제는 풀리는데, 자료나 모양이 바뀌면 틀렸어요.", "c": "풀이 적용"}, {"s": "과학", "d": "", "t": "이 유형 문제를 충분히 풀어보지 않았어요.", "c": "공부 습관"}, {"s": "국어", "d": "문학", "t": "문학 개념어의 뜻을 정확히 몰랐어요.", "c": "개념 부족"}, {"s": "국어", "d": "문학", "t": "작품 속 상황과 내용을 파악하지 못했어요.", "c": "풀이 적용"}, {"s": "국어", "d": "문학", "t": "지문에 없는 내용을 내 마음대로 추측했어요.", "c": "풀이 적용"}, {"s": "국어", "d": "독서", "t": "지문에 나온 어휘나 개념의 뜻을 정확히 몰랐어요.", "c": "개념 부족"}, {"s": "영어", "d": "유형", "t": "연결어만 보고 글의 순서를 정했어요.", "c": "풀이 적용"}, {"s": "국어", "d": "독서", "t": "글의 중심 내용과 구조를 파악하지 못했어요.", "c": "풀이 적용"}, {"s": "국어", "d": "독서", "t": "글 속 정보끼리의 관계를 잘못 연결했어요.", "c": "풀이 적용"}, {"s": "국어", "d": "작문", "t": "자료가 무슨 뜻인지, 어떻게 활용하는지 잘못 판단했어요.", "c": "풀이 적용"}, {"s": "국어", "d": "작문", "t": "개요·초고·작성 계획을 하나씩 맞춰 보지 않았어요.", "c": "읽기 실수"}, {"s": "국어", "d": "작문", "t": "고쳐 쓴 기준과 효과를 잘못 판단했어요.", "c": "풀이 적용"}, {"s": "국어", "d": "화법", "t": "말하는 상황과 목적을 잘못 파악했어요.", "c": "풀이 적용"}, {"s": "국어", "d": "화법", "t": "말하는 사람의 핵심 내용과 의도를 잘못 이해했어요.", "c": "풀이 적용"}, {"s": "국어", "d": "화법", "t": "주장과 근거가 어떻게 연결되는지 잘못 판단했어요.", "c": "풀이 적용"}, {"s": "국어", "d": "언어", "t": "문법 개념과 용어를 정확히 몰랐어요.", "c": "개념 부족"}, {"s": "국어", "d": "언어", "t": "문장·단어를 분석하는 단위를 잘못 나눴어요.", "c": "풀이 적용"}, {"s": "공통", "d": "공통", "t": "선지를 지문 근거와 하나하나 맞춰보지 않고 골랐어요.", "c": "풀이 적용"}, {"s": "국어", "d": "언어", "t": "문법 규칙의 조건·순서·예외를 놓쳤어요.", "c": "개념 부족"}, {"s": "국어", "d": "공통", "t": "〈보기〉의 관점을 문제에 적용하지 못했어요.", "c": "풀이 적용"}, {"s": "사회", "d": "", "t": "사상가마다 입장이 어떻게 다른지 헷갈렸어요.", "c": "개념 부족"}, {"s": "사회", "d": "", "t": "통계·지도 자료에서 증감률·비율을 계산하지 못했어요.", "c": "계산·기록 실수"}, {"s": "사회", "d": "", "t": "지역 격차를 보여주는 지표를 잘못 해석했어요.", "c": "풀이 적용"}, {"s": "사회", "d": "", "t": "현대 사회 문제(저출생·고령화 등)의 내용을 정확히 몰랐어요.", "c": "개념 부족"}, {"s": "사회", "d": "", "t": "헌법상 기본권이 침해된 내용을 파악하지 못했어요.", "c": "개념 부족"}, {"s": "사회", "d": "", "t": "시장 실패와 정부 실패가 왜 생기는지 몰랐어요.", "c": "개념 부족"}, {"s": "사회", "d": "", "t": "문화를 이해하는 태도(자문화중심주의 등)와 사례를 연결하지 못했어요.", "c": "풀이 적용"}, {"s": "사회", "d": "", "t": "정의의 기준(분배적 정의 등)을 사례에 잘못 적용했어요.", "c": "풀이 적용"}, {"s": "공통", "d": "", "t": "여러 단원이 섞인 문제(지리+윤리 등)를 하나로 연결해 읽지 못했어요.", "c": "풀이 적용"}, {"s": "사회", "d": "", "t": "각각의 관점은 아는데, 함께 묶어서 생각하지 못했어요.", "c": "풀이 적용"}, {"s": "공통", "d": "", "t": "같은 개념이 다른 말로 바뀌어 나오니 못 알아봤어요.", "c": "풀이 적용"}, {"s": "공통", "d": "", "t": "비슷한 개념끼리 헷갈렸어요.", "c": "개념 부족"}, {"s": "수학", "d": "", "t": "개념이나 용어의 뜻을 말로 설명하지 못해요. (예: '접선', '극값'이 뭔지)", "c": "개념 부족"}, {"s": "수학", "d": "", "t": "개념은 아는데, 이 문제에 어떤 개념을 써야 할지 몰랐어요.", "c": "풀이 적용"}, {"s": "수학", "d": "", "t": "문제 조건을 식이나 그림으로 옮기지 못했어요.", "c": "풀이 적용"}, {"s": "수학", "d": "", "t": "함수식을 보고 그래프 모양을 떠올리지 못했어요.", "c": "풀이 적용"}, {"s": "수학", "d": "", "t": "공식이 기억나지 않거나 비슷한 공식과 헷갈렸어요.", "c": "개념 부족"}, {"s": "수학", "d": "", "t": "개념을 노트에 정리해 두지 않았어요. (교재에 밑줄만 있어요)", "c": "공부 습관"}, {"s": "수학", "d": "", "t": "오답 정리를 안 해서 같은 유형을 또 틀렸어요.", "c": "공부 습관"}, {"s": "수학", "d": "", "t": "풀이를 외워서 풀다 보니, 숫자나 모양이 바뀌면 못 풀겠어요.", "c": "풀이 적용"}, {"s": "수학", "d": "", "t": "이 유형 문제를 충분히 풀어보지 않았어요. (5문제도 안 풀어봤어요)", "c": "공부 습관"}, {"s": "수학·과학", "d": "수학·과학", "t": "그래프·표의 눈금, 숫자, 단위를 잘못 읽었어요.", "c": "읽기 실수"}, {"s": "수학·과학", "d": "수학·과학", "t": "풀이 방법은 맞는데 계산이나 부호가 틀렸어요.", "c": "계산·기록 실수"}, {"s": "수학·과학", "d": "수학·과학", "t": "숫자를 옮겨 적다 틀렸거나 단위를 빠뜨렸어요.", "c": "계산·기록 실수"}, {"s": "수학·과학", "d": "수학·과학", "t": "풀고 나서 다시 확인(검산)하지 않았어요.", "c": "계산·기록 실수"}, {"s": "수학·과학", "d": "", "t": "쉬운 문제라고 대충(암산으로) 풀다가 틀렸어요.", "c": "시험 심리"}, {"s": "영어", "d": "공통", "t": "단어·숙어 뜻을 몰랐어요.", "c": "개념 부족"}, {"s": "영어", "d": "공통", "t": "문법이나 문장 구조를 잘못 파악했어요.", "c": "개념 부족"}, {"s": "영어", "d": "공통", "t": "해석은 했는데 무슨 뜻인지 이해가 안 됐어요.", "c": "풀이 적용"}, {"s": "영어", "d": "공통", "t": "지시어(it, this)나 바꿔 쓴 표현이 무엇을 가리키는지 연결하지 못했어요.", "c": "풀이 적용"}, {"s": "영어", "d": "공통", "t": "글의 흐름(반대·원인·결과) 방향을 잘못 잡았어요.", "c": "풀이 적용"}, {"s": "영어", "d": "유형", "t": "글의 주제·요지·주장을 잘못 잡았어요.", "c": "풀이 적용"}, {"s": "영어", "d": "유형", "t": "숨은 뜻이 있는 표현을 글자 그대로만 해석했어요.", "c": "풀이 적용"}, {"s": "영어", "d": "유형", "t": "빈칸에 들어갈 의미를 잘못 잡았어요.", "c": "풀이 적용"}, {"s": "영어", "d": "유형", "t": "넣을 문장의 앞뒤 연결을 모두 확인하지 않았어요.", "c": "읽기 실수"}, {"s": "영어", "d": "유형", "t": "소재가 같아서 관련 있는 문장이라고 생각했어요.", "c": "풀이 적용"}, {"s": "영어", "d": "유형", "t": "요약문의 두 빈칸을 함께 따져보지 않았어요.", "c": "풀이 적용"}, {"s": "영어", "d": "듣기", "t": "아는 단어인데 소리로 들으니 못 알아들었어요.", "c": "개념 부족"}, {"s": "영어", "d": "듣기", "t": "한 단어 해석하느라 다음 내용을 놓쳤어요.", "c": "시험 운영"}, {"s": "영어", "d": "듣기", "t": "말하는 목적·이유·의도를 잘못 이해했어요.", "c": "풀이 적용"}, {"s": "영어", "d": "듣기", "t": "숫자·시간·금액 같은 조건을 놓쳤어요.", "c": "읽기 실수"}, {"s": "영어", "d": "듣기", "t": "집중이 끊긴 뒤 다음 문제로 넘어가지 못했어요.", "c": "시험 심리"}, {"s": "한국사", "d": "", "t": "어떤 일이 먼저 일어났는지 순서가 헷갈렸어요.", "c": "개념 부족"}, {"s": "한국사", "d": "", "t": "사료 속 인물이 언제 활동했는지 몰랐어요.", "c": "개념 부족"}, {"s": "한국사", "d": "", "t": "유물·유적의 이름과 만들어진 시기가 헷갈렸어요.", "c": "개념 부족"}, {"s": "한국사", "d": "", "t": "조약·법령이 나온 배경과 결과의 순서를 헷갈렸어요.", "c": "개념 부족"}, {"s": "한국사", "d": "", "t": "일제강점기 민족 운동 단체들의 노선과 활동이 헷갈렸어요.", "c": "개념 부족"}, {"s": "한국사", "d": "", "t": "조선 시대 경제·수취 제도(공법, 대동법 등)를 어느 왕 때 했는지 몰랐어요.", "c": "개념 부족"}, {"s": "한국사", "d": "", "t": "환국·붕당 정치에서 어느 세력이 주도했는지 헷갈렸어요.", "c": "개념 부족"}, {"s": "한국사", "d": "", "t": "시대별 지방 행정 조직의 특징을 구별하지 못했어요.", "c": "개념 부족"}, {"s": "한국사", "d": "", "t": "왕과 그 왕의 업적을 연결하지 못했어요.", "c": "개념 부족"}, {"s": "공통", "d": "", "t": "제도와 기구의 이름이 헷갈렸어요.", "c": "개념 부족"}, {"s": "한국사", "d": "", "t": "문화재·예술 양식이 어느 시대 것인지 몰랐어요.", "c": "개념 부족"}, {"s": "공통", "d": "", "t": "처음 보는 자료라 핵심 키워드를 찾지 못했어요.", "c": "풀이 적용"}];
+const SUBJECTS = [
+  {key:'국어', src:['국어','공통'], n:45, three:[5,10,15,17,22,26,30,34,39,43], rel:true},
+  {key:'수학', src:['수학','수학·과학','공통'], n:30, custom:{2:[1,2,3,4],3:[5,6,7,8,9,10,11,12,13,14,15,16]}, def:4, rel:true},
+  {key:'영어', src:['영어','공통'], n:45, three:[21,29,31,32,33,34,37,39,40,42], abs:[90,80,70,60,50,40,30,20]},
+  {key:'한국사', src:['한국사','공통'], n:20, three:[4,8,9,11,13,14,17,18,19,20], abs:[40,35,30,25,20,15,10,5]},
+  {key:'통합사회', src:['사회','공통'], n:20, three:[3,5,8,9,12,14,15,17,19,20], rel:true},
+  {key:'통합과학', src:['과학','수학·과학','공통'], n:20, three:[3,5,8,9,12,14,15,17,19,20], rel:true},
+];
+const UNITS = {
+  '국어':['독서','문학','화법','작문','언어'],
+  '영어':['듣기','어휘·어법','독해 – 대의 파악(주제·요지·주장)','독해 – 함축 의미','독해 – 빈칸 추론','독해 – 글의 순서','독해 – 문장 삽입','독해 – 무관한 문장','독해 – 요약문'],
+  '수학':{'고1':['[고1] 공통수학1 – 다항식','[고1] 공통수학1 – 방정식과 부등식','[고1] 공통수학1 – 경우의 수','[고1] 공통수학1 – 행렬','[고1] 공통수학2 – 도형의 방정식','[고1] 공통수학2 – 집합과 명제','[고1] 공통수학2 – 함수와 그래프'],
+          '고2':['대수 – 지수함수와 로그함수','대수 – 삼각함수','대수 – 수열','미적분Ⅰ – 함수의 극한과 연속','미적분Ⅰ – 미분','미적분Ⅰ – 적분','확률과 통계 – 경우의 수','확률과 통계 – 확률','확률과 통계 – 통계'],
+          '고3':['대수 – 지수함수와 로그함수','대수 – 삼각함수','대수 – 수열','미적분Ⅰ – 함수의 극한과 연속','미적분Ⅰ – 미분','미적분Ⅰ – 적분','확률과 통계 – 경우의 수','확률과 통계 – 확률','확률과 통계 – 통계']},
+  '한국사':['연표 - 사건·제도 순서','인물 - 활동 시기·업적','문화사 - 유물·유적 시기','정치사 – 제도, 기구, 조직','일제강점기 – 민족 운동','근현대 – 조약·법령'],
+  '통합사회':['윤리 - 사상가','윤리 – 정의의 기준','지리 – 공간 불평등·지역 격차','사회 – 현대 사회 문제(저출생·고령화)','정치·법 – 헌법상 기본권','경제 – 시장 실패·정부 실패','문화 – 문화 이해 태도','자료 해석 - 그래프·지도 등','융합형 - 복합 문제(지리+윤리 등)'],
+  '통합과학':['통합과학1_기본량과 단위 (시간과 공간)','통합과학1_측정과 어림','통합과학1_ 정보와 디지털 기술 (신호)','통합과학1_우주 초기 원소의 생성 (빅뱅)','통합과학1_별의 진화와 원소의 생성','통합과학1_주기율표와 원소의 주기성','통합과학1_화학 결합 (이온 결합·공유 결합)','통합과학1_지각과 생명체 구성 물질 (규산염 광물, 단백질, 핵산)','통합과학1_물질의 전기적 성질 (도체·반도체·절연체)','통합과학1_지구시스템과 물질 순환','통합과학1_판 구조론과 지권의 변화','통합과학1_중력과 운동 (자유 낙하, 수평 방향 운동)','통합과학1_운동량과 충격량 (충돌 안전)','통합과학1_세포의 구조와 세포막','통합과학1_물질대사와 효소','통합과학1_유전자와 단백질 합성'],
+};
+// 1_카테고리 기준 + 액션플랜 매칭표 + 7_솔루션 대표 학습법
+const CATS = [
+  {k:'개념 부족', c:'#2f6fdb', easy:'해설 보니 몰랐어요 / 헷갈렸어요', o:false, area:'학습', champ:'CHAMP 이해·정리',
+   one:'공부한 단원은 빈 종이에 개념 3개를 설명해 보기', counsel:'전지적 교과서 시점 (과목별 교과서 학습법)', method:'단원 이론 재학습과 백지 인출(빈 종이에 설명해 보기)', check:'백지 테스트',
+   parent:'개념·용어를 정확히 이해하고 스스로 정리하는 과정이 부족합니다.', mplan:'취약 단원을 개념 정리 노트로 다시 정리하고, 주 1회 백지 인출로 이해 여부를 확인하겠습니다.', home:'이번에 정리한 개념 하나를 3분 동안 말로 설명해 보게 해주세요.'},
+  {k:'풀이 적용', c:'#0f9a8a', easy:'알긴 아는데 문제에 적용이 안 돼요', o:false, area:'학습', champ:'CHAMP 사고·문제해결',
+   one:'풀기 전에 조건·근거를 손으로 먼저 표시하기', counsel:'아는데 왜 안 풀릴까? (CHAMP 학습흐름)', method:'조건 표시와 선지별 근거 문장 찾기', check:'근거 표시 점검',
+   parent:'알고 있는 개념을 자료·조건에 맞게 적용하는 훈련이 더 필요합니다.', mplan:'문제를 풀기 전 조건과 근거를 표시하는 훈련을 하고, 주 2회 풀이 흔적을 함께 점검하겠습니다.', home:'문제를 풀었을 때 "왜 이 답인지" 근거를 한 번 물어봐 주세요.'},
+  {k:'공부 습관', c:'#8a6a1f', easy:'오답 정리를 안 했어요 / 풀어본 양이 적어요', o:false, area:'학습·행동', champ:'1010리뷰노트·텀스케줄',
+   one:'틀린 문제는 당일 정리하고 이틀 뒤·2주 뒤 다시 풀기', counsel:'각 과목별 오답 분석 방법 및 양식', method:'오답노트 정리와 복습 3시점(당일·이틀 내·2주 후)', check:'리뷰노트 점검',
+   parent:'오답을 다시 정리하고 반복하는 복습 습관이 아직 자리 잡지 않았습니다.', mplan:'1010리뷰노트로 오답을 당일 정리하게 하고, 텀스케줄에 복습 시점을 넣어 관리하겠습니다.', home:'주말에 리뷰노트를 했는지 확인하고, 해냈다면 꼭 칭찬해 주세요.'},
+  {k:'읽기 실수', c:'#d2433b', easy:'아는 건데 문제·조건·선지를 잘못 읽었어요', o:true, area:'행동', champ:'행동 습관 관리',
+   one:'문제를 풀기 전 묻는 것에 동그라미 치기', counsel:'수학 시험에서 실수 안 하는 법', method:'발문·조건 표시와 선지 근거 대조', check:'시험지 표시 점검',
+   parent:'알고 있는 문제를 발문·조건을 잘못 읽어 놓치는 경우가 있습니다.', mplan:'매 학습마다 발문과 조건에 표시하는 습관을 확인하겠습니다.', home:'"문제에서 무엇을 묻는지 표시했니?" 하고 가볍게 물어봐 주세요.'},
+  {k:'계산·기록 실수', c:'#e07a1f', easy:'계산·부호·옮겨 적기에서 틀렸어요', o:true, area:'행동', champ:'행동 습관 관리',
+   one:'풀고 나서 부호·옮겨 적기를 한 번 다시 보기', counsel:'수학 시험 볼 때 실수도 실력이다?!', method:'실수노트(검은 펜=내 실수, 빨간 펜=바른 풀이)', check:'실수노트 점검',
+   parent:'풀이 방법은 맞지만 계산·옮겨 적기 과정에서 점수를 잃고 있습니다.', mplan:'실수노트로 본인의 실수 패턴을 찾고, 검산 습관을 주 2회 점검하겠습니다.', home:'결과보다 "검산했니?"를 먼저 물어봐 주세요.'},
+  {k:'답 선택·마킹', c:'#b8428e', easy:'ㄱㄴㄷ 조합을 잘못 골랐어요 / OMR을 밀려 썼어요', o:true, area:'행동', champ:'행동 습관 관리',
+   one:'ㄱㄴㄷ 판단 후 번호를 한 번 더 대조하고, 마킹은 5문항마다', counsel:'수학 시험 볼 때 실수도 실력이다?!', method:'조합 재대조와 5문항 단위 마킹 루틴', check:'실전 마킹 점검',
+   parent:'판단은 맞았지만 답 조합 선택·마킹에서 점수를 잃었습니다.', mplan:'실전 연습 때 마킹 루틴(5문항마다 마킹, 조합 재대조)을 점검하겠습니다.', home:'실수를 탓하기보다 "다음엔 어떻게 확인할래?"를 함께 정해 주세요.'},
+  {k:'시험 운영', c:'#5a6b85', easy:'시간이 없었어요 / 한 문제에 매달렸어요', o:false, area:'행동·정신', champ:'행동·정신 관리',
+   one:'시험 전 풀이 순서를 정하고, 막히면 표시하고 넘어가기', counsel:'수학 시험 시간이 항상 부족해요', method:'풀이 순서 정하기와 실전 시간 연습', check:'시간 기록',
+   parent:'시간 배분과 풀이 순서 전략이 필요합니다.', mplan:'과목별 풀이 순서를 정하고, 실전 시간에 맞춘 연습을 관리하겠습니다.', home:'집에서 한 과목을 실제 시험 시간에 맞춰 풀어 보는 시간을 마련해 주세요.'},
+  {k:'시험 심리', c:'#6c4fc4', easy:'긴장해서 / 대충 풀어서 / 겁먹고 찍어서', o:false, area:'정신·행동', champ:'행동·정신 관리',
+   one:'시험 전 불안한 생각 하나를 바꿔 적기', counsel:'시험불안 이기기', method:'시험 시작 루틴과 불안한 생각 바꿔 적기', check:'시험 전 루틴 점검',
+   parent:'긴장·불안으로 실력만큼 점수가 나오지 않은 문항이 있습니다.', mplan:'시험불안 체크와 생각 바꾸기 워크시트로 상담을 진행하겠습니다.', home:'점수보다 노력한 과정을 먼저 이야기해 주세요.'},
+];
+const CAT = Object.fromEntries(CATS.map(c=>[c.k,c]));
+// 공통 문장 중 과목에 맞지 않는 문장 (앞부분으로 찾음)
+const EXCLUDE={
+  '국어':['여러 단원이 섞인 문제(지리','제도와 기구의 이름'],
+  '수학':['지문 근거 없이','선지를 지문 근거와','선지 앞부분과 뒷부분','여러 단원이 섞인 문제(지리','제도와 기구의 이름',"'항상', '모든'",'처음 보는 자료라'],
+  '영어':['여러 단원이 섞인 문제(지리','제도와 기구의 이름','ㄱ·ㄴ·ㄷ 중 하나','ㄱ·ㄴ·ㄷ 판단은'],
+  '한국사':['여러 단원이 섞인 문제(지리'],
+  '통합사회':[],
+  '통합과학':['여러 단원이 섞인 문제(지리','제도와 기구의 이름','지문 근거 없이','선지를 지문 근거와']
+};
+function poolFor(k){const def=SUBJECTS.find(x=>x.key===k); return FACTORS.filter(f=>def.src.includes(f.s)&&!(EXCLUDE[k]||[]).some(x=>f.t.startsWith(x)));}
+// 과목별 모의고사 학습법 상담 PPT (팀원 제작분이 오면 여기에 추가)
+const PPTS = [
+  {s:'국어', unit:'독서', match:['글의 중심 내용과 구조를 파악하지 못했어요.','글 속 정보끼리의 관계를 잘못 연결했어요.'], cat:'풀이 적용', title:'그려 보면 보인다, 비문학 구조도 공식', by:'이유민', status:'완성'},
+];
+
+
+
+/* ================= 저장소 ================= */
+const STORE={exams:{},students:{},records:{}};
+let REAL=null;          // 실제 저장소 데이터(예시 모드일 때 보관)
+let DEMO=false, MODE='loading', DB=null, firstData=false;
+const LKEY='mock-counsel-v2';
+const dirty=new Set(), timers={}, chains={};
+let needsRender=false;
+const clone=o=>JSON.parse(JSON.stringify(o));
+function saveLocal(){ if(MODE!=='local'||DEMO) return; try{localStorage.setItem(LKEY,JSON.stringify(STORE))}catch(e){} }
+function put(col,id,obj){
+  STORE[col][id]=obj; if(DEMO) return;
+  const k=col+'/'+id; dirty.add(k); clearTimeout(timers[k]);
+  timers[k]=setTimeout(()=>flush(col,id),col==='records'?450:0);
+}
+function flush(col,id){
+  const k=col+'/'+id; timers[k]=null;
+  if(MODE!=='db'){ saveLocal(); dirty.delete(k); return; }
+  const body=STORE[col][id]; if(!body){dirty.delete(k);return;}
+  chains[k]=(chains[k]||Promise.resolve()).then(()=>DB.doc('mock_'+k).set(clone(body))).catch(e=>{
+    toast(e&&e.code==='permission-denied'?'저장 권한이 없어요. 로그아웃 후 다시 로그인해 주세요.':'저장하지 못했어요. 인터넷 연결을 확인하고 다시 입력해 주세요.');
+  }).finally(()=>{ if(!timers[k]) dirty.delete(k); });
+}
+function flushAll(){ Object.keys(timers).forEach(k=>{ if(timers[k]){ clearTimeout(timers[k]); const i=k.indexOf('/'); flush(k.slice(0,i),k.slice(i+1)); } }); }
+window.addEventListener('beforeunload',flushAll);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') flushAll(); });
+async function remove(col,id){
+  delete STORE[col][id]; if(DEMO) return;
+  if(MODE==='db'){ try{await DB.doc('mock_'+col+'/'+id).delete()}catch(e){toast('삭제하지 못했어요.')} } else saveLocal();
+}
+function typing(){const a=document.activeElement; return a&&a.closest&&a.closest('#app')&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);}
+function softRender(){ if(typing()){needsRender=true; return;} render(); }
+document.addEventListener('focusout',()=>setTimeout(()=>{ if(needsRender&&!typing()){needsRender=false; render();} },0));
+
+let AUTH=null, USER=null, UNSUBS=[];
+function boot(){
+  const ok=window.firebase&&FIREBASE_CONFIG.apiKey&&FIREBASE_CONFIG.databaseURL;
+  if(ok){
+    try{ firebase.initializeApp(FIREBASE_CONFIG); }catch(e){}
+    AUTH=firebase.auth();
+    AUTH.onAuthStateChanged(u=>{ USER=u; if(u) startDb(); else { stopDb(); showLogin(); } });
+  } else {
+    MODE='local';
+    try{const raw=localStorage.getItem(LKEY); if(raw){const o=JSON.parse(raw); Object.assign(STORE,o);} }catch(e){}
+    firstData=true; render();
+  }
+}
+/* Realtime Database를 기존 저장 코드와 같은 모양으로 쓰기 위한 연결부 */
+const RT_ROOT='mock_counsel/';
+function deArr(x){
+  if(Array.isArray(x)){ if(x.some(v=>v==null)){const o={}; x.forEach((v,i)=>{if(v!=null) o[i]=deArr(v);}); return o;} return x.map(deArr); }
+  if(x&&typeof x==='object'){const o={}; for(const k in x) o[k]=deArr(x[k]); return o;}
+  return x;
+}
+function fixDoc(col,d){
+  d=deArr(d)||{};
+  if(col==='records'){ d.subjects=Array.isArray(d.subjects)?d.subjects:[]; ['wrong','goals','diag','checks','prevManual','sent'].forEach(k=>{if(!d[k]||typeof d[k]!=='object'||Array.isArray(d[k])) d[k]=d[k]&&!Array.isArray(d[k])?d[k]:{};});
+    for(const k in d.wrong){ if(!d.wrong[k]||typeof d.wrong[k]!=='object') d.wrong[k]={}; for(const q in d.wrong[k]){ const w=d.wrong[k][q]||{}; if(w.cat==null) w.cat=''; if(!('sent' in w)) w.sent=null; d.wrong[k][q]=w; } }
+    for(const k in d.diag){ const x=d.diag[k]; if(x&&x.weak&&!Array.isArray(x.weak)) x.weak=Object.values(x.weak); } }
+  if(col==='exams'){ d.subj=d.subj||{}; KEYS.forEach(k=>{const s=d.subj[k]; if(!s) return; s.units=s.units&&!Array.isArray(s.units)?s.units:(s.units||{}); s.pts=Array.isArray(s.pts)?s.pts:Object.values(s.pts||{}); s.cuts=Array.isArray(s.cuts)?s.cuts:['','','','','','','',''];}); }
+  return d;
+}
+function rtAdapter(db){
+  return {
+    collection(name){ const col=name.replace(/^mock_/,''); return { onSnapshot(fn,err){
+      const ref=db.ref(RT_ROOT+col); const known=new Set();
+      const h=ref.on('value',snap=>{ const val=snap.val()||{}; const ch=[];
+        Object.keys(val).forEach(id=>ch.push({type:known.has(id)?'modified':'added',doc:{id,data:()=>fixDoc(col,val[id])}}));
+        known.forEach(id=>{ if(!(id in val)) ch.push({type:'removed',doc:{id,data:()=>null}}); });
+        known.clear(); Object.keys(val).forEach(id=>known.add(id));
+        fn({metadata:{fromCache:false},docChanges:()=>ch});
+      },e=>{ err&&err({code:/permission/i.test(String(e&&(e.code||e.message)))?'permission-denied':'error'}); });
+      return ()=>ref.off('value',h); } }; },
+    doc(path){ const r=db.ref(RT_ROOT+path.replace(/^mock_/,'')); return {
+      set:b=>r.set(b).catch(e=>{throw {code:/permission/i.test(String(e&&(e.code||e.message)))?'permission-denied':'error'};}),
+      delete:()=>r.remove() }; }
+  };
+}
+function startDb(){
+  DB=rtAdapter(firebase.database()); MODE='db'; firstData=false;
+  const slow=setTimeout(()=>{ if(!firstData){ ui.note='저장소에 아직 연결되지 않았어요. 인터넷 연결을 확인해 주세요.'; render(); } },10000);
+  let got=0;
+  ['exams','students','records'].forEach(col=>{
+    UNSUBS.push(DB.collection('mock_'+col).onSnapshot(snap=>{
+      if(!snap.metadata.fromCache){ got|= {exams:1,students:2,records:4}[col]; if(got===7&&!firstData){firstData=true; clearTimeout(slow); ui.note='';} }
+      const target=DEMO?REAL:STORE;
+      snap.docChanges().forEach(ch=>{
+        const k=col+'/'+ch.doc.id; if(dirty.has(k)) return;
+        if(ch.type==='removed') delete target[col][ch.doc.id]; else target[col][ch.doc.id]=clone(ch.doc.data());
+      });
+      if(!DEMO) softRender();
+    },err=>{ ui.note=err&&err.code==='permission-denied'?'이 계정은 데이터를 볼 권한이 없어요. 원장님께 문의해 주세요.':'저장소 연결이 끊겼어요. 새로고침해 주세요.'; render(); }));
+  });
+  render();
+}
+function stopDb(){ UNSUBS.forEach(f=>{try{f()}catch(e){}}); UNSUBS=[]; STORE.exams={}; STORE.students={}; STORE.records={}; if(DEMO){DEMO=false; REAL=null;} ui.view='students'; ui.sid=null; ui.rid=null; ui.eid=null; }
+function showLogin(){
+  document.getElementById('mainnav').innerHTML=''; document.getElementById('modeLine').textContent='';
+  document.getElementById('app').innerHTML=`<form class="panel login" id="f-login"><h2 style="margin:0;font-family:var(--f-display)">매니저 로그인</h2>
+   <p class="hint" style="margin:0">원장님께 받은 이메일과 비밀번호로 로그인해 주세요.</p>
+   <label class="f">이메일<input id="lg-email" type="email" autocomplete="username" required></label>
+   <label class="f">비밀번호<input id="lg-pw" type="password" autocomplete="current-password" required></label>
+   <div class="err" id="lg-err"></div>
+   <button class="btn primary" type="submit">로그인</button>
+   <button class="reset" type="button" data-act="pw-reset">비밀번호를 잊었어요 (재설정 메일 받기)</button></form>`;
+}
+function loginErr(e){const c=e&&e.code||''; return /invalid-credential|wrong-password|user-not-found|invalid-login/.test(c)?'이메일 또는 비밀번호가 맞지 않아요.':/too-many-requests/.test(c)?'여러 번 틀려서 잠시 막혔어요. 몇 분 뒤 다시 해 주세요.':/invalid-email/.test(c)?'이메일 형식을 확인해 주세요.':/network/.test(c)?'인터넷 연결을 확인해 주세요.':'로그인하지 못했어요. ('+c+')';}
+document.addEventListener('submit',e=>{
+  if(e.target.id!=='f-login') return; e.preventDefault();
+  const em=document.getElementById('lg-email').value.trim(), pw=document.getElementById('lg-pw').value, er=document.getElementById('lg-err');
+  er.textContent='로그인 중…'; AUTH.signInWithEmailAndPassword(em,pw).catch(err=>{er.textContent=loginErr(err);});
+});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act="pw-reset"],[data-act="logout"]'); if(!b) return;
+  if(b.dataset.act==='logout'){ AUTH&&AUTH.signOut(); return; }
+  const em=document.getElementById('lg-email').value.trim(), er=document.getElementById('lg-err');
+  if(!em){er.textContent='이메일 칸을 먼저 채워 주세요.'; return;}
+  AUTH.sendPasswordResetEmail(em).then(()=>{er.textContent='재설정 메일을 보냈어요. 메일함을 확인해 주세요.';}).catch(err=>{er.textContent=loginErr(err);});
+});
+
+/* ================= 화면 상태 ================= */
+const ui={view:'students', sid:null, rid:null, step:0, cur:'국어', eid:null, mode:'pts', brush:'', dashEid:null, note:'', mgr:''};
+const ymd=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+const today=()=>ymd(new Date());
+const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function jo(w,a,b){let s=String(w).replace(/\([^)]*\)\s*$/,'').replace(/[\s'’"”)\]]+$/,'');const ch=s.charCodeAt(s.length-1);if(ch<0xAC00||ch>0xD7A3)return w+(a==='으로'?'(으)로':a);const bat=(ch-0xAC00)%28;if(a==='으로')return w+(bat===0||bat===8?'로':'으로');return w+(bat?a:b);}
+const SUBDEF=k=>SUBJECTS.find(x=>x.key===k);
+const KEYS=SUBJECTS.map(x=>x.key);
+function unitsFor(k,grade){const u=UNITS[k]; return Array.isArray(u)?u:(u[grade]||u['고1']);}
+function shortUnit(u){return String(u||'').replace(/^통합과학1_\s*/,'').replace(/^\[고\d\]\s*/,'');}
+function defaultPts(S){const pts=[]; for(let q=1;q<=S.n;q++){let p=2; if(S.custom){p=S.def; for(const v in S.custom) if(S.custom[v].includes(q)) p=+v;} else if(S.three.includes(q)) p=3; pts.push(p);} return pts;}
+function shortFromDate(d){const m=String(d||'').slice(5,7); return m?(+m)+'월':'';}
+function newExam(name,date,grade){const subj={}; SUBJECTS.forEach(x=>{subj[x.key]={n:x.n,pts:defaultPts(x),units:{},cuts:x.abs?x.abs.slice():['','','','','','','','']};}); return {name,date,grade,short:shortFromDate(date),subj,created:Date.now()};}
+function examDate(eid){return (STORE.exams[eid]||{}).date||'';}
+function examLabel(eid){const e=STORE.exams[eid]; return e?(e.short||shortFromDate(e.date)||e.name):'?';}
+function recsOf(sid){return Object.entries(STORE.records).filter(([id,r])=>r.sid===sid&&STORE.exams[r.eid]).map(([id,r])=>({id,...r})).sort((a,b)=>examDate(a.eid).localeCompare(examDate(b.eid)));}
+function prevRecOf(rid){const r=STORE.records[rid]; if(!r) return null; const list=recsOf(r.sid).filter(x=>examDate(x.eid)<examDate(r.eid)); return list.length?list[list.length-1]:null;}
+function newRecord(sid,eid){
+  const st=STORE.students[sid]; const ex=STORE.exams[eid];
+  const prev=recsOf(sid).filter(x=>examDate(x.eid)<ex.date).pop();
+  const goals={}; if(prev) KEYS.forEach(k=>{const g=prev.diag?.[k]?.nextGoal; if(g) goals[k]={goal:g};});
+  return {sid,eid,manager:st.manager||'',date:today(),subjects:KEYS.slice(),wrong:{},goals,diag:{},comment:'',checks:{},prevManual:{},sent:{},diagDone:false,created:Date.now()};
+}
+const rec=()=>STORE.records[ui.rid];
+const recExam=r=>STORE.exams[(r||rec()).eid];
+
+/* ================= 계산 ================= */
+function gradeOf(cuts,score){ if(!cuts||cuts.some(v=>v===''||v==null)) return null; for(let i=0;i<8;i++){ if(score>=+cuts[i]) return i+1;} return 9;}
+function calcR(r,k,noPrev){
+  const ex=STORE.exams[r.eid]; const es=ex&&ex.subj&&ex.subj[k]; if(!es) return null;
+  const max=es.pts.reduce((a,b)=>a+b,0); const W=(r.wrong&&r.wrong[k])||{};
+  const qs=Object.keys(W).map(Number).filter(q=>q>=1&&q<=es.n).sort((a,b)=>a-b);
+  let lost=0,oLost=0; const byCat={},byUnit={},bySent={};
+  qs.forEach(q=>{const p=es.pts[q-1]||0; lost+=p; const w=W[q]; const c=w.cat; const u=es.units[q];
+    if(c){byCat[c]=byCat[c]||{n:0,p:0}; byCat[c].n++; byCat[c].p+=p; if(CAT[c]&&CAT[c].o) oLost+=p;}
+    if(u){byUnit[u]=byUnit[u]||{n:0,p:0}; byUnit[u].n++; byUnit[u].p+=p;}
+    if(w.sent){const key=c+'||'+w.sent; bySent[key]=bySent[key]||{n:0,p:0,cat:c,sent:w.sent,units:{}}; bySent[key].n++; bySent[key].p+=p; if(u) bySent[key].units[u]=(bySent[key].units[u]||0)+1;}
+  });
+  const score=max-lost, pot=Math.min(score+oLost,max);
+  const top=Object.entries(byCat).map(([c,v])=>({c,...v})).sort((a,b)=>b.n-a.n||b.p-a.p).slice(0,3);
+  const units=Object.entries(byUnit).map(([u,v])=>({u,...v})).sort((a,b)=>b.p-a.p||b.n-a.n);
+  const sents=Object.values(bySent).sort((a,b)=>b.n-a.n||b.p-a.p);
+  const out={max,qs,lost,oLost,score,pot,top,units,sents,byCat,done:qs.filter(q=>W[q].cat).length,grade:gradeOf(es.cuts,score),pgrade:gradeOf(es.cuts,pot),prev:null,prevGrade:null,prevCat:null};
+  if(!noPrev){
+    const id=r.id||Object.keys(STORE.records).find(i=>STORE.records[i]===r); const pr=id&&prevRecOf(id);
+    if(pr&&pr.subjects.includes(k)){const pc=calcR(pr,k,true); if(pc){out.prev=pc.score; out.prevGrade=pc.grade; out.prevCat=pc.byCat; out.prevLabel=examLabel(pr.eid);}}
+    else if(r.prevManual&&r.prevManual[k]!==''&&r.prevManual[k]!=null){out.prev=+r.prevManual[k];}
+  }
+  return out;
+}
+const calc=k=>calcR(rec(),k);
+const activeKeys=r=>(r||rec()).subjects.filter(k=>STORE.exams[(r||rec()).eid]?.subj?.[k]);
+function topSentInCat(c,cat){return c.sents.find(s=>s.cat===cat);}
+function defaultOne(r,k){const c=calcR(r,k,true); return c&&c.top[0]?CAT[c.top[0].c].one:'';}
+function defaultPlan(r,k){
+  const c=calcR(r,k,true); if(!c||!c.top[0]) return '';
+  const cat=CAT[c.top[0].c]; const w=weakOf(r,k); const u=w[0]||(c.units[0]&&c.units[0].u)||'';
+  const target=u?`${k}의 '${shortUnit(u)}'`:`${k}의 ${cat.k} 문항`;
+  return `다음 모의고사까지 ${jo(target,'을','를')} ${jo(cat.method,'으로')} 정리하고, 주 2회 ${jo(cat.check,'으로')} 확인해요.`;
+}
+function weakOf(r,k){const d=r.diag?.[k]; if(d&&Array.isArray(d.weak)) return d.weak; const c=calcR(r,k,true); return c?c.units.slice(0,2).map(x=>x.u):[];}
+const D=(r,k)=>{r.diag=r.diag||{}; return r.diag[k]=r.diag[k]||{};};
+const oneOf=(r,k)=>{const d=r.diag?.[k]; return d&&d.one!=null?d.one:defaultOne(r,k);};
+const planOf=(r,k)=>{const d=r.diag?.[k]; return d&&d.plan!=null?d.plan:defaultPlan(r,k);};
+/* 실천 체크: 상담일부터 다음 시험(같은 학년)까지 주 단위 */
+function addDays(d,n){const x=new Date(d+'T00:00:00'); x.setDate(x.getDate()+n); return ymd(x);}
+function nextExamOf(r){const ex=STORE.exams[r.eid]; return Object.entries(STORE.exams).filter(([id,e])=>e.grade===ex.grade&&e.date>ex.date).sort((a,b)=>a[1].date.localeCompare(b[1].date))[0];}
+function weeksOf(r){
+  const start=r.date||today(); const nx=nextExamOf(r); const end=nx?nx[1].date:addDays(start,42);
+  const days=Math.max(7,(new Date(end)-new Date(start))/864e5); const n=Math.min(12,Math.max(1,Math.ceil(days/7)));
+  return Array.from({length:n},(_,i)=>({i:i+1,start:addDays(start,i*7),end:addDays(start,i*7+6)}));
+}
+function practiceSubs(r){return activeKeys(r).filter(k=>oneOf(r,k)&&calcR(r,k,true).qs.length);}
+function practice(r,asOf){
+  const subs=practiceSubs(r); const w=weeksOf(r); const now=asOf||today();
+  const el=w.filter(x=>x.start<=now); let done=0;
+  el.forEach(x=>subs.forEach(k=>{if(r.checks?.[x.i]?.done?.[k]) done++;}));
+  const total=el.length*subs.length;
+  return {rate:total?Math.round(done/total*100):null,done,total,elapsed:el.length,weeks:w.length,subs};
+}
+function stageOf(r){
+  const ks=activeKeys(r); const n=ks.reduce((a,k)=>a+calcR(r,k,true).qs.length,0); const d=ks.reduce((a,k)=>a+calcR(r,k,true).done,0);
+  return {checked:n>0&&d===n, n, d, diag:!!r.diagDone, sent:!!(r.sent&&(r.sent.student||r.sent.parent)), prac:practice(r)};
+}
+
+/* ================= 상단 메뉴 ================= */
+function renderNav(){
+  const items=[['students','학생 상담'],['exams','시험 관리'],['dash','지점 현황']];
+  const v=ui.view==='student'?'students':ui.view;
+  document.getElementById('mainnav').innerHTML=items.map(([k,t])=>`<button type="button" data-act="view" data-v="${k}" aria-current="${v===k}">${t}</button>`).join('');
+  document.getElementById('modeLine').innerHTML=(DEMO?'예시 화면':MODE==='db'?'팀 공유 저장 중':MODE==='local'?'이 기기에만 저장':'')+(USER?` · ${esc(USER.email||'')}<button class="who-out" data-act="logout">로그아웃</button>`:'');
+}
+function banner(){
+  let h='';
+  if(DEMO) h+=`<div class="banner">예시 화면이에요. 가상의 학생 1명이 6월·9월·10월 세 번 시험을 본 모습이고, 여기서 바꾼 내용은 저장되지 않아요. <button class="btn small" data-act="demo-off">예시 닫고 실제 화면으로</button></div>`;
+  if(!DEMO&&MODE==='local') h+=`<div class="banner info">Firebase 설정 전이라 지금은 이 기기(브라우저)에만 저장돼요. 설정을 마치면 로그인한 매니저 모두가 같은 기록을 함께 봐요.</div>`;
+  if(ui.note) h+=`<div class="banner info">${esc(ui.note)}</div>`;
+  return h;
+}
+let navDepth=0, popping=false, lastNavKey='';
+const navKey=()=>[ui.view,ui.sid||'',ui.rid||'',ui.step,ui.eid||''].join('|');
+function syncHistory(){
+  const k=navKey(); if(k===lastNavKey) return;
+  const st={v:ui.view,sid:ui.sid,rid:ui.rid,step:ui.step,eid:ui.eid,d:navDepth};
+  try{ if(!lastNavKey||popping) history.replaceState(st,''); else { navDepth++; st.d=navDepth; history.pushState(st,''); } }catch(e){}
+  lastNavKey=k;
+}
+window.addEventListener('popstate',e=>{ const s=e.state; if(!s) return; popping=true; ui.view=s.v; ui.sid=s.sid; ui.rid=s.rid; ui.step=s.step; ui.eid=s.eid; navDepth=s.d||0; render(); popping=false; window.scrollTo({top:0}); });
+function backBar(){ return navDepth>0?`<div class="backbar"><button class="btn small" data-act="back">← 이전 화면</button></div>`:''; }
+function render(){
+  if(USER===null&&AUTH){return;}
+  renderNav();
+  const a=document.getElementById('app');
+  syncHistory();
+  let h=banner()+backBar();
+  if(ui.view==='students') h+=vStudents();
+  else if(ui.view==='student') h+=vStudent();
+  else if(ui.view==='exams') h+=vExams();
+  else if(ui.view==='dash') h+=vDash();
+  a.innerHTML=h;
+}
+function intro(h,p,extra=''){return `<div class="intro"><div class="row"><h2>${h}</h2>${extra}</div>${p?`<p>${p}</p>`:''}</div>`;}
+
+/* ================= 학생 목록 ================= */
+function vStudents(){
+  const mgrs=[...new Set(Object.values(STORE.students).map(s=>s.manager).filter(Boolean))];
+  const list=Object.entries(STORE.students).filter(([id,s])=>!ui.mgr||s.manager===ui.mgr).sort((a,b)=>a[1].name.localeCompare(b[1].name,'ko'));
+  const cards=list.map(([id,s])=>{const rs=recsOf(id); const last=rs[rs.length-1]; let pills='';
+    if(last){const st=stageOf(last); pills=`<span class="pill acc">${esc(examLabel(last.eid))}</span>${st.checked?'<span class="pill on">오답 체크</span>':`<span class="pill warn">오답 체크 ${st.d}/${st.n}</span>`}${st.diag?'<span class="pill on">진단</span>':'<span class="pill">진단 전</span>'}${st.sent?'<span class="pill on">보고서 전달</span>':''}${st.prac.rate!=null?`<span class="pill ${st.prac.rate>=70?'on':st.prac.rate<40?'warn':''}">실천 ${st.prac.rate}%</span>`:''}`;}
+    else pills='<span class="pill">기록 없음</span>';
+    return `<button type="button" class="scard" data-act="open-student" data-id="${id}"><span class="nm">${esc(s.name)}<span class="hint">${esc(s.grade)} · ${esc(s.manager||'담당 미정')}</span></span><span class="pills">${pills}</span><span class="hint">시험 기록 ${rs.length}회</span></button>`;}).join('');
+  const empty=`<div class="empty"><b>아직 등록된 학생이 없어요.</b><br>아래에서 학생을 추가하거나, 먼저 <button class="reset" data-act="demo-on">예시로 둘러보기</button>를 눌러 완성된 모습을 확인해 보세요.<br><span class="hint">시험 문항표가 없다면 '시험 관리'에서 시험을 먼저 등록해 주세요.</span></div>`;
+  return intro('학생 상담','학생을 고르면 지난 시험부터 쌓인 성장 기록과 이번 시험 상담 단계가 열려요.', !DEMO?`<button class="btn small" data-act="demo-on">예시로 둘러보기</button>`:'')+
+  `<div class="stack">${mgrs.length>1?`<div class="row"><span class="hint">담당 매니저</span><div class="chips"><button class="chip" data-act="mgr" data-v="" aria-pressed="${!ui.mgr}">전체</button>${mgrs.map(m=>`<button class="chip" data-act="mgr" data-v="${esc(m)}" aria-pressed="${ui.mgr===m}">${esc(m)}</button>`).join('')}</div></div>`:''}
+  ${list.length?`<div class="cards">${cards}</div>`:empty}
+  ${DEMO?`<div class="panel hint">예시 화면에서는 학생을 추가할 수 없어요. 추가해도 저장되지 않아서, 새로고침하면 사라져요. 위의 <b>[예시 닫고 실제 화면으로]</b>를 누른 뒤 추가해 주세요.</div>`:`<div class="panel"><div class="secthead"><h3>학생 추가</h3></div><form class="inline-form" id="f-student">
+    <label class="f">이름<input id="ns-name" required></label>
+    <label class="f">학년<select id="ns-grade"><option>고1</option><option>고2</option><option>고3</option></select></label>
+    <label class="f">담당 매니저<input id="ns-mgr" value="${esc(ui.mgr)}"></label>
+    <button class="btn primary" type="submit">추가</button></form></div>`}</div>`;
+}
+
+/* ================= 학생 상세 ================= */
+const STEPS=[['목표 점수','학생'],['오답 체크','학생'],['매니저 진단','매니저'],['학생용 보고서','출력'],['액션 플랜 시트','학생 출력'],['학부모용 보고서','출력'],['실천 체크','다음 시험까지']];
+function vStudent(){
+  const s=STORE.students[ui.sid]; if(!s){ui.view='students'; return vStudents();}
+  const rs=recsOf(ui.sid);
+  const availAll=Object.entries(STORE.exams).filter(([id,e])=>!rs.some(r=>r.eid===id)).sort((a,b)=>b[1].date.localeCompare(a[1].date));
+  const avail=ui.allGrades?availAll:availAll.filter(([id,e])=>e.grade===s.grade);
+  const otherN=availAll.length-availAll.filter(([id,e])=>e.grade===s.grade).length;
+  const tabs=`<div class="substeps" role="tablist"><button data-act="rec" data-id="" aria-current="${!ui.rid}">성장 기록</button>${rs.map(r=>`<button data-act="rec" data-id="${r.id}" aria-current="${ui.rid===r.id}">${esc(examLabel(r.eid))} 상담</button>`).join('')}</div>`;
+  const head=`<div class="crumb"><button class="btn small ghost" data-act="view" data-v="students">← 학생 목록</button><h2>${esc(s.name)}</h2><span class="hint">${esc(s.grade)} · 담당 ${esc(s.manager||'미정')}</span>
+   <span style="margin-left:auto" class="row">${avail.length?`<select id="newrec-eid" aria-label="상담할 시험">${avail.map(([id,e])=>`<option value="${id}">${esc(e.name)}</option>`).join('')}</select><button class="btn small primary" data-act="new-rec">이 시험 상담 시작</button>`:`<span class="hint">${esc(s.grade)} 시험이 없어요. '시험 관리'에서 등록해요</span>`}
+   ${otherN||ui.allGrades?`<label class="hint" style="display:flex;gap:4px;align-items:center"><input type="checkbox" data-act="allgrades" ${ui.allGrades?'checked':''} style="width:auto">다른 학년 시험도 보기 (선행)</label>`:''}
+   ${DEMO?'':`<button class="btn small ghost danger" data-act="del-student">학생 삭제</button>`}</span></div>`;
+  if(!ui.rid||!STORE.records[ui.rid]){ui.rid=null; return head+tabs+vGrowth(rs);}
+  const r=rec();
+  const sub=`<div class="substeps">${STEPS.map(([t,w],i)=>`<button data-act="step" data-i="${i}" aria-current="${ui.step===i}"><span class="n">${i+1}</span>${t}<span class="hint">${w}</span></button>`).join('')}</div>`;
+  return head+tabs+sub+[v0,v1,v2,v3,vPlan,v4,v5][Math.min(ui.step,STEPS.length-1)]();
+}
+
+/* 성장 기록 (1번) */
+function vGrowth(rs){
+  if(!rs.length) return `<div class="empty" style="margin-top:16px">아직 시험 기록이 없어요. 오른쪽 위에서 시험을 골라 <b>이 시험 상담 시작</b>을 눌러 주세요.</div>`;
+  const sm=KEYS.map(k=>{const pts=rs.map(r=>({l:examLabel(r.eid),c:r.subjects.includes(k)?calcR(r,k,true):null})).filter(x=>x.c);
+    if(!pts.length) return ''; const last=pts[pts.length-1].c, first=pts[0].c; const d=last.score-first.score;
+    return `<div class="smc"><h5><span>${k}</span><span class="num ${d>0?'up':d<0?'down':''}" style="color:${d>0?'var(--ok)':d<0?'var(--mark)':'var(--muted)'}">${pts.length>1?(d>0?'+':'')+d:''}</span></h5><div class="mbars">${pts.map((x,i)=>`<div class="${i===pts.length-1?'last':''}" style="height:${Math.max(4,x.c.score/x.c.max*100)}%"><span>${x.c.score}</span></div>`).join('')}</div><div class="mlab">${pts.map(x=>`<span>${esc(x.l)}</span>`).join('')}</div></div>`;}).join('');
+  const catRows=CATS.map(cat=>{const vals=rs.map(r=>activeKeys(r).reduce((a,k)=>a+((calcR(r,k,true).byCat[cat.k]||{}).n||0),0)); if(!vals.some(v=>v)) return '';
+    const mx=Math.max(...vals,1); return `<tr><td><span class="dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${cat.c};margin-right:6px"></span>${cat.k}</td>${vals.map(v=>`<td class="v" style="background:color-mix(in srgb, ${cat.c} ${Math.round(v/mx*38)}%, transparent)">${v||'·'}</td>`).join('')}</tr>`;}).join('');
+  const pr=rs.map(r=>practice(r)).map(p=>p.rate==null?'—':p.rate+'%');
+  const oSum=rs.map(r=>activeKeys(r).reduce((a,k)=>a+calcR(r,k,true).oLost,0));
+  return `<div class="stack" style="margin-top:16px">
+  <div class="panel"><div class="secthead"><h3>과목별 점수 흐름</h3><span class="hint">원점수 · 진한 막대가 가장 최근 시험</span></div><div class="sm">${sm}</div></div>
+  <div class="panel"><div class="secthead"><h3>오답 원인이 어떻게 바뀌었나</h3><span class="hint">전 과목 합계 문항 수 · 숫자가 줄면 관리가 효과를 본 거예요</span></div>
+  <div class="tw"><table class="heat"><thead><tr><th>오답 원인</th>${rs.map(r=>`<th>${esc(examLabel(r.eid))}</th>`).join('')}</tr></thead><tbody>${catRows}
+  <tr><td><b>되찾을 점수</b></td>${oSum.map(v=>`<td class="v">${v}</td>`).join('')}</tr>
+  <tr><td><b>시험 뒤 '딱 하나' 실천률</b></td>${pr.map(v=>`<td class="v">${v}</td>`).join('')}</tr></tbody></table></div></div></div>`;
+}
+
+/* ① 목표 점수 (3번 학생 플레이어) */
+function v0(){
+  const r=rec(); const ex=recExam(r);
+  const rows=KEYS.map(k=>{const on=r.subjects.includes(k); const g=r.goals?.[k]||{}; const c=on?calcR(r,k):null;
+    return `<tr><th scope="row" style="color:var(--ink)">${k}</th><td><button class="chip" data-act="subj-toggle" data-k="${k}" aria-pressed="${on}">${on?'응시':'미응시'}</button></td>
+    <td><input class="num" inputmode="numeric" data-f="goals.${k}.goal" value="${esc(g.goal||'')}" ${on?'':'disabled'} aria-label="${k} 목표 점수"></td>
+    <td class="regcell">${c&&c.qs.length?`${c.score} ➜ <b>${c.pot}</b>${c.oLost?`<span class="pl">+${c.oLost}</span>`:''}`:'<span class="hint">오답 체크 후</span>'}</td>
+    <td class="num">${c&&c.prev!=null?c.prev+(c.prevLabel?` <span class="hint">(${esc(c.prevLabel)})</span>`:''):`<input class="num" inputmode="numeric" data-f="prevManual.${k}" value="${esc(r.prevManual?.[k]??'')}" ${on?'':'disabled'} placeholder="—" aria-label="${k} 지난 점수">`}</td></tr>`;}).join('');
+  const totO=activeKeys(r).reduce((a,k)=>a+calcR(r,k,true).oLost,0);
+  return intro(`${esc(ex.name)} · 목표 점수`,'학생이 직접 써요. 시험 전에 세운 <b>목표 점수</b>를 적으면, 보고서에서 실제 점수와 비교하고 "되찾을 점수만 챙기면 목표에 닿는지"를 보여줘요. 응시하지 않은 과목은 <b>미응시</b>로 바꿔 주세요.')+
+  (totO?`<div class="regain" style="margin-bottom:12px"><div class="bx"><span>전 과목에서 실수로 놓친 점수</span><b>+${totO}<small>점</small></b></div><div class="plus">실수만 줄여도 되찾을 수 있어요</div></div>`:'')+
+  `<div class="panel"><div class="tw"><table class="t goaltbl"><thead><tr><th>과목</th><th>응시</th><th>목표 점수</th><th>되찾을 점수</th><th>지난 점수</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <p class="hint" style="margin-top:10px">지난 점수는 이 프로그램에 이전 시험 기록이 있으면 자동으로 들어가요. 첫 상담이라면 직접 적어 주세요. 지난 상담에서 정한 '다음 시험 목표'가 있으면 목표 칸에 미리 들어가 있어요.</p>
+  <div class="grid2" style="margin-top:10px"><label class="f">상담일<input type="date" data-f="date" value="${esc(r.date)}"></label><label class="f">담당 매니저<input data-f="manager" value="${esc(r.manager)}"></label></div></div>`+navFoot();
+}
+function navFoot(){const i=ui.step; return `<div class="navfoot">${i>0?`<button class="btn" data-act="step" data-i="${i-1}">← ${STEPS[i-1][0]}</button>`:'<span></span>'}${i<STEPS.length-1?`<button class="btn primary" data-act="step" data-i="${i+1}">다음: ${STEPS[i+1][0]} →</button>`:''}</div>`;}
+function subtabs(withCnt){const r=rec(); return `<div class="subtabs">${activeKeys(r).map(k=>{const c=calcR(r,k,true); return `<button type="button" data-act="cur" data-k="${k}" aria-pressed="${k===ui.cur}">${k}<span class="cnt">${c.qs.length?(withCnt?c.done+'/':'')+c.qs.length:''}</span></button>`;}).join('')}</div>`;}
+function ensureCur(){const ks=activeKeys(rec()); if(!ks.includes(ui.cur)) ui.cur=ks[0]||KEYS[0];}
+
+/* ② 오답 체크 */
+function v1(){
+  ensureCur(); const r=rec(); const k=ui.cur; const es=recExam(r).subj[k]; const c=calc(k); const W=(r.wrong&&r.wrong[k])||{};
+  const g=r.goals?.[k]||{};
+  const omr=es.pts.map((p,i)=>{const q=i+1; const w=W[q]; return `<button type="button" class="${w?'x':''} ${w&&w.cat?'done':''}" data-act="tog" data-q="${q}" aria-pressed="${!!w}" aria-label="${q}번 ${p}점${w?' 오답':''}"><span class="in"><span class="q">${q}</span><span class="p">${p}점</span></span></button>`;}).join('');
+  const list=c.qs.length?c.qs.map(q=>witem(k,q)).join(''):`<div class="empty">틀린 문항 번호를 위에서 눌러 주세요. 누르면 배점만큼 점수가 빠지고, 여기에서 틀린 이유를 고를 수 있어요.</div>`;
+  return intro('왜 틀렸는지 골라 봐요','① 틀린 번호를 누르고 ② 실수 종류를 고른 뒤 ③ 나와 가장 비슷한 문장을 골라요. 단원은 시험 관리에서 넣어 둔 문항표대로 자동으로 붙어요.')+subtabs(true)+
+  `<div class="panel"><div class="scorebar"><div class="big">${c.score}<small> / ${c.max}점</small></div>
+  <div>틀린 문항 <b class="num">${c.qs.length}</b>개 · <span class="lost">−${c.lost}점</span></div>
+  <div>이유 고른 문항 <b class="num">${c.done}/${c.qs.length}</b></div>
+  ${g.goal?`<div>내 목표 <b class="num">${esc(g.goal)}</b> <span class="hint">(${c.score-g.goal>=0?'+':''}${c.score-g.goal})</span></div>`:''}
+  </div>${c.qs.length?regainBox(c):''}<div style="height:12px"></div>
+  <div class="omr">${omr}</div></div><div class="wlist">${list}</div>${nextSubBtn(k)}`+navFoot();
+}
+function regainBox(c){
+  return `<div class="regain"><div class="bx"><span>이번 점수</span><b>${c.score}<small>${c.grade?` ${c.grade}등급`:'점'}</small></b></div><div class="arr" aria-hidden="true">➜</div><div class="bx to"><span>실수만 줄이면</span><b>${c.pot}<small>${c.pgrade?` 예상 ${c.pgrade}등급`:'점'}</small></b></div><div class="plus">${c.oLost?`+${c.oLost}점 되찾기`:'되찾을 실수 없음'}</div></div>`;}
+function nextSubBtn(k){const ks=activeKeys(rec()); const i=ks.indexOf(k); const nx=ks[i+1];
+  return `<div class="nextsub">${nx?`<button class="btn primary" data-act="cur-top" data-k="${nx}">${esc(k)} 끝 · 다음 과목: ${esc(nx)} →</button>`:`<button class="btn primary" data-act="step" data-i="${ui.step+1}">모든 과목 끝 · 다음: ${STEPS[ui.step+1][0]} →</button>`}</div>`;}
+function witem(k,q){
+  const r=rec(); const ex=recExam(r); const es=ex.subj[k]; const w=r.wrong[k][q]; const p=es.pts[q-1]; const u=es.units[q]||'';
+  const pool=poolFor(k);
+  const unitOpts=`<option value="">단원 (매니저 선택)</option>`+unitsFor(k,ex.grade).map(x=>`<option ${x===u?'selected':''} value="${esc(x)}">${esc(shortUnit(x))}</option>`).join('');
+  const chips=CATS.map(cat=>`<button type="button" class="chip" data-act="cat" data-q="${q}" data-c="${cat.k}" aria-pressed="${w.cat===cat.k}" title="${esc(cat.easy)}"><span class="dot" style="background:${cat.c}"></span>${cat.k}</button>`).join('');
+  let body='';
+  if(w.cat&&!ui.open?.[k+q]){
+    body=`<div class="chosen"><span class="tag" style="border-color:${CAT[w.cat].c};color:${CAT[w.cat].c}">${w.cat}</span>${w.custom?'<span class="tag">기타 · 직접 씀</span>':''}<span>${esc(w.sent||CAT[w.cat].easy)}</span><button class="reset" data-act="reopen" data-q="${q}">다시 고르기</button></div>`;
+  } else {
+    let sents=`<div class="easy">먼저 어떤 종류의 실수였는지 골라요. 버튼에 마우스를 올리면 쉬운 설명이 보여요.</div>`;
+    if(w.cat){let list=pool.filter(f=>f.c===w.cat); if(u) list=list.slice().sort((a,b)=>((b.d===u)-(a.d===u)));
+      sents=`<div class="easy">“${esc(CAT[w.cat].easy)}” 중에서 나와 가장 비슷한 문장을 골라요.</div><div class="sents">${list.map((f,i)=>`<button type="button" class="sent" data-act="sent" data-q="${q}" data-t="${esc(f.t)}" aria-pressed="${w.sent===f.t}"><span class="box"></span><span>${esc(f.t)}${f.d&&f.d!=='공통'&&f.d!==k?` <span class="tag">${esc(f.d)}</span>`:''}</span></button>`).join('')}
+      <button type="button" class="sent" data-act="sent-custom" data-q="${q}" aria-pressed="${!!w.custom}"><span class="box"></span><span><b>기타 (직접 쓰기)</b> · 딱 맞는 문장이 없으면 내 말로 적어요</span></button>
+      ${w.custom?`<div class="custom-in"><textarea data-wsent="${q}" placeholder="예: 보기의 조건 두 개 중 하나만 확인하고 답을 골랐어요" aria-label="${q}번 직접 쓴 오답 이유">${esc(w.sent||'')}</textarea><div class="row"><button class="btn small primary" data-act="sent-done" data-q="${q}">이 문장으로 저장</button><span class="hint">학생이 쓴 문장은 보고서에 그대로 들어가고, 지점 현황에 모여 새 요인 문장을 만드는 데 쓰여요.</span></div></div>`:''}</div>`;}
+    body=`<div class="chips">${chips}</div>${sents}`;
+  }
+  return `<div class="witem ${w.cat?'done':''}"><div class="whead"><span class="qn">${q}번</span><span class="tag num">${p}점</span><select data-act="unit" data-q="${q}" aria-label="${q}번 단원">${unitOpts}</select>${w.cat&&CAT[w.cat].o?'<span class="tag ex">되찾을 점수</span>':''}<button class="reset" style="margin-left:auto" data-act="tog" data-q="${q}">맞은 문항으로 되돌리기</button></div>${body}</div>`;
+}
+
+/* ③ 매니저 진단 */
+function v2(){
+  ensureCur(); const r=rec(); const k=ui.cur; const c=calc(k); const d=r.diag?.[k]||{}; const ex=recExam(r);
+  const maxN=Math.max(1,...c.top.map(t=>t.n));
+  const bars=c.top.length?c.top.map((t,i)=>{const pv=c.prevCat&&c.prevCat[t.c]?c.prevCat[t.c].n:null; return `<div class="bar"><span>${i+1}위 ${t.c}</span><div class="tr"><div class="fi" style="width:${t.n/maxN*100}%;background:${CAT[t.c].c}"></div></div><span class="num">${t.n}문항${pv!=null?` <span class="hint">(지난 ${pv})</span>`:''}</span></div>`;}).join(''):'<p class="hint">아직 학생이 고른 오답 이유가 없어요.</p>';
+  const unitRows=c.units.length?c.units.slice(0,5).map(u=>`<div class="bar"><span title="${esc(u.u)}">${esc(shortUnit(u.u)).slice(0,10)}</span><div class="tr"><div class="fi" style="width:${u.p/c.units[0].p*100}%;background:var(--muted)"></div></div><span class="num">${u.n}문항 ${u.p}점</span></div>`).join(''):'<p class="hint">문항에 단원이 아직 연결되지 않았어요. 시험 관리에서 문항표에 단원을 붙이면 자동으로 나와요.</p>';
+  const weak=weakOf(r,k); const all=unitsFor(k,ex.grade); const hitUnits=c.units.map(x=>x.u); const rest=all.filter(u=>!hitUnits.includes(u));
+  const chip=u=>{const hit=c.units.find(x=>x.u===u); return `<button type="button" class="chip" data-act="weak" data-u="${esc(u)}" aria-pressed="${weak.includes(u)}">${esc(shortUnit(u))}${hit?` <b class="num">·${hit.n}문항 ${hit.p}점</b>`:''}</button>`;};
+  const weakChips=`<div class="panel" style="padding:14px"><div class="secthead"><h3>${esc(k)} 취약 단원</h3><span class="hint">${d.weak?'매니저가 고른 단원이에요':'오답에서 잃은 점수가 큰 단원이 자동으로 골라져 있어요'} · 액션 플랜과 학부모 보고서에 들어가요</span></div>
+   <div class="weakgrp">${hitUnits.length?`<div class="chips">${hitUnits.map(chip).join('')}</div>`:'<p class="hint" style="margin:0">오답 문항에 단원이 아직 없어요. 오답 체크에서 단원을 고르거나 아래에서 직접 골라요.</p>'}
+   ${rest.length?`<details ${hitUnits.length?'':'open'}><summary>다른 단원도 고르기 (${rest.length}개)</summary><div class="chips" style="margin-top:8px">${rest.map(chip).join('')}</div></details>`:''}</div></div>`;
+  const pptHits=PPTS.filter(p=>p.s===k&&c.sents.some(s=>p.match.includes(s.sent)));
+  const pptBox=`<div class="ppt"><b>추천 학습법 상담 (보고서에는 안 나가요)</b>${pptHits.length?pptHits.map(p=>`<span>${esc(p.title)} <span class="tag">${esc(p.s)} · ${esc(p.unit)} · ${esc(p.by)}</span></span><span class="hint">학생이 고른 문장: ${esc(p.match.filter(m=>c.sents.some(s=>s.sent===m)).join(' / '))}</span>`).join(''):(c.top[0]?`<span>${esc(CAT[c.top[0].c].counsel)} <span class="tag">본사 DB</span></span><span class="hint">${esc(k)} 학습법 상담 PPT는 팀원이 만들고 있어요. 완성되면 여기에 연결돼요.</span>`:'<span class="hint">오답 이유가 모이면 추천이 나와요.</span>')}</div>`;
+  return intro('매니저 진단 · 학생과 합의','학생이 고른 이유가 자동으로 모였어요. 지난 시험과 비교한 숫자를 보며 상담하고, <b>오늘부터 딱 하나</b>와 <b>다음 시험 목표</b>를 학생과 함께 정해요. 다 끝나면 맨 아래 <b>진단 완료</b>를 눌러 주세요.')+subtabs(false)+
+  `<div class="stack"><div class="panel dsub"><div style="min-width:0">
+    ${regainBox(c)}
+    <div class="subline"><span>지난 점수 <b>${c.prev??'—'}</b> ${c.prev!=null?`(${c.score-c.prev>=0?'+':''}${c.score-c.prev}점)`:'· 첫 기록'}</span>${r.goals?.[k]?.goal?`<span>목표 <b>${esc(r.goals[k].goal)}</b> (${c.score-r.goals[k].goal>=0?'+':''}${c.score-r.goals[k].goal}점)</span>`:''}<span>만점 <b>${c.max}</b></span></div>
+    <h4 style="margin:16px 0 4px;font-size:14px">오답요인 TOP3</h4><div class="bars">${bars}</div>
+    <h4 style="margin:16px 0 4px;font-size:14px">단원별 잃은 점수</h4><div class="bars">${unitRows}</div>
+  </div><div class="stack" style="min-width:0">
+    <label class="f">이번 시험 잘한 점 (매니저 수기)<textarea data-f="diag.${k}.good" placeholder="학생이 스스로 나아졌다고 느낀 점이나, 매니저가 본 좋아진 점">${esc(d.good||'')}</textarea></label>
+    <label class="f">오늘부터 딱 하나! (학생과 합의한 교정 행동 · 실천 체크에 쓰여요)<textarea data-f="diag.${k}.one">${esc(oneOf(r,k))}</textarea></label>
+    <label class="f">다음 모의고사까지 액션 플랜<textarea data-f="diag.${k}.plan">${esc(planOf(r,k))}</textarea></label>
+    <label class="f">다음 모의고사 목표 점수<input class="num" inputmode="numeric" data-f="diag.${k}.nextGoal" value="${esc(d.nextGoal||'')}" placeholder="${c.pot}"></label>
+    <div class="row"><button class="reset" data-act="reset-diag">기본 문장으로 되돌리기</button></div>${pptBox}
+  </div></div>${weakChips}
+  ${nextSubBtn(k)}
+  <div class="panel"><label class="f">학부모님께 드리는 매니저 종합 의견 (학부모용 보고서 첫머리)<textarea data-f="comment">${esc(r.comment||'')}</textarea></label>
+  <div class="row" style="margin-top:10px;justify-content:space-between"><span class="hint">${r.diagDone?'진단을 마쳤어요. 고칠 내용이 있으면 바로 고쳐도 돼요.':'모든 과목 상담을 마치면 눌러 주세요. 지점 현황에 반영돼요.'}</span><button class="btn ${r.diagDone?'':'primary'}" data-act="diag-done">${r.diagDone?'진단 완료됨 ✓ (취소)':'진단 완료'}</button></div></div></div>`+navFoot();
+}
+
+/* ④ 학생용 보고서 */
+function trendPaper(r){
+  const rs=recsOf(r.sid).filter(x=>examDate(x.eid)<=examDate(r.eid)).slice(-4);
+  const ks=activeKeys(r);
+  return `<div class="ptrend">${ks.map(k=>{const c=calcR(r,k); const series=rs.filter(x=>x.subjects.includes(k)).map(x=>({l:examLabel(x.eid),c:calcR(x,k,true),cur:x.eid===r.eid}));
+    if(series.length===1&&c.prev!=null) series.unshift({l:'지난',c:{score:c.prev,max:c.max},cur:false});
+    const diff=c.prev!=null?c.score-c.prev:null;
+    return `<div class="ptc"><div class="ptb">${series.map(x=>`<div class="${x.cur?'cur':''}" style="height:${Math.max(4,x.c.score/x.c.max*100)}%"><span>${x.c.score}</span></div>`).join('')}</div><div class="ptl">${series.map(x=>`<span>${esc(x.l)}</span>`).join('')}</div>
+    <b>${k}</b><span class="num ${diff>0?'up':diff<0?'down':''}" style="font-weight:600">${diff==null?'첫 기록':(diff>0?'▲ '+diff:diff<0?'▼ '+(-diff):'＝ 0')}</span>${c.grade?`<span class="mut">${c.prevGrade&&c.prev!=null?c.prevGrade+'→':''}${c.grade}등급</span>`:''}</div>`;}).join('')}</div>
+  <div class="legend"><span><i style="background:#c9d3e0"></i>지난 시험들</span><span><i style="background:var(--p-accent)"></i>${esc(recExam(r).name)}</span><span>막대 높이 = 과목 만점 대비 비율</span></div>`;
+}
+function header(r,title){const s=STORE.students[r.sid]; const ex=recExam(r); return `<h2>${esc(s.name)} ${title}</h2><div class="meta"><span>${esc(ex.name)}</span><span>${esc(s.grade)}</span><span>상담일 ${esc(r.date)}</span><span>담당 ${esc(r.manager)} 매니저</span></div><div class="rule"></div>`;}
+function improvements(r){
+  const out=[]; activeKeys(r).forEach(k=>{const c=calcR(r,k); if(!c.prevCat) return; let best=null;
+    Object.entries(c.prevCat).forEach(([cat,v])=>{const now=(c.byCat[cat]||{}).n||0; const dd=v.n-now; if(dd>0&&(!best||dd>best.dd)) best={cat,was:v.n,now,dd};});
+    if(best) out.push({k,...best});}); return out;
+}
+function v3(){
+  const r=rec(); const ks=activeKeys(r); const pr=prevRecOf(ui.rid);
+  const goals=ks.filter(k=>r.goals?.[k]?.goal);
+  const gtable=goals.length?`<table class="gtable"><thead><tr><th>과목</th><th>목표</th><th>실제</th><th>차이</th><th>한 줄 해석</th></tr></thead><tbody>${goals.map(k=>{const c=calcR(r,k); const gl=+r.goals[k].goal; const d=c.score-gl;
+    const msg=d>=0?'목표 달성! 다음 목표를 한 단계 올려 봐요':c.oLost>=-d?`목표까지 ${-d}점. 되찾을 점수(${c.oLost}점)만 챙겨도 닿을 수 있어요`:`목표까지 ${-d}점. 되찾을 점수 ${c.oLost}점에 TOP1 원인까지 줄여 봐요`;
+    return `<tr><td><b>${k}</b></td><td class="num">${gl}</td><td class="num"><b>${c.score}</b></td><td class="num ${d>=0?'up':'down'}">${d>=0?'+':''}${d}</td><td style="text-align:left">${msg}</td></tr>`;}).join('')}</tbody></table>`:'<p class="mut">목표 점수 화면에서 목표를 적으면 여기에 목표와 실제가 비교돼요.</p>';
+  const goods=ks.filter(k=>(r.diag?.[k]?.good||'').trim()).map(k=>`<div class="ptrow"><span class="s">${k}</span><p>${esc(r.diag[k].good)}</p></div>`).join('');
+  const imp=improvements(r); const pp=pr?practice(pr,examDate(r.eid)):null;
+  const impTxt=pr?`${imp.length?imp.map(x=>`<p>${esc(x.k)}의 <b>${x.cat}</b>${jo(x.cat,'이','가').slice(x.cat.length)} 지난 ${x.was}문항에서 이번 ${x.now}문항으로 ${x.dd}문항 줄었어요.</p>`).join(''):'<p>오답 원인의 큰 변화는 아직 없어요. 이번에 정한 "딱 하나"로 다음엔 줄여 봐요.</p>'}${pp&&pp.rate!=null?`<div class="prate" style="margin-top:8px"><span>지난 시험 뒤 '딱 하나' 실천률</span><span class="meter"><i style="width:${pp.rate}%"></i></span><b class="num">${pp.rate}%</b></div>`:''}`:'<p>이번이 이 프로그램의 첫 기록이에요. 오늘 결과가 다음 시험의 출발선이 됩니다.</p>';
+  const top3=ks.map(k=>{const c=calcR(r,k); if(!c.top.length) return ''; return `<div class="t3card"><div class="s"><span>${k}</span><span class="mut num">오답 ${c.qs.length}</span></div><ol>${c.top.map((t,i)=>`<li><span class="r">${i+1}</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${CAT[t.c].c};margin-right:5px"></span>${t.c}</span><span class="v">${t.n}문항 ${t.p}점</span></li>`).join('')}</ol></div>`;}).join('');
+  const points=ks.map(k=>{const c=calcR(r,k); if(!c.top[0]) return ''; const t=c.top[0]; const s=topSentInCat(c,t.c); const u=s&&Object.keys(s.units).sort((a,b)=>s.units[b]-s.units[a])[0];
+    return `<div class="ptrow"><span class="s">${k}</span><div><p>${jo(k,'은','는')} <b>${t.c}</b>에서 ${t.n}문항(${t.p}점)을 놓쳤어요.${s&&s.sent?` 특히 ‘${esc(s.sent.replace(/[.。]$/,''))}’${u?`로 '${esc(shortUnit(u))}'에서 ${s.units[u]}문항`:` ${s.n}문항`}을 잃었어요.`:''}</p><span class="one">오늘부터 딱 하나: ${esc(oneOf(r,k))}</span></div></div>`;}).join('');
+  const pot=ks.map(k=>{const c=calcR(r,k); const w=v=>v/c.max*100; return `<div class="potrow"><b>${k}</b><div class="ptrack"><div class="a" style="width:${w(c.score)}%"></div><div class="b" style="width:${w(c.pot-c.score)}%"></div></div><span class="g">${c.score}${c.oLost?` → <b>${c.pot}</b>`:''}점${c.pgrade&&c.grade&&c.pgrade<c.grade?` · ${c.grade}→${c.pgrade}등급`:c.grade?` · ${c.grade}등급`:''}</span></div>`;}).join('');
+  const totalO=ks.reduce((a,k)=>a+calcR(r,k).oLost,0);
+  const plans=ks.filter(k=>planOf(r,k)).map(k=>`<li><b>${k}</b> ${esc(planOf(r,k))}${r.diag?.[k]?.nextGoal?` <span class="mut">· 다음 목표 ${esc(r.diag[k].nextGoal)}점</span>`:''}</li>`).join('');
+  return intro('학생용 상담 보고서','학생에게 보여주고 이미지로 보내요. 시트의 문구 틀과 매니저 수정 의견을 반영했고, 이번에 <b>목표 vs 실제</b>와 <b>지난 시험 대비 원인 변화·실천률</b>을 더했어요.')+
+  `<div class="actions"><button class="btn primary" data-act="img" data-id="rep-student" data-n="학생용보고서">이미지로 저장·전송</button><button class="btn" data-act="mark-sent" data-w="student">${r.sent?.student?`학생 전달 완료 ✓ ${esc(r.sent.student)}`:'학생에게 전달했어요'}</button></div>
+  <div class="rwrap"><article class="paper" id="rep-student">${header(r,'학생의 모의고사 분석 보고서')}
+  <section><h4><span class="no">01</span>성적 추이</h4>${trendPaper(r)}</section>
+  <section><h4><span class="no">02</span>목표 vs 실제</h4>${gtable}</section>
+  <section><h4><span class="no">03</span>이번 시험에서 잘한 점</h4>${goods?`<div class="pt">${goods}</div>`:'<p class="mut">매니저 진단 화면에서 잘한 점을 적으면 여기에 나와요.</p>'}</section>
+  <section><h4><span class="no">04</span>지난 시험 대비 좋아진 점</h4><div class="soft">${impTxt}</div></section>
+  <section><h4><span class="no">05</span>과목별 오답요인 TOP3</h4><div class="top3">${top3||'<p class="mut">오답 이유를 고르면 나와요.</p>'}</div></section>
+  <section><h4><span class="no">06</span>과목별 핵심 개선 포인트</h4><div class="pt">${points}</div></section>
+  <section><h4><span class="no">07</span>되찾을 점수 · 예상등급</h4><p class="mut" style="margin-bottom:10px">개념을 알고도 읽기·계산·마킹 실수로 놓친 점수예요. 이 실수만 줄여도 이번 시험 기준 <b style="color:var(--p-ink)">${totalO}점</b>을 더 받을 수 있어요.</p><div class="pot">${pot}</div>
+  <div class="legend"><span><i style="background:var(--p-accent)"></i>이번 점수</span><span><i style="background:#f2c94c"></i>되찾을 점수(실수·기술력)</span><span>예상등급은 가능성이에요</span></div></section>
+  <section><h4><span class="no">08</span>다음 모의고사까지 액션 플랜</h4><ul class="plan">${plans}</ul></section>
+  <div class="foot"><span>돈암에듀플렉스 · 자기주도학습 관리</span><span class="sign">학생 확인 ____________</span></div></article></div>`+navFoot();
+}
+
+/* 액션 플랜 시트 (학생 출력용) */
+function vPlan(){
+  const r=rec(); const ks=activeKeys(r).filter(k=>calcR(r,k).qs.length); const w=weeksOf(r); const nx=nextExamOf(r);
+  const cards=ks.map(k=>{const c=calcR(r,k); const t=c.top[0]; const s=t&&topSentInCat(c,t.c); const wk=weakOf(r,k).map(shortUnit);
+    return `<div class="plan-card"><h5><span>${esc(k)}</span><span class="mut num">${c.score}점 ➜ 목표 ${esc(r.diag?.[k]?.nextGoal||c.pot)}점</span></h5>
+    ${t?`<div><div class="lab">핵심 개선 포인트</div><p style="font-size:14px">${t.c} ${t.n}문항(${t.p}점)${s&&s.sent?` · ‘${esc(s.sent.replace(/[.。]$/,''))}’`:''}${wk.length?` · 취약 단원: ${esc(wk.join(', '))}`:''}</p></div>`:''}
+    <div><div class="lab">오늘부터 딱 하나</div><span class="onebig">${esc(oneOf(r,k))}</span></div>
+    <div><div class="lab">다음 모의고사까지 액션 플랜</div><p style="font-size:14px">${esc(planOf(r,k))}</p></div>
+    <div><div class="lab">주간 실천 체크</div><div class="ckline">${w.map(x=>`<span><i></i>${x.i}주 ${x.start.slice(5).replace('-','/')}</span>`).join('')}</div></div></div>`;}).join('');
+  return intro('액션 플랜 시트','상담 후 학생이 <b>하기로 한 것만</b> 모은 한 장이에요. 이미지로 저장해 학생에게 보내거나, 책상·플래너에 붙여 두게 해 주세요.')+
+  `<div class="actions"><button class="btn primary" data-act="img" data-id="rep-plan" data-n="액션플랜">이미지로 저장·전송</button></div>
+  <div class="rwrap"><article class="paper" id="rep-plan">${header(r,'학생의 모의고사 액션 플랜')}
+  <p class="mut" style="margin-bottom:12px">${nx?`다음 시험: <b style="color:var(--p-ink)">${esc(nx[1].name)}</b> (${esc(nx[1].date)})까지 ${w.length}주`:`상담일부터 ${w.length}주 동안`} · 매주 체크하고, 다음 상담 때 가져와요.</p>
+  <div class="plan-grid">${cards||'<p class="mut">오답 체크와 매니저 진단을 마치면 여기에 액션 플랜이 모여요.</p>'}</div>
+  <div class="foot"><span>돈암에듀플렉스 · 담당 ${esc(r.manager)} 매니저</span><span class="sign">학생 다짐 서명 ____________</span></div></article></div>`+navFoot();
+}
+
+/* ⑤ 학부모용 보고서 */
+function v4(){
+  const r=rec(); const ks=activeKeys(r); const pr=prevRecOf(ui.rid); const pp=pr?practice(pr,examDate(r.eid)):null;
+  const rows=ks.map(k=>{const c=calcR(r,k); const d=c.prev!=null?c.score-c.prev:null; return `<tr><td><b>${k}</b></td><td class="num">${c.prev??'—'}</td><td class="num"><b>${c.score}</b>/${c.max}</td><td class="num ${d>0?'up':d<0?'down':''}">${d==null?'—':(d>0?'+':'')+d}</td><td class="num">${c.grade??'—'}</td><td class="num">${c.oLost?'+'+c.oLost:'—'}</td></tr>`;}).join('');
+  const causes=ks.map(k=>{const c=calcR(r,k); if(!c.top[0]) return ''; const t=c.top[0]; const s=topSentInCat(c,t.c);
+    return `<div class="c"><b>${k}</b><div>${esc(CAT[t.c].parent)} <span class="mut">(${t.c} ${t.n}문항·${t.p}점)</span>${s&&s.sent?`<div class="ev">학생이 직접 고른 이유: “${esc(s.sent)}”</div>`:''}</div></div>`;}).join('');
+  const mplans=ks.map(k=>{const c=calcR(r,k); if(!c.top[0]) return ''; const cat=CAT[c.top[0].c]; const w=weakOf(r,k)[0]||(c.units[0]&&c.units[0].u);
+    return `<div class="c"><b>${k}</b><div>${w?`'${esc(shortUnit(w))}' 단원 중심으로, `:''}${esc(cat.mplan)}<div class="ev">학생과 정한 매일 습관: ${esc(oneOf(r,k))}</div></div></div>`;}).join('');
+  const homeSet=[...new Set(ks.map(k=>calcR(r,k).top[0]&&calcR(r,k).top[0].c).filter(Boolean))].slice(0,3);
+  const imp=improvements(r);
+  const totalO=ks.reduce((a,k)=>a+calcR(r,k).oLost,0);
+  return intro('학부모용 상담 보고서','학부모님께는 원인과 관리 방향, 그리고 <b>지난 시험 뒤 관리가 실제로 이어졌는지(실천률)</b>를 보여드려요.')+
+  `<div class="actions"><button class="btn primary" data-act="img" data-id="rep-parent" data-n="학부모용보고서">이미지로 저장·전송</button><button class="btn" data-act="mark-sent" data-w="parent">${r.sent?.parent?`학부모 전달 완료 ✓ ${esc(r.sent.parent)}`:'학부모님께 전달했어요'}</button></div>
+  <div class="rwrap"><article class="paper" id="rep-parent">${header(r,'학생 모의고사 분석 · 학부모 안내')}
+  <section><h4><span class="no">01</span>매니저 종합 의견</h4><div class="soft">${esc(r.comment)||'<span class="mut">매니저 진단 화면에서 종합 의견을 적어 주세요.</span>'}</div></section>
+  <section><h4><span class="no">02</span>성적 요약</h4><div class="tw"><table class="ptable"><thead><tr><th>과목</th><th>지난</th><th>이번</th><th>변화</th><th>등급</th><th>되찾을 점수</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <p class="mut" style="margin-top:8px">‘되찾을 점수’는 알고도 실수로 놓친 점수의 합계(${totalO}점)예요. 관리로 가장 빨리 회복할 수 있는 부분입니다.</p></section>
+  <section><h4><span class="no">03</span>성적 추이</h4>${trendPaper(r)}</section>
+  ${pr?`<section><h4><span class="no">04</span>지난 시험 뒤 관리 결과</h4><div class="soft">${pp&&pp.rate!=null?`<div class="prate"><span>매일 습관 '딱 하나' 실천률</span><span class="meter"><i style="width:${pp.rate}%"></i></span><b class="num">${pp.rate}%</b></div>`:''}${imp.length?`<p style="margin-top:8px">${imp.map(x=>`${esc(x.k)} ${x.cat} ${x.was}→${x.now}문항`).join(' · ')}으로 오답 원인이 줄었습니다.</p>`:''}</div></section>`:''}
+  <section><h4><span class="no">${pr?'05':'04'}</span>과목별 가장 많은 오답 원인</h4><div class="cause">${causes}</div></section>
+  <section><h4><span class="no">${pr?'06':'05'}</span>다음 모의고사까지 관리 계획</h4><div class="cause">${mplans}</div></section>
+  <section><h4><span class="no">${pr?'07':'06'}</span>가정에서 이렇게 도와주세요</h4><ul class="homes">${homeSet.map(c=>`<li>${esc(CAT[c].home)}</li>`).join('')}</ul></section>
+  <div class="foot"><span>돈암에듀플렉스 · 담당 ${esc(r.manager)} 매니저</span><span>${esc(r.date)}</span></div></article></div>`+navFoot();
+}
+
+/* ⑥ 실천 체크 (2번) */
+function v5(){
+  const r=rec(); const subs=practiceSubs(r); const w=weeksOf(r); const p=practice(r); const nx=nextExamOf(r); const now=today();
+  if(!subs.length) return intro('다음 시험까지 실천 체크','')+`<div class="empty">매니저 진단에서 과목별 '오늘부터 딱 하나'가 정해지면, 여기서 매주 실천했는지 체크할 수 있어요.</div>`+navFoot();
+  const per=subs.map(k=>{const el=w.filter(x=>x.start<=now); const d=el.filter(x=>r.checks?.[x.i]?.done?.[k]).length; return {k,rate:el.length?Math.round(d/el.length*100):null};});
+  return intro('다음 시험까지 실천 체크',`상담에서 정한 '딱 하나'를 매주 데일리 체크 때 확인해요. 학생이 체크하고 매니저가 한 줄 메모를 남겨요. 실천률은 다음 시험 보고서와 학부모용 보고서에 들어가요. ${nx?`다음 시험: <b>${esc(nx[1].name)}</b> (${esc(nx[1].date)})`:'다음 시험이 아직 등록되지 않아 상담일부터 6주로 잡았어요.'}`)+
+  `<div class="stack"><div class="tiles"><div class="tile"><span>지금까지 실천률</span><b>${p.rate??'—'}${p.rate!=null?'%':''}</b><span>${p.done}/${p.total}회 · ${p.elapsed}/${p.weeks}주차</span></div>${per.map(x=>`<div class="tile"><span>${x.k}</span><b>${x.rate??'—'}${x.rate!=null?'%':''}</b><div class="meter"><i style="width:${x.rate||0}%"></i></div></div>`).join('')}</div>
+  <div class="weeks">${w.map(x=>{const fut=x.start>now; const ck=r.checks?.[x.i]||{}; return `<div class="week ${fut?'future':''}"><div class="wh"><b>${x.i}주차</b><span class="hint">${x.start.slice(5).replace('-','/')} ~ ${x.end.slice(5).replace('-','/')}${fut?' · 아직 전이에요':''}</span></div>
+   <div class="ckgrid">${subs.map(k=>`<button type="button" class="ck" data-act="ck" data-w="${x.i}" data-k="${k}" aria-pressed="${!!ck.done?.[k]}" ${fut?'disabled':''}><span class="box"></span><span><b>${k}</b> ${esc(oneOf(r,k))}</span></button>`).join('')}</div>
+   <input data-f="checks.${x.i}.note" value="${esc(ck.note||'')}" placeholder="매니저 한 줄 메모 (예: 국어 구조도 3지문 완료, 수학 검산은 2일만)" ${fut?'disabled':''} aria-label="${x.i}주차 메모"></div>`;}).join('')}</div></div>`+navFoot();
+}
+
+/* ================= 시험 관리 (4번) ================= */
+function vExams(){
+  const list=Object.entries(STORE.exams).sort((a,b)=>b[1].date.localeCompare(a[1].date));
+  if(ui.eid&&STORE.exams[ui.eid]) return examEditor(ui.eid);
+  const rows=list.map(([id,e])=>{const filled=KEYS.filter(k=>Object.keys(e.subj[k].units||{}).length).length; const cuts=KEYS.filter(k=>!e.subj[k].cuts.some(v=>v===''||v==null)).length; const n=Object.values(STORE.records).filter(r=>r.eid===id).length; const ok=KEYS.filter(k=>e.subj[k].confirmed&&sumPts(e.subj[k])===FULL[k]).length;
+    return `<button type="button" class="scard" data-act="open-exam" data-id="${id}"><span class="nm">${esc(e.name)}<span class="hint">${esc(e.grade)} · ${esc(e.date)}</span></span><span class="pills"><span class="pill ${ok===6?'on':'warn'}">배점 확인 ${ok}/6과목</span><span class="pill ${filled===6?'on':filled?'':'warn'}">단원 ${filled}/6과목</span><span class="pill ${cuts===6?'on':'warn'}">등급컷 ${cuts}/6과목</span><span class="pill acc">상담 ${n}명</span></span></button>`;}).join('');
+  return intro('시험 관리','시험마다 <b>한 번만</b> 등록해요. 과목 담당자가 시험 후 2일 안에 배점(시험지의 [3점]·[4점] 표시)·단원·등급컷을 넣으면 그 시험을 본 모든 학생에게 자동으로 적용돼요. (시트의 \'11_시험별 문항표\' 역할)')+
+  `<div class="stack">${list.length?`<div class="cards">${rows}</div>`:'<div class="empty">아직 등록된 시험이 없어요. 아래에서 첫 시험을 등록해 주세요.</div>'}
+  <div class="panel"><div class="secthead"><h3>시험 등록</h3></div><form class="inline-form" id="f-exam">
+   <label class="f">학년<select id="ne-grade" data-act="ne-sync">${['고1','고2','고3'].map(g=>`<option>${g}</option>`).join('')}</select></label>
+   <label class="f">연도<select id="ne-year" data-act="ne-sync">${[0,-1,1].map(d=>new Date().getFullYear()+d).sort().map(y=>`<option ${y===new Date().getFullYear()?'selected':''}>${y}</option>`).join('')}</select></label>
+   <label class="f">월<select id="ne-month" data-act="ne-sync">${[3,4,5,6,7,9,10,11].map(m=>`<option value="${m}" ${m===nearMonth()?'selected':''}>${m}월</option>`).join('')}</select></label>
+   <label class="f">시험일<input id="ne-date" type="date" required value="${today()}"></label>
+   <button class="btn primary" type="submit">등록</button></form><p style="margin-top:10px;font-size:14px">등록될 시험 이름: <b id="ne-preview">${esc(examNameOf('고1',new Date().getFullYear(),nearMonth()))}</b></p><p class="hint" style="margin-top:4px">학년·연도·월을 고르면 이름이 자동으로 만들어져요. 시험일은 월의 1일로 먼저 들어가니, 실제 시험 날짜로 바꿔 주세요(다음 시험까지 실천 체크 기간 계산에 쓰여요). 문항 수·배점은 고1 학평 기준 예시 값으로 먼저 채워져요. 실제 시험지를 보고 고쳐 주세요.</p></div></div>`;
+}
+function nearMonth(){const ms=[3,4,5,6,7,9,10,11]; const m=new Date().getMonth()+1; return ms.filter(x=>x<=m).pop()||3;}
+function examNameOf(g,y,m){return `${y}년 ${m}월 ${g} ${g==='고3'&&(+m===6||+m===9)?'모의평가':'전국연합학력평가'}`;}
+function syncNewExam(){const g=document.getElementById('ne-grade'), y=document.getElementById('ne-year'), m=document.getElementById('ne-month'); if(!g) return; document.getElementById('ne-preview').textContent=examNameOf(g.value,y.value,m.value); const d=document.getElementById('ne-date'); if(d.value.slice(0,7)!==`${y.value}-${String(m.value).padStart(2,'0')}`) d.value=`${y.value}-${String(m.value).padStart(2,'0')}-01`;}
+const FULL={'국어':100,'수학':100,'영어':100,'한국사':50,'통합사회':50,'통합과학':50};
+const sumPts=es=>es.pts.reduce((a,b)=>a+b,0);
+function examEditor(eid){
+  const e=STORE.exams[eid]; const k=ui.cur in e.subj?ui.cur:KEYS[0]; const es=e.subj[k]; const max=es.pts.reduce((a,b)=>a+b,0);
+  const units=unitsFor(k,e.grade);
+  const grid=es.pts.map((p,i)=>{const q=i+1; const u=es.units[q]; return `<button type="button" class="${ui.mode==='unit'&&u&&u===ui.brush?'brush':''}" data-act="cell" data-q="${q}" title="${esc(u||'')}"><span class="in"><span class="q">${q}</span><span class="p">${p}점</span>${u?`<span class="u">${esc(shortUnit(u))}</span>`:''}</span></button>`;}).join('');
+  const isAbs=!!SUBDEF(k).abs;
+  return `<div class="crumb"><button class="btn small ghost" data-act="close-exam">← 시험 목록</button><h2>${esc(e.name)}</h2><span class="hint">${esc(e.grade)} · ${esc(e.date)}</span></div>
+  <div class="stack"><div class="panel"><div class="grid2"><label class="f">시험 이름<input data-e="name" value="${esc(e.name)}"></label><label class="f">시험일<input type="date" data-e="date" value="${esc(e.date)}"></label><label class="f">보고서에 쓰는 짧은 이름<input data-e="short" value="${esc(e.short||'')}" placeholder="예: 10월"></label></div></div>
+  <div class="subtabs">${KEYS.map(x=>`<button type="button" data-act="cur" data-k="${x}" aria-pressed="${x===k}">${x}<span class="cnt">${e.subj[x].confirmed&&sumPts(e.subj[x])===FULL[x]?'배점✓':''}${Object.keys(e.subj[x].units||{}).length?' 단원✓':''}</span></button>`).join('')}</div>
+  <div class="panel"><div class="secthead"><h3>${k} 배점 빠른 입력</h3><span class="hint">시험지를 넘기며 ${k==='수학'?'[3점]·[4점]':'[3점]'} 문항 번호만 적어 주세요. 표시가 없는 문항은 모두 2점이에요.</span></div>
+   <div class="inline-form">
+    <label class="f">[3점] 문항 번호<input id="qk3" value="${es.pts.map((p,i)=>p===3?i+1:null).filter(Boolean).join(', ')}" placeholder="예: 5, 10, 15, 17, 22"></label>
+    ${k==='수학'?`<label class="f">[4점] 문항 번호<input id="qk4" value="${es.pts.map((p,i)=>p===4?i+1:null).filter(Boolean).join(', ')}" placeholder="예: 17, 18, 19, 20"></label>`:''}
+    <button class="btn primary" type="button" data-act="apply-quick">배점 적용</button></div>
+   <p style="margin-top:10px;font-size:14px">배점 합계 <b class="num">${max}점</b> / 만점 <b class="num">${FULL[k]}점</b> ${max===FULL[k]?'<span class="pill on">맞아요</span>':`<span class="pill warn">${max>FULL[k]?max-FULL[k]+'점 많아요':FULL[k]-max+'점 모자라요'} · 번호를 다시 확인해 주세요</span>`}</p>
+   <p class="hint">${es.confirmed?'담당자가 시험지와 대조해 확인했어요.':'아직 예시 배점이에요. 실제 시험지로 확인 후 <b>배점 적용</b>을 눌러 주세요.'}</p></div>
+  <div class="panel"><div class="secthead"><h3>${k} 문항표</h3><span class="hint num">${es.n}문항 / 만점 ${max}점</span>
+   <label class="f" style="display:flex;flex-direction:row;gap:6px;align-items:center;margin-left:auto">문항 수<input class="num" style="width:64px" inputmode="numeric" data-act="ncount" value="${es.n}"></label></div>
+   <div class="modebar"><div class="chips"><button class="chip" data-act="mode" data-v="pts" aria-pressed="${ui.mode==='pts'}">배점 바꾸기</button><button class="chip" data-act="mode" data-v="unit" aria-pressed="${ui.mode==='unit'}">단원 붙이기</button></div>
+   ${ui.mode==='unit'?`<select data-act="brush" aria-label="붙일 단원"><option value="">— 지우개(단원 지우기) —</option>${units.map(u=>`<option ${u===ui.brush?'selected':''} value="${esc(u)}">${esc(shortUnit(u))}</option>`).join('')}</select><span class="hint">단원을 고른 뒤 문항 번호를 누르면 붙어요</span>`:'<span class="hint">한 문항만 고칠 때는 번호를 눌러요 (2→3→4점)</span>'}</div>
+   <div class="omr">${grid}</div></div>
+  <div class="panel"><div class="secthead"><h3>${k} 등급컷 (원점수)</h3><span class="hint">${isAbs?'절대평가라 고정돼 있어요':'성적표(채점 결과) 또는 EBSi 등급컷을 넣어 주세요'}</span></div>
+   <div class="tw"><table class="t"><thead><tr>${[1,2,3,4,5,6,7,8].map(g=>`<th>${g}등급</th>`).join('')}</tr></thead><tbody><tr>${es.cuts.map((v,i)=>`<td><input class="num" inputmode="numeric" data-cut="${i}" value="${esc(v)}" ${isAbs?'readonly':''} aria-label="${i+1}등급컷"></td>`).join('')}</tr></tbody></table></div></div>
+  <div class="row" style="justify-content:space-between"><span class="hint">이 시험으로 상담한 기록이 있으면 삭제할 수 없어요.</span><button class="btn small" data-act="del-exam">시험 삭제</button></div></div>`;
+}
+
+/* ================= 지점 현황 (5번) ================= */
+function vDash(){
+  const exams=Object.entries(STORE.exams).sort((a,b)=>b[1].date.localeCompare(a[1].date));
+  if(!exams.length) return intro('지점 현황','')+`<div class="empty">시험과 상담 기록이 쌓이면 여기에 지점 전체 현황이 보여요. <button class="reset" data-act="demo-on">예시로 둘러보기</button></div>`;
+  const withRec=exams.filter(([id])=>Object.values(STORE.records).some(r=>r.eid===id)); const eid=ui.dashEid&&STORE.exams[ui.dashEid]?ui.dashEid:(withRec[0]||exams[0])[0];
+  const rs=Object.entries(STORE.records).filter(([id,r])=>r.eid===eid).map(([id,r])=>({id,...r}));
+  const st=rs.map(r=>({r,s:stageOf(r)}));
+  const n=rs.length, nCk=st.filter(x=>x.s.checked).length, nDg=st.filter(x=>x.s.diag).length, nSt=st.filter(x=>x.s.sent).length;
+  // 이 시험 직전 시험 기록들의 실천률 = 이번 시험까지 관리가 이어졌는지
+  const prevPr=rs.map(r=>{const id=r.id; const p=prevRecOf(id); return p?practice(p,examDate(eid)).rate:null;}).filter(v=>v!=null);
+  const avgPr=prevPr.length?Math.round(prevPr.reduce((a,b)=>a+b,0)/prevPr.length):null;
+  const catTot={}; rs.forEach(r=>activeKeys(r).forEach(k=>{const c=calcR(r,k,true); Object.entries(c.byCat).forEach(([cat,v])=>{catTot[cat]=(catTot[cat]||0)+v.n;});}));
+  const catArr=Object.entries(catTot).sort((a,b)=>b[1]-a[1]); const cmax=Math.max(1,...catArr.map(x=>x[1]));
+  const subjChange=KEYS.map(k=>{const ds=rs.map(r=>{const c=r.subjects.includes(k)&&calcR(STORE.records[r.id],k); return c&&c.prev!=null?c.score-c.prev:null;}).filter(v=>v!=null); return {k,avg:ds.length?Math.round(ds.reduce((a,b)=>a+b,0)/ds.length*10)/10:null,n:ds.length};});
+  const oAvg=n?Math.round(rs.reduce((a,r)=>a+activeKeys(r).reduce((b,k)=>b+calcR(r,k,true).oLost,0),0)/n*10)/10:0;
+  const table=st.map(({r,s})=>{const stu=STORE.students[r.sid]||{}; return `<tr><td><button class="reset" data-act="open-rec" data-sid="${r.sid}" data-id="${r.id}">${esc(stu.name||'?')}</button></td><td>${esc(r.manager)}</td><td>${s.checked?'<span class="pill on">완료</span>':`<span class="pill warn">${s.d}/${s.n}</span>`}</td><td>${s.diag?'<span class="pill on">완료</span>':'<span class="pill">전</span>'}</td><td>${s.sent?'<span class="pill on">전달</span>':'<span class="pill">전</span>'}</td><td class="num">${s.prac.rate!=null?s.prac.rate+'%':'—'}</td></tr>`;}).join('');
+  return intro('지점 현황','원장님이 보는 화면이에요. 상담이 어디까지 진행됐는지, 지점 전체에서 어떤 오답 원인이 많은지, 관리가 다음 시험까지 이어졌는지를 한눈에 봐요. 팀 회의와 올림피아드 성과 자료로 쓸 수 있어요.')+
+  `<div class="stack"><div class="row"><span class="hint">시험</span><select data-act="dash-eid" style="width:auto">${exams.map(([id,e])=>`<option value="${id}" ${id===eid?'selected':''}>${esc(e.name)}</option>`).join('')}</select></div>
+  <div class="tiles"><div class="tile"><span>상담 대상</span><b>${n}명</b></div><div class="tile"><span>오답 체크 완료</span><b>${nCk}/${n}</b></div><div class="tile"><span>매니저 진단 완료</span><b>${nDg}/${n}</b></div><div class="tile"><span>보고서 전달</span><b>${nSt}/${n}</b></div><div class="tile"><span>직전 시험 뒤 실천률(평균)</span><b>${avgPr??'—'}${avgPr!=null?'%':''}</b></div><div class="tile"><span>1인당 되찾을 점수</span><b>${oAvg}점</b></div></div>
+  <div class="grid2"><div class="panel"><div class="secthead"><h3>지점 전체 오답 원인</h3><span class="hint">문항 수 합계</span></div><div class="bars">${catArr.map(([c,v])=>`<div class="bar"><span>${c}</span><div class="tr"><div class="fi" style="width:${v/cmax*100}%;background:${CAT[c].c}"></div></div><span class="num">${v}문항</span></div>`).join('')||'<p class="hint">아직 없어요</p>'}</div></div>
+  <div class="panel"><div class="secthead"><h3>과목별 평균 점수 변화</h3><span class="hint">지난 시험 대비</span></div><div class="bars">${subjChange.map(x=>`<div class="bar"><span>${x.k}</span><div class="tr"><div class="fi" style="width:${x.avg==null?0:Math.min(100,Math.abs(x.avg)*5)}%;background:${x.avg<0?'var(--mark)':'var(--ok)'}"></div></div><span class="num">${x.avg==null?'—':(x.avg>0?'+':'')+x.avg+'점'}</span></div>`).join('')}</div></div></div>
+  ${(()=>{const etc={}; rs.forEach(r=>activeKeys(r).forEach(k=>{const W=r.wrong?.[k]||{}; Object.values(W).forEach(w=>{if(w&&w.custom&&(w.sent||'').trim()){const key=k+'|'+w.cat+'|'+w.sent.trim(); etc[key]=(etc[key]||0)+1;}});}));
+    const list=Object.entries(etc).sort((a,b)=>b[1]-a[1]);
+    return `<div class="panel"><div class="secthead"><h3>학생이 직접 쓴 오답 이유 (기타)</h3><span class="hint">새 오답 요인 문장을 만들 때 참고해요 · ${list.length}개</span></div>${list.length?`<div class="etc-list">${list.map(([key,n])=>{const [k,c,s]=key.split('|'); return `<div><span class="pill acc">${esc(k)}</span><span class="pill">${esc(c)}</span><span>${esc(s)}</span>${n>1?`<b class="num">×${n}</b>`:''}</div>`;}).join('')}</div>`:'<p class="hint" style="margin:0">아직 없어요.</p>'}</div>`;})()}
+  <div class="panel"><div class="secthead"><h3>학생별 진행</h3></div><div class="tw"><table class="t"><thead><tr><th>학생</th><th>담당</th><th>오답 체크</th><th>진단</th><th>보고서</th><th>이번 실천률</th></tr></thead><tbody>${table||'<tr><td colspan="6" class="hint">이 시험으로 상담한 학생이 아직 없어요.</td></tr>'}</tbody></table></div></div></div>`;
+}
+
+/* ================= 이벤트 ================= */
+function intOnly(el){/* 숫자와 소수점 하나만 남김: 41.5가 415로 바뀌지 않게 */ let v=el.value.replace(/,/g,'.').replace(/[^0-9.]/g,''); const i=v.indexOf('.'); if(i>=0) v=v.slice(0,i+1)+v.slice(i+1).replace(/\./g,''); if(v!==el.value) el.value=v; return v;}
+function setPath(o,path,v){const ps=path.split('.'); let x=o; for(let i=0;i<ps.length-1;i++){x[ps[i]]=x[ps[i]]&&typeof x[ps[i]]==='object'?x[ps[i]]:{}; x=x[ps[i]];} x[ps[ps.length-1]]=v;}
+function saveRec(){put('records',ui.rid,rec());}
+function keep(fn){const y=window.scrollY; fn(); window.scrollTo({top:y});}
+document.addEventListener('submit',e=>{
+  e.preventDefault();
+  if(DEMO&&(e.target.id==='f-student'||e.target.id==='f-exam')){toast('예시 화면에서는 저장되지 않아요. 예시를 닫고 추가해 주세요'); return;}
+  if(e.target.id==='f-student'){const name=document.getElementById('ns-name').value.trim(); if(!name) return; const id=uid('s'); put('students',id,{name,grade:document.getElementById('ns-grade').value,manager:document.getElementById('ns-mgr').value.trim(),created:Date.now()}); toast(`${name} 학생을 추가했어요`); render();}
+  if(e.target.id==='f-exam'){const g=document.getElementById('ne-grade').value, y=document.getElementById('ne-year').value, m=document.getElementById('ne-month').value; const date=document.getElementById('ne-date').value; if(!date) return;
+    const dup=Object.entries(STORE.exams).find(([id,x])=>x.grade===g&&x.year==y&&x.month==m);
+    if(dup){ui.eid=dup[0]; toast('이미 등록된 시험이라 그 시험을 열었어요'); render(); return;}
+    const ex=newExam(examNameOf(g,y,m),date,g); ex.year=+y; ex.month=+m; ex.short=`${m}월`; const id=uid('e'); put('exams',id,ex); ui.eid=id; toast('시험을 등록했어요. 배점과 단원을 확인해 주세요'); render();}
+});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b||b.tagName==='SELECT'||b.tagName==='INPUT') return;
+  const a=b.dataset.act, ds=b.dataset; const r=rec();
+  switch(a){
+    case 'back': history.back(); break;
+    case 'view': ui.view=ds.v; ui.eid=null; if(ds.v!=='student'){ui.rid=null;} render(); window.scrollTo({top:0}); break;
+    case 'demo-on': startDemo(); break;
+    case 'demo-off': stopDemo(); break;
+    case 'mgr': ui.mgr=ds.v; render(); break;
+    case 'open-student': ui.view='student'; ui.sid=ds.id; ui.rid=null; render(); window.scrollTo({top:0}); break;
+    case 'open-rec': ui.view='student'; ui.sid=ds.sid; ui.rid=ds.id; ui.step=2; render(); window.scrollTo({top:0}); break;
+    case 'rec': ui.rid=ds.id||null; ui.step=ds.id?(ui.step||0):0; render(); break;
+    case 'new-rec': {const eid=document.getElementById('newrec-eid').value; const id=ui.sid+'__'+eid; put('records',id,newRecord(ui.sid,eid)); ui.rid=id; ui.step=0; render(); break;}
+    case 'step': ui.step=+ds.i; render(); window.scrollTo({top:0}); break;
+    case 'cur': ui.cur=ds.k; keep(render); break;
+    case 'cur-top': ui.cur=ds.k; render(); window.scrollTo({top:0}); break;
+    case 'subj-toggle': {const k=ds.k; const i=r.subjects.indexOf(k); i>=0?r.subjects.splice(i,1):r.subjects.push(k); r.subjects.sort((x,y)=>KEYS.indexOf(x)-KEYS.indexOf(y)); saveRec(); keep(render); break;}
+    case 'tog': {const q=ds.q; r.wrong=r.wrong||{}; const W=r.wrong[ui.cur]=r.wrong[ui.cur]||{}; if(W[q]) delete W[q]; else W[q]={cat:'',sent:null}; saveRec(); keep(render); break;}
+    case 'cat': {const w=r.wrong[ui.cur][ds.q]; if(w.cat!==ds.c){w.cat=ds.c; w.sent=null;} ui.open=ui.open||{}; ui.open[ui.cur+ds.q]=true; saveRec(); keep(render); break;}
+    case 'sent-custom': {const w=r.wrong[ui.cur][ds.q]; if(!w.custom){w.custom=true; w.sent='';} saveRec(); keep(render); setTimeout(()=>{const el=document.querySelector(`textarea[data-wsent="${ds.q}"]`); el&&el.focus();},0); break;}
+    case 'sent-done': {const w=r.wrong[ui.cur][ds.q]; if(!(w.sent||'').trim()){toast('문장을 적어 주세요'); break;} ui.open=ui.open||{}; ui.open[ui.cur+ds.q]=false; saveRec(); keep(render); break;}
+    case 'sent': {const w=r.wrong[ui.cur][ds.q]; w.sent=ds.t; w.custom=false; ui.open=ui.open||{}; ui.open[ui.cur+ds.q]=false; saveRec(); keep(render); break;}
+    case 'reopen': ui.open=ui.open||{}; ui.open[ui.cur+ds.q]=true; keep(render); break;
+    case 'weak': {const d=D(r,ui.cur); if(!d.weak) d.weak=weakOf(r,ui.cur).slice(); const i=d.weak.indexOf(ds.u); i>=0?d.weak.splice(i,1):d.weak.push(ds.u); saveRec(); keep(render); break;}
+    case 'reset-diag': {const d=D(r,ui.cur); delete d.one; delete d.plan; saveRec(); keep(render); break;}
+    case 'diag-done': r.diagDone=!r.diagDone; saveRec(); keep(render); toast(r.diagDone?'진단 완료로 표시했어요':'진단 완료를 취소했어요'); break;
+    case 'ck': {r.checks=r.checks||{}; const c=r.checks[ds.w]=r.checks[ds.w]||{}; c.done=c.done||{}; c.done[ds.k]=!c.done[ds.k]; saveRec(); keep(render); break;}
+    case 'img': exportImg(ds.id,ds.n); break;
+    case 'open-exam': ui.eid=ds.id; ui.cur=KEYS[0]; render(); window.scrollTo({top:0}); break;
+    case 'close-exam': ui.eid=null; render(); break;
+    case 'mode': ui.mode=ds.v; keep(render); break;
+    case 'cell': {const e2=STORE.exams[ui.eid]; const es=e2.subj[ui.cur]; const q=+ds.q;
+      if(ui.mode==='pts'){es.pts[q-1]=es.pts[q-1]>=4?2:es.pts[q-1]+1; es.confirmed=true;} else { if(ui.brush) es.units[q]=ui.brush; else delete es.units[q]; }
+      put('exams',ui.eid,e2); keep(render); break;}
+    case 'apply-quick': {const e2=STORE.exams[ui.eid]; const es=e2.subj[ui.cur];
+      const nums=id=>{const el=document.getElementById(id); return el?[...new Set((el.value.match(/\d+/g)||[]).map(Number))].filter(q=>q>=1&&q<=es.n):[];};
+      const t3=nums('qk3'), t4=nums('qk4'); const both=t3.filter(q=>t4.includes(q));
+      if(both.length){toast(`${both.join(', ')}번이 3점과 4점에 모두 있어요`); break;}
+      es.pts=es.pts.map(()=>2); t3.forEach(q=>es.pts[q-1]=3); t4.forEach(q=>es.pts[q-1]=4); es.confirmed=true;
+      put('exams',ui.eid,e2); render(); const s=sumPts(es); toast(s===FULL[ui.cur]?`배점 적용 완료 · 합계 ${s}점`:`적용했어요. 합계 ${s}점이라 만점 ${FULL[ui.cur]}점과 달라요`); break;}
+    case 'del-student': {const s=STORE.students[ui.sid]; if(!s) break; const ids=Object.keys(STORE.records).filter(i=>STORE.records[i].sid===ui.sid);
+      if(b.dataset.confirm!=='1'){b.dataset.confirm='1'; b.textContent=`정말 삭제할까요? (${s.name} · 상담 기록 ${ids.length}개 함께 삭제) 한 번 더 누르면 삭제돼요`; b.classList.add('primary'); break;}
+      ids.forEach(i=>remove('records',i)); remove('students',ui.sid); toast(`${s.name} 학생을 삭제했어요`); ui.view='students'; ui.sid=null; ui.rid=null; render(); break;}
+    case 'del-exam': {const used=Object.values(STORE.records).some(x=>x.eid===ui.eid); if(used){toast('이 시험으로 상담한 기록이 있어 삭제할 수 없어요'); break;}
+      if(b.dataset.confirm!=='1'){b.dataset.confirm='1'; b.textContent='한 번 더 누르면 삭제돼요'; b.classList.add('primary'); break;}
+      remove('exams',ui.eid); ui.eid=null; render(); break;}
+  }
+  if(a==='mark-sent'){r.sent=r.sent||{}; r.sent[ds.w]=r.sent[ds.w]?'':today(); saveRec(); keep(render); toast(r.sent[ds.w]?'전달 완료로 표시했어요':'전달 표시를 취소했어요');}
+});
+document.addEventListener('input',e=>{
+  const t=e.target, ds=t.dataset;
+  if(ds.wsent!=null&&rec()){const w=rec().wrong?.[ui.cur]?.[ds.wsent]; if(w){w.sent=t.value; w.custom=true; saveRec();} return;}
+  if(ds.f&&rec()){let v=t.value; if(t.inputMode==='numeric') v=intOnly(t); setPath(rec(),ds.f,v); saveRec();}
+  if(ds.e&&ui.eid){const ex=STORE.exams[ui.eid]; ex[ds.e]=t.value; put('exams',ui.eid,ex);}
+  if(ds.cut!=null&&ui.eid){const ex=STORE.exams[ui.eid]; ex.subj[ui.cur].cuts[+ds.cut]=intOnly(t); put('exams',ui.eid,ex);}
+});
+document.addEventListener('change',e=>{
+  const t=e.target, a=t.dataset.act;
+  if(a==='unit'){const ex=recExam(rec()); if(t.value) ex.subj[ui.cur].units[t.dataset.q]=t.value; else delete ex.subj[ui.cur].units[t.dataset.q]; put('exams',rec().eid,ex); keep(render);}
+  if(a==='brush'){ui.brush=t.value;}
+  if(a==='allgrades'){ui.allGrades=t.checked; render();}
+  if(a==='ne-sync'){syncNewExam();}
+  if(a==='dash-eid'){ui.dashEid=t.value; render();}
+  if(a==='ncount'){const ex=STORE.exams[ui.eid]; const es=ex.subj[ui.cur]; const n=Math.max(1,Math.min(60,parseInt(t.value)||1)); while(es.pts.length<n) es.pts.push(2); es.pts.length=n; es.n=n; put('exams',ui.eid,ex); render();}
+  if(t.dataset.f==='date'||t.dataset.f==='manager'){render();}
+});
+
+/* ================= 예시 모드 ================= */
+function startDemo(){ if(DEMO) return; REAL={exams:STORE.exams,students:STORE.students,records:STORE.records}; STORE.exams={}; STORE.students={}; STORE.records={}; DEMO=true; buildDemo(); ui.view='student'; ui.sid='demo-s1'; ui.rid='demo-s1__demo-e10'; ui.step=3; ui.cur='국어'; render(); window.scrollTo({top:0}); }
+function stopDemo(){ if(!DEMO) return; STORE.exams=REAL.exams; STORE.students=REAL.students; STORE.records=REAL.records; REAL=null; DEMO=false; ui.view='students'; ui.rid=null; ui.sid=null; ui.eid=null; render(); }
+function buildDemo(){
+  const mk=(id,name,date)=>{STORE.exams[id]=newExam(name,date,'고1'); STORE.exams[id].demo=true; KEYS.forEach(k=>STORE.exams[id].subj[k].confirmed=true);};
+  mk('demo-e6','2026년 6월 고1 학력평가 (예시)','2026-06-04');
+  mk('demo-e9','2026년 9월 고1 학력평가 (예시)','2026-09-03');
+  mk('demo-e10','2026년 10월 고1 학력평가 (예시)','2026-10-14');
+  mk('demo-e11','2026년 11월 고1 학력평가 (예시)','2026-11-19');
+  const M1='[고1] 공통수학1 – ', M2='[고1] 공통수학2 – ', T='통합과학1_';
+  const L10={
+   '국어':[[12,'독서','글의 중심 내용과 구조를 파악하지 못했어요.'],[15,'독서','글의 중심 내용과 구조를 파악하지 못했어요.'],[16,'독서','글 속 정보끼리의 관계를 잘못 연결했어요.'],[24,'문학','작품 속 상황과 내용을 파악하지 못했어요.'],[31,'문학','지문에 없는 내용을 내 마음대로 추측했어요.'],[38,'언어','문법 규칙의 조건·순서·예외를 놓쳤어요.'],[41,'작문','ㄱ·ㄴ·ㄷ 판단은 맞았는데 번호(①~⑤) 조합을 잘못 골랐어요.']],
+   '수학':[[9,M1+'다항식','풀이 방법은 맞는데 계산이나 부호가 틀렸어요.'],[15,M1+'방정식과 부등식','문제 조건을 식이나 그림으로 옮기지 못했어요.'],[21,M2+'함수와 그래프','함수식을 보고 그래프 모양을 떠올리지 못했어요.'],[28,M1+'경우의 수','이 유형 문제를 충분히 풀어보지 않았어요.'],[29,M2+'도형의 방정식','개념은 아는데, 이 문제에 어떤 개념을 써야 할지 몰랐어요.'],[30,M2+'함수와 그래프','중요한 부분을 구분하지 못해 읽는 속도와 풀이 시간을']],
+   '영어':[[7,'듣기','숫자·시간·금액 같은 조건을 놓쳤어요.'],[29,'어휘·어법','문법이나 문장 구조를 잘못 파악했어요.'],[33,'독해 – 빈칸 추론','빈칸에 들어갈 의미를 잘못 잡았어요.'],[34,'독해 – 빈칸 추론','빈칸에 들어갈 의미를 잘못 잡았어요.'],[37,'독해 – 글의 순서','연결어만 보고 글의 순서를 정했어요.'],[39,'독해 – 문장 삽입','넣을 문장의 앞뒤 연결을 모두 확인하지 않았어요.']],
+   '한국사':[[7,'정치사 – 제도, 기구, 조직','제도와 기구의 이름이 헷갈렸어요.'],[11,'연표 - 사건·제도 순서','환국·붕당 정치에서 어느 세력이 주도했는지 헷갈렸어요.'],[12,'정치사 – 제도, 기구, 조직','조선 시대 경제·수취 제도'],[14,'정치사 – 제도, 기구, 조직','조선 시대 경제·수취 제도'],[16,'근현대 – 조약·법령','조약·법령이 나온 배경과 결과의 순서를 헷갈렸어요.'],[18,'일제강점기 – 민족 운동',"'항상', '모든' 같은 단정적인 표현을 못 봤어요."],[20,'연표 - 사건·제도 순서','긴장해서 아는 문제도 틀렸어요.']],
+   '통합사회':[[3,'윤리 - 사상가','사상가마다 입장이 어떻게 다른지 헷갈렸어요.'],[9,'자료 해석 - 그래프·지도 등','통계·지도 자료에서 증감률·비율을 계산하지 못했어요.'],[14,'지리 – 공간 불평등·지역 격차','지역 격차를 보여주는 지표를 잘못 해석했어요.'],[18,'정치·법 – 헌법상 기본권','헌법상 기본권이 침해된 내용을 파악하지 못했어요.'],[20,'융합형 - 복합 문제(지리+윤리 등)','여러 단원이 섞인 문제']],
+   '통합과학':[[4,T+'기본량과 단위 (시간과 공간)','그래프·표의 눈금, 숫자, 단위를 잘못 읽었어요.'],[8,T+'화학 결합 (이온 결합·공유 결합)','비슷한 개념끼리 구별하지 못했어요.'],[13,T+'중력과 운동 (자유 낙하, 수평 방향 운동)','그래프·표·실험 자료에서 무엇을 봐야 하는지 몰랐어요.'],[17,T+'세포의 구조와 세포막','원리를 이해하지 못했어요.'],[19,T+'판 구조론과 지권의 변화',"'항상', '모든' 같은 단정적인 표현을 못 봤어요."]]};
+  const X9={'국어':[[20,'문학','작품 속 상황과 내용을 파악하지 못했어요.'],[33,'독서','지문 근거 없이 느낌으로 답을 골랐어요.'],[42,'작문','문제의 조건을 잘못 파악했어요.']],
+   '수학':[[11,M1+'방정식과 부등식','풀고 나서 다시 확인(검산)하지 않았어요.'],[18,M2+'집합과 명제','숫자를 옮겨 적다 틀렸거나 단위를 빠뜨렸어요.']],
+   '영어':[[21,'독해 – 함축 의미','숨은 뜻이 있는 표현을 글자 그대로만 해석했어요.'],[12,'듣기','숫자·시간·금액 같은 조건을 놓쳤어요.'],[40,'독해 – 요약문','요약문의 두 빈칸을 함께 따져보지 않았어요.']],
+   '한국사':[[3,'문화사 - 유물·유적 시기','유물·유적의 이름과 만들어진 시기가 헷갈렸어요.'],[9,'인물 - 활동 시기·업적','사료 속 인물이 언제 활동했는지 몰랐어요.']],
+   '통합사회':[[5,'경제 – 시장 실패·정부 실패','시장 실패와 정부 실패가 왜 생기는지 몰랐어요.'],[12,'자료 해석 - 그래프·지도 등','문제의 조건을 잘못 파악했어요.']],
+   '통합과학':[[6,T+'측정과 어림','풀이 방법은 맞는데 계산이나 부호가 틀렸어요.'],[15,T+'물질대사와 효소','용어·단위·순서를 외우지 못했어요.']]};
+  const X6={'국어':[[7,'화법','말하는 사람의 핵심 내용과 의도를 잘못 이해했어요.'],[44,'언어','OMR 마킹을 밀려 쓰거나 잘못 표시했어요.'],[27,'문학','문학 개념어의 뜻을 정확히 몰랐어요.'],[35,'문학','선지를 지문 근거와 하나하나 맞춰보지 않고 골랐어요.']],
+   '수학':[[13,M1+'행렬','풀이 방법은 맞는데 계산이나 부호가 틀렸어요.'],[24,M2+'도형의 방정식','공식이 기억나지 않거나 비슷한 공식과 헷갈렸어요.'],[26,M1+'경우의 수','오답 정리를 안 해서 같은 유형을 또 틀렸어요.']],
+   '영어':[[3,'듣기','한 단어 해석하느라 다음 내용을 놓쳤어요.'],[31,'독해 – 빈칸 추론','빈칸에 들어갈 의미를 잘못 잡았어요.'],[35,'독해 – 무관한 문장','소재가 같아서 관련 있는 문장이라고 생각했어요.']],
+   '한국사':[[2,'연표 - 사건·제도 순서','어떤 일이 먼저 일어났는지 순서가 헷갈렸어요.'],[15,'일제강점기 – 민족 운동','일제강점기 민족 운동 단체들의 노선과 활동이 헷갈렸어요.']],
+   '통합사회':[[7,'문화 – 문화 이해 태도','문화를 이해하는 태도'],[16,'윤리 – 정의의 기준','정의의 기준(분배적 정의 등)을 사례에 잘못 적용했어요.']],
+   '통합과학':[[2,T+'우주 초기 원소의 생성 (빅뱅)','원리를 이해하지 못했어요.'],[10,T+'주기율표와 원소의 주기성','벼락치기로 외워서 시험 때 기억이 안 났어요.'],[18,T+'운동량과 충격량 (충돌 안전)','긴장해서 아는 문제도 틀렸어요.']]};
+  const find=t=>FACTORS.find(f=>f.t===t)||FACTORS.find(f=>f.t.startsWith(t));
+  function rec(sid,eid,lists,date,mgr){
+    const r=newRecord(sid,eid); r.date=date; r.manager=mgr; r.wrong={};
+    lists.forEach(L=>Object.entries(L).forEach(([k,arr])=>arr.forEach(([q,u,t])=>{const f=find(t); r.wrong[k]=r.wrong[k]||{}; r.wrong[k][q]={cat:f?f.c:'',sent:f?f.t:null}; STORE.exams[eid].subj[k].units[q]=u;})));
+    return r;
+  }
+  const cuts={'국어':[88,80,71,61,50,38,27,17],'수학':[84,74,62,50,38,27,18,12],'통합사회':[44,40,35,30,25,19,14,10],'통합과학':[43,38,33,28,23,18,13,9]};
+  ['demo-e6','demo-e9','demo-e10','demo-e11'].forEach((e,i)=>{for(const k in cuts) STORE.exams[e].subj[k].cuts=cuts[k].map(v=>v-(i===0?3:0));});
+  STORE.students['demo-s1']={name:'김예시',grade:'고1',manager:'이유민'};
+  STORE.students['demo-s2']={name:'박예시',grade:'고1',manager:'조영민'};
+  STORE.students['demo-s3']={name:'최예시',grade:'고1',manager:'박진희'};
+  const R=STORE.records;
+  R['demo-s1__demo-e6']=rec('demo-s1','demo-e6',[L10,X9,X6],'2026-06-10','이유민');
+  R['demo-s1__demo-e9']=rec('demo-s1','demo-e9',[L10,X9],'2026-09-08','이유민');
+  R['demo-s1__demo-e10']=rec('demo-s1','demo-e10',[L10],'2026-10-20','이유민');
+  R['demo-s2__demo-e9']=rec('demo-s2','demo-e9',[L10,X6],'2026-09-09','조영민');
+  R['demo-s2__demo-e10']=rec('demo-s2','demo-e10',[L10,X9],'2026-10-21','조영민');
+  R['demo-s3__demo-e10']=rec('demo-s3','demo-e10',[X9,X6],'2026-10-22','박진희');
+  Object.keys(R['demo-s3__demo-e10'].wrong['국어']).slice(0,3).forEach(q=>R['demo-s3__demo-e10'].wrong['국어'][q].cat='');
+  ['demo-s1__demo-e6','demo-s1__demo-e9','demo-s1__demo-e10','demo-s2__demo-e9'].forEach(id=>R[id].diagDone=true);
+  R['demo-s1__demo-e9'].sent={student:'2026-09-08',parent:'2026-09-09'}; R['demo-s1__demo-e6'].sent={student:'2026-06-10',parent:'2026-06-11'};
+  const r=R['demo-s1__demo-e10'];
+  r.goals={'국어':{goal:'85',expect:'80'},'수학':{goal:'80',expect:'84'},'영어':{goal:'85',expect:'83'},'한국사':{goal:'35',expect:'40'},'통합사회':{goal:'38',expect:'35'},'통합과학':{goal:'38',expect:'34'}};
+  r.diag={'국어':{good:'독서 지문마다 문단 옆에 핵심어를 적는 연습을 시작했고, 문학 4지문 중 3지문을 다 맞혔어요.',nextGoal:'88'},
+    '수학':{good:'1~14번 기본 문항에서 계산 실수 없이 13문항을 맞혔어요. 지난 시험 뒤 매일 검산한 효과예요.',nextGoal:'82'},
+    '통합과학':{weak:[T+'화학 결합 (이온 결합·공유 결합)',T+'중력과 운동 (자유 낙하, 수평 방향 운동)'],nextGoal:'42'},
+    '통합사회':{weak:['자료 해석 - 그래프·지도 등','윤리 - 사상가']}};
+  r.comment='6월부터 세 번의 모의고사를 함께 분석해 왔고, 국어·수학의 실수형 오답이 눈에 띄게 줄었습니다. 이번에는 개념을 문제에 적용하는 힘을 키우는 데 집중하겠습니다.';
+  // 실천 체크: 김예시 6월 45%, 9월 75%, 10월 진행 중 / 박예시 9월 50%
+  const fill=(id,rate,asOf)=>{const x=R[id]; const subs=practiceSubs(x); weeksOf(x).filter(w=>w.start<=asOf).forEach((w,wi)=>{x.checks[w.i]={done:{},note:''}; subs.forEach((k,ki)=>{if(((wi*7+ki*3)%100)/100*100 < rate || ((wi+ki)%4)/4*100<rate) x.checks[w.i].done[k]=((wi*13+ki*29)%100)<rate;});});};
+  fill('demo-s1__demo-e6',45,'2026-09-03'); fill('demo-s1__demo-e9',78,'2026-10-14'); fill('demo-s1__demo-e10',80,'2026-11-06'); fill('demo-s2__demo-e9',50,'2026-10-14');
+  R['demo-s1__demo-e10'].checks[1].note='국어 구조도 3지문 완료, 수학 검산 매일 성공';
+}
+
+
+/* ================= 이미지 저장 ================= */
+function toast(m){document.querySelectorAll('.toast').forEach(x=>x.remove()); const t=document.createElement('div'); t.className='toast'; t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),2600);}
+function closeModal(){document.getElementById('modalRoot').innerHTML='';}
+async function exportImg(id,name){
+  const el=document.getElementById(id); if(!el||!window.html2canvas){toast('이미지 도구를 불러오지 못했어요. 새로고침 후 다시 눌러 주세요.'); return;}
+  toast('이미지를 만드는 중이에요…'); try{await document.fonts?.ready}catch(e){}
+  const canvas=await html2canvas(el,{scale:2,backgroundColor:'#ffffff',windowWidth:900,onclone:(doc)=>{const c=doc.getElementById(id); c.style.width='760px'; c.style.maxWidth='760px'; c.style.boxShadow='none';}});
+  const url=canvas.toDataURL('image/png'); const r=rec(); const s=STORE.students[r.sid];
+  const fname=`${s?s.name:'학생'}_${examLabel(r.eid)}_${name}.png`;
+  document.getElementById('modalRoot').innerHTML=`<div class="modal" role="dialog" aria-label="보고서 이미지"><div class="box"><div class="secthead"><h3>보고서 이미지가 준비됐어요</h3></div>
+  <img src="${url}" alt="${esc(name)} 미리보기"><p class="hint">휴대폰에서는 '카톡 등으로 보내기'를 누르면 바로 카카오톡을 고를 수 있어요. PC에서는 '이미지 파일로 저장' 후 첨부해 보내세요. 저장 버튼이 안 되면 이미지를 길게 누르거나(휴대폰) 오른쪽 클릭(PC)해서 저장할 수 있어요.</p>
+  <div class="row">${navigator.canShare?'<button class="btn primary" id="m-share">카톡 등으로 보내기</button>':''}<button class="btn ${navigator.canShare?'':'primary'}" id="m-save">이미지 파일로 저장</button><button class="btn" id="m-copy">이미지 복사</button><button class="btn ghost" id="m-close">닫기</button></div></div></div>`;
+  document.getElementById('m-close').onclick=closeModal;
+  document.getElementById('m-save').onclick=()=>{const a=document.createElement('a'); a.href=url; a.download=fname; document.body.appendChild(a); a.click(); a.remove(); toast('저장했어요');};
+  const sh=document.getElementById('m-share'); if(sh) sh.onclick=()=>{canvas.toBlob(async blob=>{const file=new File([blob],fname,{type:'image/png'}); try{ if(navigator.canShare({files:[file]})) await navigator.share({files:[file],title:fname}); else toast('이 기기에서는 바로 보내기가 안 돼요. 저장 후 첨부해 주세요.'); }catch(err){ if(err&&err.name!=='AbortError') toast('보내지 못했어요. 저장 후 첨부해 주세요.'); }},'image/png');};
+  document.getElementById('m-copy').onclick=()=>{canvas.toBlob(async blob=>{try{await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); toast('복사했어요. 카톡 대화창에 붙여넣기 하세요');}catch(err){toast('복사가 막혀 있어요. 이미지를 길게 눌러 저장해 주세요.');}},'image/png');};
+}
+
+boot();
+</script>
+</body>
+</html>
