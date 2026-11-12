@@ -629,7 +629,14 @@ function syncHistory(){
 }
 window.addEventListener('popstate',e=>{ const s=e.state; if(!s) return; popping=true; ui.view=s.v; ui.sid=s.sid; ui.rid=s.rid; ui.step=s.step; ui.eid=s.eid; navDepth=s.d||0; render(); popping=false; window.scrollTo({top:0}); });
 function backBar(){ return navDepth>0?`<div class="backbar"><button class="btn small" data-act="back">← 이전 화면</button></div>`:''; }
-function render(){
+function showErr(where,err){
+  const msg=(err&&(err.stack||err.message))||String(err);
+  let box=document.getElementById('errbox'); if(!box){box=document.createElement('div'); box.id='errbox'; box.style.cssText='position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40;background:#fbe7e5;color:#7a1c16;border:2px solid #d2433b;border-radius:10px;padding:12px 14px;font-size:13px;max-height:40vh;overflow:auto;white-space:pre-wrap'; document.body.appendChild(box);}
+  box.innerHTML='<b>화면을 그리다 오류가 났어요.</b> 이 창을 캡처해서 보내 주세요. <button class="btn small" onclick="this.parentNode.remove()">닫기</button>\n'+esc(where+' · '+(ui.view||'')+'/'+(ui.step??'')+'\n'+String(msg).slice(0,600));
+}
+window.addEventListener('error',e=>showErr('전체',e.error||e.message));
+function render(){ try{ renderInner(); }catch(err){ showErr('render',err); } }
+function renderInner(){
   if(USER===null&&AUTH){return;}
   renderNav();
   const a=document.getElementById('app');
@@ -645,12 +652,12 @@ function intro(h,p,extra=''){return `<div class="intro"><div class="row"><h2>${h
 
 /* ================= 학생 목록 ================= */
 function vStudents(){
-  const mgrs=[...new Set(Object.values(STORE.students).map(s=>s.manager).filter(Boolean))];
-  const list=Object.entries(STORE.students).filter(([id,s])=>!ui.mgr||s.manager===ui.mgr).sort((a,b)=>a[1].name.localeCompare(b[1].name,'ko'));
-  const cards=list.map(([id,s])=>{const rs=recsOf(id); const last=rs[rs.length-1]; let pills='';
+  const mgrs=[...new Set(Object.values(STORE.students).map(s=>s&&s.manager).filter(Boolean))];
+  const list=Object.entries(STORE.students).filter(([id,s])=>!ui.mgr||(s&&s.manager)===ui.mgr).sort((a,b)=>String(a[1].name||'').localeCompare(String(b[1].name||''),'ko'));
+  const cards=list.map(([id,s])=>{try{ if(!s||typeof s!=='object'||!s.name) throw new Error('이름 없음'); const rs=recsOf(id); const last=rs[rs.length-1]; let pills='';
     if(last){const st=stageOf(last); pills=`<span class="pill acc">${esc(examLabel(last.eid))}</span>${st.checked?'<span class="pill on">오답 체크</span>':`<span class="pill warn">오답 체크 ${st.d}/${st.n}</span>`}${st.diag?'<span class="pill on">진단</span>':'<span class="pill">진단 전</span>'}${st.sent?'<span class="pill on">보고서 전달</span>':''}${st.prac.rate!=null?`<span class="pill ${st.prac.rate>=70?'on':st.prac.rate<40?'warn':''}">실천 ${st.prac.rate}%</span>`:''}`;}
     else pills='<span class="pill">기록 없음</span>';
-    return `<button type="button" class="scard" data-act="open-student" data-id="${id}"><span class="nm">${esc(s.name)}<span class="hint">${esc(s.grade)} · ${esc(s.manager||'담당 미정')}</span></span><span class="pills">${pills}</span><span class="hint">시험 기록 ${rs.length}회</span></button>`;}).join('');
+    return `<button type="button" class="scard" data-act="open-student" data-id="${id}"><span class="nm">${esc(s.name)}<span class="hint">${esc(s.grade)} · ${esc(s.manager||'담당 미정')}</span></span><span class="pills">${pills}</span><span class="hint">시험 기록 ${rs.length}회</span></button>`;}catch(err){ return `<div class="scard" style="cursor:default;border-color:var(--mark)"><span class="nm">정보를 불러오지 못한 학생<span class="hint">${esc(String(err&&err.message||err))}</span></span><button class="btn small danger" data-act="del-broken" data-id="${esc(id)}">이 항목 지우기</button></div>`; }}).join('');
   const empty=`<div class="empty"><b>아직 등록된 학생이 없어요.</b><br>아래에서 학생을 추가하거나, 먼저 <button class="reset" data-act="demo-on">예시로 둘러보기</button>를 눌러 완성된 모습을 확인해 보세요.<br><span class="hint">시험 문항표가 없다면 '시험 관리'에서 시험을 먼저 등록해 주세요.</span></div>`;
   return intro('학생 상담','학생을 고르면 지난 시험부터 쌓인 성장 기록과 이번 시험 상담 단계가 열려요.', !DEMO?`<button class="btn small" data-act="demo-on">예시로 둘러보기</button>`:'')+
   `<div class="stack">${mgrs.length>1?`<div class="row"><span class="hint">담당 매니저</span><div class="chips"><button class="chip" data-act="mgr" data-v="" aria-pressed="${!ui.mgr}">전체</button>${mgrs.map(m=>`<button class="chip" data-act="mgr" data-v="${esc(m)}" aria-pressed="${ui.mgr===m}">${esc(m)}</button>`).join('')}</div></div>`:''}
@@ -1013,6 +1020,7 @@ document.addEventListener('click',e=>{
       if(both.length){toast(`${both.join(', ')}번이 3점과 4점에 모두 있어요`); break;}
       es.pts=es.pts.map(()=>2); t3.forEach(q=>es.pts[q-1]=3); t4.forEach(q=>es.pts[q-1]=4); es.confirmed=true;
       put('exams',ui.eid,e2); render(); const s=sumPts(es); toast(s===FULL[ui.cur]?`배점 적용 완료 · 합계 ${s}점`:`적용했어요. 합계 ${s}점이라 만점 ${FULL[ui.cur]}점과 달라요`); break;}
+    case 'del-broken': {const id=ds.id; if(b.dataset.confirm!=='1'){b.dataset.confirm='1'; b.textContent='한 번 더 누르면 지워져요'; b.classList.add('primary'); break;} Object.keys(STORE.records).filter(i=>STORE.records[i]&&STORE.records[i].sid===id).forEach(i=>remove('records',i)); remove('students',id); toast('지웠어요'); render(); break;}
     case 'del-student': {const s=STORE.students[ui.sid]; if(!s) break; const ids=Object.keys(STORE.records).filter(i=>STORE.records[i].sid===ui.sid);
       if(b.dataset.confirm!=='1'){b.dataset.confirm='1'; b.textContent=`정말 삭제할까요? (${s.name} · 상담 기록 ${ids.length}개 함께 삭제) 한 번 더 누르면 삭제돼요`; b.classList.add('primary'); break;}
       ids.forEach(i=>remove('records',i)); remove('students',ui.sid); toast(`${s.name} 학생을 삭제했어요`); ui.view='students'; ui.sid=null; ui.rid=null; render(); break;}
