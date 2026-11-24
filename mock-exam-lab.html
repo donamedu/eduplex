@@ -339,6 +339,18 @@ table.qm td.n{font-family:var(--f-num);white-space:nowrap}
 .outc div{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
 .stat3 .bar{grid-template-columns:118px minmax(0,1fr) 92px}
 .stat3 h4{margin:0 0 6px;font-size:14px}
+.traps{border:1px dashed var(--accent);border-radius:8px;padding:8px 10px;margin:6px 0 8px;background:color-mix(in srgb,var(--accent-soft) 40%,transparent)}
+.rec{display:block;margin-top:4px;font-size:13px;color:var(--accent);font-weight:600}
+.aibox .drop{border:2px dashed var(--line);border-radius:10px;padding:16px;text-align:center;display:grid;gap:4px}
+.aibox .drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.pickbtn{position:relative;overflow:hidden;cursor:pointer}
+.pickbtn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upl{display:flex;flex-wrap:wrap;gap:8px}
+.upl .t{position:relative;width:70px;height:92px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface2)}
+.upl img{width:100%;height:100%;object-fit:cover}
+.upl .pdf{display:grid;place-items:center;height:100%;font-size:12px;font-weight:600;color:var(--accent);text-align:center;padding:4px}
+.upl span{position:absolute;left:2px;bottom:2px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:0 5px;border-radius:5px}
+.upl button{position:absolute;top:2px;right:2px;border:0;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer}
 .guest{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);display:grid;gap:6px}
 </style>
 </head>
@@ -436,38 +448,38 @@ function poolFor(k){const def=SUBJECTS.find(x=>x.key===k); return FACTORS.filter
 // 과목별 모의고사 학습법 상담 PPT (팀원 제작분이 오면 여기에 추가)
 const PPTS = [
   // ── 완성 (팀원 제작 4종) ──
-  {s:'국어', unit:'독서', cat:'풀이 적용', title:'그려 보면 보인다, 비문학 구조도 공식', by:'이유민', status:'완성',
+  {id:'k1', s:'국어', unit:'독서', cat:'풀이 적용', title:'그려 보면 보인다, 비문학 구조도 공식', by:'이유민', status:'완성',
    match:['글의 중심 내용과 구조를 파악하지 못했어요.','글 속 정보끼리의 관계를 잘못 연결했어요.','지문 근거 없이 느낌으로 답을 골랐어요.']},
-  {s:'수학', unit:'', cat:'풀이 적용', title:'원리가 보이면, 풀이가 보인다 (원리 이해·기본 문제·백지 정리)', by:'조영민', status:'완성',
+  {id:'m1', s:'수학', unit:'', cat:'풀이 적용', title:'원리가 보이면, 풀이가 보인다 (원리 이해·기본 문제·백지 정리)', by:'조영민', status:'완성',
    match:['개념은 아는데, 이 문제에 어떤 개념을 써야 할지 몰랐어요.',"개념이나 용어의 뜻을 말로 설명하지 못해요. (예: '접선', '극값'이 뭔지)",'공식이 기억나지 않거나 비슷한 공식과 헷갈렸어요.']},
-  {s:'영어', unit:'', cat:'풀이 적용', title:'읽긴 읽었는데, 머릿속은 빈칸? 한마디로 처리하면 풀린다', by:'황희선', status:'완성',
+  {id:'e1', s:'영어', unit:'', cat:'풀이 적용', title:'읽긴 읽었는데, 머릿속은 빈칸? 한마디로 처리하면 풀린다', by:'황희선', status:'완성',
    match:['해석은 했는데 무슨 뜻인지 이해가 안 됐어요.','글의 주제·요지·주장을 잘못 잡았어요.','숨은 뜻이 있는 표현을 글자 그대로만 해석했어요.']},
-  {s:'통합과학', unit:'', cat:'개념 부족', title:'why?를 쓰면 보인다, 통합과학 3단계 공식', by:'박진희', status:'완성',
+  {id:'s1', s:'통합과학', unit:'', cat:'개념 부족', title:'why?를 쓰면 보인다, 통합과학 3단계 공식', by:'박진희', status:'완성',
    match:['원리를 이해하지 못했어요. (왜 그렇게 되는지 설명이 막혀요)','해설을 보면 이해되는데, 혼자서는 개념을 문제에 연결하지 못했어요.','기본 문제는 풀리는데, 자료나 모양이 바뀌면 틀렸어요.']},
   // ── 제안 (다음 제작 후보) ──
-  {s:'국어', unit:'문학', cat:'풀이 적용', title:'지문 밖으로 나가지 마라, 문학 근거 찾기', by:'제작 예정', status:'제안',
+  {id:'k2', s:'국어', unit:'문학', cat:'풀이 적용', title:'지문 밖으로 나가지 마라, 문학 근거 찾기', by:'제작 예정', status:'제안',
    match:['작품 속 상황과 내용을 파악하지 못했어요.','지문에 없는 내용을 내 마음대로 추측했어요.','〈보기〉의 관점을 문제에 적용하지 못했어요.']},
-  {s:'국어', unit:'언어', cat:'개념 부족', title:'개념 카드로 끝내는 문법·개념어', by:'제작 예정', status:'제안',
+  {id:'k3', s:'국어', unit:'언어', cat:'개념 부족', title:'개념 카드로 끝내는 문법·개념어', by:'제작 예정', status:'제안',
    match:['문법 개념과 용어를 정확히 몰랐어요.','문법 규칙의 조건·순서·예외를 놓쳤어요.','문학 개념어의 뜻을 정확히 몰랐어요.','지문에 나온 어휘나 개념의 뜻을 정확히 몰랐어요.']},
-  {s:'국어', unit:'', cat:'시험 운영', title:'80분 설계도, 국어 풀이 순서와 시간 배분', by:'제작 예정', status:'제안',
+  {id:'k4', s:'국어', unit:'', cat:'시험 운영', title:'80분 설계도, 국어 풀이 순서와 시간 배분', by:'제작 예정', status:'제안',
    match:['중요한 부분을 구분하지 못해 읽는 속도와 풀이 시간을 조절하지 못했어요.(한 문제에 너무 오래 걸려서 뒤 문제를 못 풀었어요.)','시간에 쫓기고 불안해서 급하게 답을 정했어요.']},
-  {s:'수학', unit:'', cat:'풀이 적용', title:'조건을 식으로, 식을 그림으로 — 고난도 문항 쪼개기', by:'제작 예정', status:'제안',
+  {id:'m2', s:'수학', unit:'', cat:'풀이 적용', title:'조건을 식으로, 식을 그림으로 — 고난도 문항 쪼개기', by:'제작 예정', status:'제안',
    match:['문제 조건을 식이나 그림으로 옮기지 못했어요.','함수식을 보고 그래프 모양을 떠올리지 못했어요.','풀이를 외워서 풀다 보니, 숫자나 모양이 바뀌면 못 풀겠어요.']},
-  {s:'수학', unit:'', cat:'계산·기록 실수', title:'실수도 실력이다, 실수노트와 검산 루틴', by:'제작 예정', status:'제안',
+  {id:'m3', s:'수학', unit:'', cat:'계산·기록 실수', title:'실수도 실력이다, 실수노트와 검산 루틴', by:'제작 예정', status:'제안',
    match:['풀이 방법은 맞는데 계산이나 부호가 틀렸어요.','숫자를 옮겨 적다 틀렸거나 단위를 빠뜨렸어요.','풀고 나서 다시 확인(검산)하지 않았어요.','쉬운 문제라고 대충(암산으로) 풀다가 틀렸어요.']},
-  {s:'수학', unit:'', cat:'공부 습관', title:'같은 유형 두 번 틀리지 않기, 수학 오답 3회독', by:'제작 예정', status:'제안',
+  {id:'m4', s:'수학', unit:'', cat:'공부 습관', title:'같은 유형 두 번 틀리지 않기, 수학 오답 3회독', by:'제작 예정', status:'제안',
    match:['오답 정리를 안 해서 같은 유형을 또 틀렸어요.','이 유형 문제를 충분히 풀어보지 않았어요. (5문제도 안 풀어봤어요)','개념을 노트에 정리해 두지 않았어요. (교재에 밑줄만 있어요)']},
-  {s:'영어', unit:'', cat:'풀이 적용', title:'3점은 연결에서 갈린다, 빈칸·순서·삽입 논리 신호', by:'제작 예정', status:'제안',
+  {id:'e2', s:'영어', unit:'', cat:'풀이 적용', title:'3점은 연결에서 갈린다, 빈칸·순서·삽입 논리 신호', by:'제작 예정', status:'제안',
    match:['빈칸에 들어갈 의미를 잘못 잡았어요.','연결어만 보고 글의 순서를 정했어요.','넣을 문장의 앞뒤 연결을 모두 확인하지 않았어요.','지시어(it, this)나 바꿔 쓴 표현이 무엇을 가리키는지 연결하지 못했어요.','글의 흐름(반대·원인·결과) 방향을 잘못 잡았어요.','요약문의 두 빈칸을 함께 따져보지 않았어요.']},
-  {s:'영어', unit:'', cat:'개념 부족', title:'끊어 읽어야 해석된다, 구문·어휘 기초 체력', by:'제작 예정', status:'제안',
+  {id:'e3', s:'영어', unit:'', cat:'개념 부족', title:'끊어 읽어야 해석된다, 구문·어휘 기초 체력', by:'제작 예정', status:'제안',
    match:['단어·숙어 뜻을 몰랐어요.','문법이나 문장 구조를 잘못 파악했어요.']},
-  {s:'영어', unit:'듣기', cat:'풀이 적용', title:'듣기 17문항은 지키는 점수, 듣기 만점 루틴', by:'제작 예정', status:'제안',
+  {id:'e4', s:'영어', unit:'듣기', cat:'풀이 적용', title:'듣기 17문항은 지키는 점수, 듣기 만점 루틴', by:'제작 예정', status:'제안',
    match:['아는 단어인데 소리로 들으니 못 알아들었어요.','한 단어 해석하느라 다음 내용을 놓쳤어요.','숫자·시간·금액 같은 조건을 놓쳤어요.','말하는 목적·이유·의도를 잘못 이해했어요.','집중이 끊긴 뒤 다음 문제로 넘어가지 못했어요.']},
-  {s:'통합과학', unit:'', cat:'풀이 적용', title:'변인을 찾으면 실험이 보인다, 자료·탐구 해석 4단계', by:'제작 예정', status:'제안',
+  {id:'s2', s:'통합과학', unit:'', cat:'풀이 적용', title:'변인을 찾으면 실험이 보인다, 자료·탐구 해석 4단계', by:'제작 예정', status:'제안',
    match:['그래프·표·실험 자료에서 무엇을 봐야 하는지 몰랐어요.','그래프·표의 눈금, 숫자, 단위를 잘못 읽었어요.','처음 보는 자료라 핵심 키워드를 찾지 못했어요.']},
-  {s:'통합과학', unit:'', cat:'개념 부족', title:'헷갈리는 개념 짝 끊기, 비교표와 간격 복습', by:'제작 예정', status:'제안',
+  {id:'s3', s:'통합과학', unit:'', cat:'개념 부족', title:'헷갈리는 개념 짝 끊기, 비교표와 간격 복습', by:'제작 예정', status:'제안',
    match:['비슷한 개념끼리 구별하지 못했어요. (두 용어의 차이를 설명 못 해요)','용어·단위·순서를 외우지 못했어요.','벼락치기로 외워서 시험 때 기억이 안 났어요.']},
-  {s:'통합과학', unit:'', cat:'읽기 실수', title:'ㄱ·ㄴ·ㄷ 끝까지, 합답형 선지 판단 루틴', by:'제작 예정', status:'제안',
+  {id:'s4', s:'통합과학', unit:'', cat:'읽기 실수', title:'ㄱ·ㄴ·ㄷ 끝까지, 합답형 선지 판단 루틴', by:'제작 예정', status:'제안', also:['통합사회','한국사'],
    match:['ㄱ·ㄴ·ㄷ 중 하나를 끝까지 읽지 않고 판단했어요. (문제를 끝까지 읽지 않았어요)','ㄱ·ㄴ·ㄷ 판단은 맞았는데 번호(①~⑤) 조합을 잘못 골랐어요.',"'항상', '모든' 같은 단정적인 표현을 못 봤어요."]},
 ];
 
@@ -508,6 +520,66 @@ const ELEM_TIP={
   '결론 도출·평가':'자료 근거 → 결론 순서로 한 문장씩 써 보기',
   '가치 판단·의사결정':'입장별 근거를 표로 나누고 사례에 적용해 보기',
 };
+/* 세분화한 오답 이유 문장 (실험판 추가) · e=평가요소, p=연결 상담 회기 */
+const EXTRA_FACTORS=[
+  // 국어
+  {s:'국어',d:'독서',e:'사실적 이해',c:'읽기 실수',p:'k1',t:'선지의 한두 단어만 지문과 같아서 맞다고 판단했어요.'},
+  {s:'국어',d:'독서',e:'추론적 이해',c:'풀이 적용',p:'k1',t:'두 대상(A↔B)의 특징을 서로 바꿔 놓은 선지를 못 잡았어요.'},
+  {s:'국어',d:'독서',e:'추론적 이해',c:'풀이 적용',p:'k1',t:'문단끼리의 관계(원인·대조·예시)를 몰라서 근거 문단을 못 찾았어요.'},
+  {s:'국어',d:'독서',e:'적용·창의',c:'풀이 적용',p:'k1',t:'〈보기〉 사례를 지문의 어느 개념에 대응시켜야 할지 몰랐어요.'},
+  {s:'국어',d:'독서',e:'사실적 이해',c:'개념 부족',p:'k3',t:'과학·경제 같은 배경지식이 없어서 지문 내용이 낯설었어요.'},
+  {s:'국어',d:'문학',e:'추론적 이해',c:'풀이 적용',p:'k2',t:'시어·소재가 무엇을 뜻하는지 근거 없이 짐작했어요.'},
+  {s:'국어',d:'문학',e:'추론적 이해',c:'풀이 적용',p:'k2',t:'화자의 정서·태도가 어떻게 바뀌는지 순서대로 정리하지 않았어요.'},
+  {s:'국어',d:'문학',e:'사실적 이해',c:'풀이 적용',p:'k2',t:'소설의 인물 관계와 사건 순서를 정리하지 않고 읽었어요.'},
+  {s:'국어',d:'문학',e:'비판적 이해',c:'풀이 적용',p:'k2',t:'〈보기〉의 해석 관점과 방향이 다른 선지를 맞다고 골랐어요.'},
+  {s:'국어',d:'문학',e:'어휘·문법 지식',c:'개념 부족',p:'k3',t:'고전 시가·고전 소설의 옛말을 해석하지 못했어요.'},
+  {s:'국어',d:'언어',e:'어휘·문법 지식',c:'풀이 적용',p:'k3',t:'예문에 문법 규칙을 직접 적용해 보지 않고 감으로 골랐어요.'},
+  {s:'국어',d:'언어',e:'어휘·문법 지식',c:'개념 부족',p:'k3',t:'음운 변동의 종류와 일어나는 순서를 헷갈렸어요.'},
+  {s:'국어',d:'화법',e:'사실적 이해',c:'풀이 적용',p:'',t:'토론·대화에서 누가 어떤 입장인지 구분하지 않았어요.'},
+  {s:'국어',d:'작문',e:'적용·창의',c:'풀이 적용',p:'',t:'매체 자료의 표현 방식(그림·자막·소리)이 주는 효과를 놓쳤어요.'},
+  {s:'국어',d:'공통',e:'',c:'시험 운영',p:'k4',t:'독서 지문 하나에 시간을 너무 써서 문학을 급하게 풀었어요.'},
+  // 수학
+  {s:'수학',d:'',e:'추론',c:'읽기 실수',p:'m2',t:'조건 하나(정의역·범위·정수 조건 등)를 빠뜨리고 풀었어요.'},
+  {s:'수학',d:'',e:'추론',c:'풀이 적용',p:'m2',t:'경우를 나눠야 하는 문제에서 경우를 빠뜨렸어요.'},
+  {s:'수학',d:'',e:'문제해결',c:'풀이 적용',p:'m2',t:'여러 단계 문제에서 무엇을 먼저 구할지 중간 목표를 못 세웠어요.'},
+  {s:'수학',d:'',e:'문제해결',c:'풀이 적용',p:'m2',t:'(가)·(나) 조건을 따로따로 해석하고 둘을 연결하지 못했어요.'},
+  {s:'수학',d:'',e:'문제해결',c:'풀이 적용',p:'m2',t:'그래프 개형을 그려 보지 않고 식으로만 풀다가 막혔어요.'},
+  {s:'수학',d:'',e:'이해',c:'개념 부족',p:'m1',t:'정의(뜻)는 아는데 그 성질이 왜 성립하는지 설명하지 못해요.'},
+  {s:'수학',d:'',e:'계산',c:'계산·기록 실수',p:'m3',t:'식을 정리하는 순서(전개·인수분해·약분)를 잘못 잡았어요.'},
+  {s:'수학',d:'',e:'계산',c:'읽기 실수',p:'m3',t:'단답형 답의 형태(정수·최솟값·합 등)를 확인하지 않았어요.'},
+  {s:'수학',d:'',e:'',c:'시험 운영',p:'',t:'어려운 문항에 시간을 써서 쉬운 단답형을 못 풀었어요.'},
+  {s:'수학',d:'',e:'',c:'공부 습관',p:'m4',t:'시간을 재고 실전처럼 풀어 본 적이 거의 없어요.'},
+  // 영어
+  {s:'영어',d:'유형',e:'어휘·어법',c:'개념 부족',p:'e3',t:'어법 문제가 수일치·태·준동사 중 무엇을 묻는지 몰랐어요.'},
+  {s:'영어',d:'유형',e:'어휘·어법',c:'풀이 적용',p:'e3',t:'문맥상 어색한 낱말을 앞뒤 흐름으로 확인하지 않았어요.'},
+  {s:'영어',d:'유형',e:'사실적 이해',c:'읽기 실수',p:'e1',t:'도표 문제의 비교 표현(more than, twice 등)을 잘못 읽었어요.'},
+  {s:'영어',d:'유형',e:'사실적 이해',c:'읽기 실수',p:'e1',t:'내용 일치에서 선지와 지문의 숫자·부정어를 하나씩 대조하지 않았어요.'},
+  {s:'영어',d:'유형',e:'추론적 이해',c:'풀이 적용',p:'e2',t:'빈칸 문장이 글의 주제를 다시 말한 것이라는 걸 몰랐어요.'},
+  {s:'영어',d:'유형',e:'추론적 이해',c:'풀이 적용',p:'e2',t:'글의 순서에서 대명사·the·this가 가리키는 앞말을 찾지 않았어요.'},
+  {s:'영어',d:'유형',e:'사실적 이해',c:'풀이 적용',p:'e1',t:'장문에서 she·he가 어느 인물을 가리키는지 헷갈렸어요.'},
+  {s:'영어',d:'공통',e:'',c:'시험 운영',p:'',t:'앞쪽 쉬운 독해에 시간을 많이 써서 뒤 빈칸·순서를 급하게 풀었어요.'},
+  {s:'영어',d:'공통',e:'',c:'공부 습관',p:'e3',t:'모르는 단어를 정리하지 않고 넘어가서 같은 단어를 또 몰랐어요.'},
+  // 통합과학
+  {s:'과학',d:'',e:'탐구 설계·수행',c:'풀이 적용',p:'s2',t:'실험에서 바꾼 조건(조작 변인)과 결과(종속 변인)를 구분하지 못했어요.'},
+  {s:'과학',d:'',e:'자료 분석·해석',c:'풀이 적용',p:'s2',t:'그래프에서 비례·반비례 관계를 읽어 내지 못했어요.'},
+  {s:'과학',d:'',e:'결론 도출·평가',c:'풀이 적용',p:'s2',t:'자료 근거 없이 내가 아는 지식으로만 결론을 판단했어요.'},
+  {s:'과학',d:'',e:'개념 이해',c:'개념 부족',p:'s3',t:'화학식·원소 기호 같은 기본 표기를 정확히 몰랐어요.'},
+  {s:'과학',d:'',e:'개념 이해',c:'개념 부족',p:'s1',t:'힘·속도·가속도의 방향을 헷갈렸어요.'},
+  // 통합사회
+  {s:'사회',d:'',e:'자료 분석·해석',c:'읽기 실수',p:'',t:'그래프·지도에서 기준 연도와 비교 대상을 확인하지 않았어요.'},
+  {s:'사회',d:'',e:'개념 이해',c:'개념 부족',p:'',t:'제시문 속 사상가를 핵심 키워드로 찾아내지 못했어요.'},
+  {s:'사회',d:'',e:'결론 도출·평가',c:'풀이 적용',p:'',t:'갑·을 대화에서 누가 어떤 입장인지 정리하지 않았어요.'},
+  {s:'사회',d:'',e:'개념 이해',c:'풀이 적용',p:'',t:'사례가 어떤 개념(기본권·시장 실패 등)에 해당하는지 연결하지 못했어요.'},
+  // 한국사
+  {s:'한국사',d:'',e:'자료 분석·해석',c:'풀이 적용',p:'',t:'사료 속 핵심 키워드로 시대를 찾아내지 못했어요.'},
+  {s:'한국사',d:'',e:'시대·흐름 파악',c:'개념 부족',p:'',t:'(가)·(나) 사이에 일어난 일을 고를 때 연표가 떠오르지 않았어요.'},
+];
+FACTORS.push(...EXTRA_FACTORS);
+const PPT_BY_ID=Object.fromEntries(PPTS.map(p=>[p.id,p]));
+const FACTOR_P=Object.fromEntries(FACTORS.filter(f=>f.p).map(f=>[f.t,f.p]));
+PPTS.forEach(p=>p.match.forEach(m=>{if(!FACTOR_P[m]) FACTOR_P[m]=p.id;}));
+const pptsFor=k=>PPTS.filter(p=>p.s===k||(p.also||[]).includes(k));
+function pptForSent(k,sent,pid){const id=pid||FACTOR_P[sent]; const p=id&&PPT_BY_ID[id]; return p&&(p.s===k||(p.also||[]).includes(k))?p:null;}
 const DIFFS=['하','중','상'];
 const DIFF_W={'하':3,'중':2,'상':1};
 const RX_FLOW=['배정','학습법 상담 완료','적용 중','습관 정착'];
@@ -597,7 +669,7 @@ function rtAdapter(db){
   };
 }
 function startDb(){
-  DB=rtAdapter(firebase.database()); MODE='db'; firstData=false;
+  DB=rtAdapter(firebase.database()); MODE='db'; firstData=false; loadSharedAI();
   const slow=setTimeout(()=>{ if(!firstData){ ui.note='저장소에 아직 연결되지 않았어요. 인터넷 연결을 확인해 주세요.'; render(); } },10000);
   let got=0;
   ['exams','students','records'].forEach(col=>{
@@ -716,11 +788,12 @@ function rxGroups(r,k){
   const ex=STORE.exams[r.eid]; const es=ex&&ex.subj&&ex.subj[k]; if(!es) return [];
   const W=(r.wrong&&r.wrong[k])||{}; const M=es.meta||{}; const g={};
   Object.keys(W).map(Number).filter(q=>q>=1&&q<=es.n).sort((a,b)=>a-b).forEach(q=>{const w=W[q]; if(!w||!w.cat) return; const m=M[q]||{}; const el=m.elem||''; const key=keySafe(w.cat+'|'+el);
-    const x=g[key]=g[key]||{key,cat:w.cat,elem:el,qs:[],p:0,pri:0,easy:0,stds:{},units:{},sents:{}};
+    const x=g[key]=g[key]||{key,cat:w.cat,elem:el,qs:[],p:0,pri:0,easy:0,stds:{},units:{},sents:{},pp:{}};
     const p=es.pts[q-1]||0; const df=qDiff(m); x.qs.push(q); x.p+=p; x.pri+=DIFF_W[df]||2; if(df==='하') x.easy++;
     if(m.std||m.stdText){const sk=(m.std||'')+'|'+(m.stdText||''); x.stds[sk]=x.stds[sk]||{code:m.std||'',text:m.stdText||'',n:0}; x.stds[sk].n++;}
     const u=es.units[q]; if(u) x.units[u]=(x.units[u]||0)+1;
     if(w.sent) x.sents[w.sent]=(x.sents[w.sent]||0)+1;
+    const pid=w.p||(w.sent&&FACTOR_P[w.sent]); if(pid) x.pp[pid]=(x.pp[pid]||0)+1;
   });
   return Object.values(g).map(x=>{x.diffs=x.qs.map(q=>qDiff(M[q]||{})); x.stdList=Object.values(x.stds).sort((a,b)=>b.n-a.n); x.unitList=Object.keys(x.units).sort((a,b)=>x.units[b]-x.units[a]); return Object.assign(x,rxText(k,x));})
     .sort((a,b)=>b.pri-a.pri||b.p-a.p);
@@ -728,7 +801,7 @@ function rxGroups(r,k){
 function rxText(k,x){
   const cat=CAT[x.cat]||{method:'',check:'',counsel:''}; const std=x.stdList[0]; const unit=x.unitList[0];
   const target=std?`${std.code?std.code+' ':''}${std.text}`.trim():(unit?shortUnit(unit):`${k} ${x.cat} 문항`);
-  const ppt=PPTS.filter(p=>p.s===k).map(p=>({p,h:p.match.reduce((a,m)=>a+(x.sents[m]||0),0)*2+(p.cat===x.cat?1:0)+(p.unit&&x.unitList.some(u=>u===p.unit||shortUnit(u)===p.unit)?1:0)+(p.status==='완성'?0.5:0)}))
+  const ppt=pptsFor(k).map(p=>({p,h:(x.pp[p.id]||0)*3+p.match.reduce((a,m)=>a+(x.sents[m]||0),0)*2+(p.cat===x.cat?1:0)+(p.unit&&x.unitList.some(u=>u===p.unit||shortUnit(u)===p.unit)?1:0)+(p.status==='완성'?0.5:0)}))
     .filter(o=>o.h>=2).sort((a,b)=>b.h-a.h).map(o=>o.p)[0];
   const tip=x.elem&&ELEM_TIP[x.elem];
   return {title:`${x.cat}${x.elem?' × '+x.elem:''}`, target, counsel:ppt?ppt.title:(k!=='수학'&&/수학/.test(cat.counsel||'')?`${x.cat} 교정 상담 (본사 DB의 같은 주제 회기를 ${k}에 맞게 활용)`:cat.counsel), counselBy:ppt?(ppt.status==='완성'?`지점 제작 · ${ppt.by}`:'제작 예정 회기'):'본사 상담 DB', method:`${cat.method}${tip?' + '+tip:''}`, check:`${cat.check} (주 2회)`};
@@ -908,19 +981,26 @@ function nextSubBtn(k){const ks=activeKeys(rec()); const i=ks.indexOf(k); const 
   return `<div class="nextsub">${nx?`<button class="btn primary" data-act="cur-top" data-k="${nx}">${esc(k)} 끝 · 다음 과목: ${esc(nx)} →</button>`:`<button class="btn primary" data-act="step" data-i="${ui.step+1}">모든 과목 끝 · 다음: ${STEPS[ui.step+1][0]} →</button>`}</div>`;}
 function witem(k,q){
   const r=rec(); const ex=recExam(r); const es=ex.subj[k]; const w=r.wrong[k][q]; const p=es.pts[q-1]; const u=es.units[q]||'';
-  const pool=poolFor(k);
+  const pool=poolFor(k); const m=metaOf(ex,k,q); const traps=Array.isArray(m.traps)?m.traps.filter(t=>t&&t.t&&CAT[t.c]):[];
   const unitOpts=`<option value="">단원 (매니저 선택)</option>`+unitsFor(k,ex).map(x=>`<option ${x===u?'selected':''} value="${esc(x)}">${esc(shortUnit(x))}</option>`).join('');
   const chips=CATS.map(cat=>`<button type="button" class="chip" data-act="cat" data-q="${q}" data-c="${cat.k}" aria-pressed="${w.cat===cat.k}" title="${esc(cat.easy)}"><span class="dot" style="background:${cat.c}"></span>${cat.k}</button>`).join('');
+  const recHint=(sent,pid)=>{const pp=pptForSent(k,sent,pid); return pp?`<span class="rec">→ 추천 상담: ${esc(pp.title)}${pp.status==='완성'?'':' (제작 예정)'}</span>`:'';};
   let body='';
   if(w.cat&&!ui.open?.[k+q]){
-    body=`<div class="chosen"><span class="tag" style="border-color:${CAT[w.cat].c};color:${CAT[w.cat].c}">${w.cat}</span>${w.custom?'<span class="tag">기타 · 직접 씀</span>':''}<span>${esc(w.sent||CAT[w.cat].easy)}</span><button class="reset" data-act="reopen" data-q="${q}">다시 고르기</button></div>`;
+    body=`<div class="chosen"><span class="tag" style="border-color:${CAT[w.cat].c};color:${CAT[w.cat].c}">${w.cat}</span>${w.custom?'<span class="tag">기타 · 직접 씀</span>':''}${w.trap?'<span class="tag">이 문항 맞춤</span>':''}<span>${esc(w.sent||CAT[w.cat].easy)}</span><button class="reset" data-act="reopen" data-q="${q}">다시 고르기</button></div>${recHint(w.sent,w.p)}`;
   } else {
+    const trapBox=traps.length?`<div class="traps"><div class="easy"><b>이 문항에서 학생들이 자주 하는 실수</b> · 나와 같으면 바로 눌러요</div><div class="sents">${traps.map((t,i)=>`<button type="button" class="sent" data-act="trap" data-q="${q}" data-i="${i}" aria-pressed="${w.trap&&w.sent===t.t}"><span class="box"></span><span>${esc(t.t)} <span class="tag" style="color:${CAT[t.c].c}">${esc(t.c)}</span></span></button>`).join('')}</div><div class="easy" style="margin-top:6px">해당하는 게 없으면 아래에서 실수 종류부터 골라요.</div></div>`:'';
     let sents=`<div class="easy">먼저 어떤 종류의 실수였는지 골라요. 버튼에 마우스를 올리면 쉬운 설명이 보여요.</div>`;
-    if(w.cat){let list=pool.filter(f=>f.c===w.cat); if(u) list=list.slice().sort((a,b)=>((b.d===u)-(a.d===u)));
-      sents=`<div class="easy">“${esc(CAT[w.cat].easy)}” 중에서 나와 가장 비슷한 문장을 골라요.</div><div class="sents">${list.map((f,i)=>`<button type="button" class="sent" data-act="sent" data-q="${q}" data-t="${esc(f.t)}" aria-pressed="${w.sent===f.t}"><span class="box"></span><span>${esc(f.t)}${f.d&&f.d!=='공통'&&f.d!==k?` <span class="tag">${esc(f.d)}</span>`:''}</span></button>`).join('')}
+    if(w.cat){
+      const sc=f=>(m.elem&&f.e===m.elem?3:0)+(u&&f.d===u?2:0)+(f.s===k||(k==='통합과학'&&f.s==='과학')||(k==='통합사회'&&f.s==='사회')?1:0);
+      const list=pool.filter(f=>f.c===w.cat).map(f=>({f,v:sc(f)})).sort((a,b)=>b.v-a.v).map(x=>x.f);
+      const top=list.slice(0,6), more=list.slice(6);
+      const btn=f=>`<button type="button" class="sent" data-act="sent" data-q="${q}" data-t="${esc(f.t)}" aria-pressed="${w.sent===f.t}"><span class="box"></span><span>${esc(f.t)}${f.d&&f.d!=='공통'&&f.d!==k&&f.d!=='유형'?` <span class="tag">${esc(f.d)}</span>`:''}${f.e?` <span class="tag">${esc(f.e)}</span>`:''}</span></button>`;
+      sents=`<div class="easy">“${esc(CAT[w.cat].easy)}” 중에서 나와 가장 비슷한 문장을 골라요.${m.elem?` <span class="hint">(이 문항의 평가요소 '${esc(m.elem)}'에 맞는 문장이 위에 와요)</span>`:''}</div><div class="sents">${top.map(btn).join('')}
+      ${more.length?`<details><summary>다른 문장 더 보기 (${more.length}개)</summary><div class="sents" style="margin-top:6px">${more.map(btn).join('')}</div></details>`:''}
       <button type="button" class="sent" data-act="sent-custom" data-q="${q}" aria-pressed="${!!w.custom}"><span class="box"></span><span><b>기타 (직접 쓰기)</b> · 딱 맞는 문장이 없으면 내 말로 적어요</span></button>
       ${w.custom?`<div class="custom-in"><textarea data-wsent="${q}" placeholder="예: 보기의 조건 두 개 중 하나만 확인하고 답을 골랐어요" aria-label="${q}번 직접 쓴 오답 이유">${esc(w.sent||'')}</textarea><div class="row"><button class="btn small primary" data-act="sent-done" data-q="${q}">이 문장으로 저장</button><span class="hint">학생이 쓴 문장은 보고서에 그대로 들어가고, 지점 현황에 모여 새 요인 문장을 만드는 데 쓰여요.</span></div></div>`:''}</div>`;}
-    body=`<div class="chips">${chips}</div>${sents}`;
+    body=`${trapBox}<div class="chips">${chips}</div>${sents}`;
   }
   return `<div class="witem ${w.cat?'done':''}"><div class="whead"><span class="qn">${q}번</span><span class="tag num">${p}점</span><select data-act="unit" data-q="${q}" aria-label="${q}번 단원">${unitOpts}</select>${w.cat&&CAT[w.cat].o?'<span class="tag ex">되찾을 점수</span>':''}<button class="reset" style="margin-left:auto" data-act="tog" data-q="${q}">맞은 문항으로 되돌리기</button></div>${qtags(ex,k,q)}${body}</div>`;
 }
@@ -1138,7 +1218,10 @@ function examEditor(eid){
 /* ================= AI 문항 분석 (실험판) ================= */
 const lget=k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}};
 const lset=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
-function aiPrompt(e,k){
+let SHARED_AI=null;
+function aiConf(){const lk=lget('mock-lab-key'); if(lk) return {key:lk,model:lget('mock-lab-model')||'claude-sonnet-5-5',src:'이 기기'}; if(SHARED_AI&&SHARED_AI.key) return {key:SHARED_AI.key,model:SHARED_AI.model||'claude-sonnet-5-5',src:'지점 공용'}; return null;}
+function loadSharedAI(){try{firebase.database().ref(RT_ROOT+'settings/ai').once('value').then(sn=>{SHARED_AI=sn.val(); if(ui.view==='exams') softRender();}).catch(()=>{});}catch(e){}}
+function aiPrompt(e,k,ch){
   const es=e.subj[k]; const units=unitsFor(k,e); const els=ELEMS[k]||[]; const c=currOf(e); const y=suneungOf(e);
   const notes=[];
   if(c==='2015'&&k==='수학') notes.push('공통(1~22번)은 수학Ⅰ·수학Ⅱ, 23~30번은 학생이 응시한 선택과목(확률과 통계/미적분/기하) 시험지 기준으로 판단합니다.');
@@ -1146,7 +1229,9 @@ function aiPrompt(e,k){
   if(c==='2022'&&k==='수학'&&e.grade!=='고1') notes.push(`${y} 수능 수학은 선택과목 없이 대수·미적분Ⅰ·확률과 통계에서 출제됩니다.`);
   if(c==='2022'&&k==='국어'&&e.grade!=='고1') notes.push(`${y} 수능 국어는 선택과목 없이 화법과 언어·독서와 작문·문학에서 출제됩니다.`);
   if(e.grade==='고1') notes.push('고1 3월 학력평가처럼 중학교 범위를 출제한 문항이면 2022 개정 중학교 성취기준으로 붙여 주세요.');
-  return `당신은 한국 고등학교 모의고사 문항 분석 전문가입니다.
+  const pp=pptsFor(k);
+  const scope=ch&&ch.total>1?`이 요청에 첨부한 이미지(${ch.labels.join(', ')})는 전체 ${ch.total}묶음 중 ${ch.idx}번째 묶음입니다. 이 이미지에서 문항 번호와 발문이 보이는 문항만 분석하고, 보이지 않는 번호는 출력하지 마세요.`:`1번부터 ${es.n}번까지 한 문항도 빠뜨리지 마세요.`;
+  return `당신은 한국교육과정평가원의 수능 출제 원리와 고등학교 교육과정(성취기준)에 정통한 ${k} 문항 분석 전문가이자, 학생 상담용 오답 진단 문장을 만드는 교육 컨설턴트입니다.
 첨부한 시험지는 「${e.name}」 ${k} 영역입니다. (${e.grade}, 총 ${es.n}문항, 만점 ${FULL[k]}점)
 
 [기준 교육과정]
@@ -1163,13 +1248,18 @@ ${units.map(u=>'   · '+u).join('\n')}
 5. diff: 난이도 상/중/하 중 하나 (문항 위치·배점·자료 복잡도·필요한 사고 단계로 판단)
 6. pts: 배점 (시험지의 [3점]·[4점] 표시를 보고, 표시가 없으면 2)
 7. why: 평가요소·난이도를 그렇게 판단한 근거 한 줄 (30자 이내)
+8. traps: 학생이 이 문항을 틀릴 때 실제로 많이 하는 실수 2~3개. 학생이 "나도 이랬다"고 고를 수 있게 만듭니다.
+   - t: 학생 1인칭 문장, "~했어요/~몰랐어요"로 끝, 45자 이내. 이 문항의 지문·조건·선지·개념을 구체적으로 짚어 주세요. (예: "(나) 조건의 'x>0'을 빼고 경우를 나눴어요.", "3문단의 '반면' 뒤 내용을 앞 대상의 특징으로 읽었어요.")
+   - c: 실수 종류 — 다음 중 하나만: ${CATS.map(x=>`${x.k}(${x.easy})`).join(' / ')}
+   - p: 이 실수를 고치는 데 가장 맞는 상담 회기 id (맞는 것이 없으면 빈 문자열)
+${pp.map(x=>`     · ${x.id}: ${x.title} [${x.cat}]`).join('\n')||'     · (없음)'}
 
 [주의]
-- 1번부터 ${es.n}번까지 한 문항도 빠뜨리지 마세요.
+- ${scope}
 - 정답률은 추측해서 넣지 마세요.
 - 설명 문장 없이 아래 형식의 JSON만 출력하세요.
 
-{"subject":"${k}","items":[{"q":1,"unit":"${units[0]||''}","std":"","stdText":"","elem":"${els[0]||''}","diff":"하","pts":2,"why":""}]}`;
+{"subject":"${k}","items":[{"q":1,"unit":"${units[0]||''}","std":"","stdText":"","elem":"${els[0]||''}","diff":"하","pts":2,"why":"","traps":[{"t":"","c":"${CATS[0].k}","p":""}]}]}`;
 }
 function parseAI(txt){
   txt=String(txt||'').replace(/```(json)?/g,'');
@@ -1181,15 +1271,17 @@ function parseAI(txt){
 }
 function matchList(v,list){ if(!v) return ''; const s=String(v).trim(); if(list.includes(s)) return s; const n=x=>shortUnit(x).replace(/[\s–\-_·,()]/g,''); const t=n(s); if(!t) return '';
   return list.find(x=>n(x)===t)||list.find(x=>n(x).length>2&&(n(x).includes(t)||t.includes(n(x))))||''; }
+function cleanTraps(k,a){const ids=pptsFor(k).map(p=>p.id); const ck=CATS.map(c=>c.k); return (Array.isArray(a)?a:[]).map(t=>{if(!t||!t.t) return null; const c=ck.includes(String(t.c||'').trim())?String(t.c).trim():matchList(t.c,ck); if(!c) return null; return {t:String(t.t).trim().slice(0,90),c,p:ids.includes(t.p)?t.p:''};}).filter(Boolean).slice(0,3);}
 function applyAI(eid,k,o,withPts){
   const e=STORE.exams[eid]; const es=e.subj[k]; es.meta=es.meta||{}; const units=unitsFor(k,e); const els=ELEMS[k]||[];
-  let nm=0,nu=0,ptsN=0; const pts=es.pts.slice();
-  o.items.forEach(it=>{const q=parseInt(it.q); if(!(q>=1&&q<=es.n)) return; const m=es.meta[q]=Object.assign({},es.meta[q]||{});
+  let nm=0,nu=0,ptsN=0,nt=0; const pts=es.pts.slice();
+  o.items.forEach(it=>{const q=parseInt(it.q??it.n); if(!(q>=1&&q<=es.n)) return; const m=Object.assign({},es.meta[q]||{});
     if(it.std!=null) m.std=String(it.std).trim(); if(it.stdText!=null) m.stdText=String(it.stdText).trim();
     const el=els.includes(String(it.elem||'').trim())?String(it.elem).trim():matchList(it.elem,els); if(el) m.elem=el;
     const d=String(it.diff||'').trim().charAt(0); if(DIFFS.includes(d)) m.diff=d;
     if(it.rate!=null&&it.rate!==''&&!isNaN(+it.rate)) m.rate=+it.rate;
     if(it.why) m.why=String(it.why).slice(0,80);
+    const tr=cleanTraps(k,it.traps); if(tr.length){m.traps=tr; nt++;}
     Object.keys(m).forEach(f=>{if(m[f]===''||m[f]==null) delete m[f];});
     es.meta[q]=m; nm++;
     const u=matchList(it.unit,units); if(u){es.units[q]=u; nu++;}
@@ -1197,43 +1289,72 @@ function applyAI(eid,k,o,withPts){
   });
   const sum=pts.reduce((a,b)=>a+b,0); let ptsOk=false;
   if(withPts&&ptsN===es.n&&sum===FULL[k]){es.pts=pts; es.confirmed=true; ptsOk=true;}
-  put('exams',eid,e); return {nm,nu,ptsOk,ptsN,sum,n:es.n};
+  put('exams',eid,e); return {nm,nu,nt,ptsOk,ptsN,sum,n:es.n};
 }
-function aiMsg(sm,withPts){return `${sm.nm}/${sm.n}문항 분석을 붙였어요 · 단원 ${sm.nu}개 연결${sm.ptsOk?' · 배점도 적용':withPts&&sm.ptsN?` · 배점 합계가 ${sm.sum}점이라 배점은 그대로 뒀어요`:''}`;}
+function aiMsg(sm,withPts){return `${sm.nm}/${sm.n}문항 분석 완료 · 단원 ${sm.nu}개 연결 · 문항 맞춤 오답 문장 ${sm.nt}문항${sm.ptsOk?' · 배점도 적용':withPts&&sm.ptsN?` · 배점 합계가 ${sm.sum}점이라 배점은 그대로 뒀어요`:''}`;}
 function fileB64(f){return new Promise((res,rej)=>{const rd=new FileReader(); rd.onload=()=>res(String(rd.result).split(',')[1]); rd.onerror=rej; rd.readAsDataURL(f);});}
+async function loadImgEl(file){const url=URL.createObjectURL(file); try{const img=new Image(); img.src=url; try{await img.decode();}catch(e){throw new Error(`사진을 열 수 없어요(${file.name}). 아이폰 HEIC 사진이면 설정 › 카메라 › 포맷 › '높은 호환성'으로 찍어 주세요.`);} return img;} finally{setTimeout(()=>URL.revokeObjectURL(url),1500);}}
+function cropB64(img,sx,sw){const sh=img.naturalHeight; const sc=Math.min(1,2200/Math.max(sw,sh)); const c=document.createElement('canvas'); c.width=Math.round(sw*sc); c.height=Math.round(sh*sc); const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); x.drawImage(img,sx,0,sw,sh,0,0,c.width,c.height); return c.toDataURL('image/jpeg',0.86).split(',')[1];}
+async function prepUploads(split){
+  const pdfs=[],imgs=[]; const F=ui.upFiles||[];
+  for(let i=0;i<F.length;i++){const f=F[i].file;
+    if(f.type==='application/pdf'||/\.pdf$/i.test(f.name)){pdfs.push({b64:await fileB64(f),label:f.name}); continue;}
+    const img=await loadImgEl(f); const w=img.naturalWidth,h=img.naturalHeight;
+    if(split&&(w>h*1.05||w>1400)){const half=Math.floor(w/2),ov=Math.floor(w*0.02); imgs.push({b64:cropB64(img,0,half+ov),label:`${i+1}쪽 왼쪽`}); imgs.push({b64:cropB64(img,half-ov,w-half+ov),label:`${i+1}쪽 오른쪽`});}
+    else imgs.push({b64:cropB64(img,0,w),label:`${i+1}쪽`});
+  }
+  return {pdfs,imgs};
+}
+async function callClaude(conf,content){
+  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':conf.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:conf.model,max_tokens:32000,messages:[{role:'user',content}]})});
+  const j=await res.json().catch(()=>({})); if(!res.ok) throw new Error((j.error&&j.error.message)||('HTTP '+res.status));
+  return (j.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+}
+function aiSay(t){ui.aiMsg=t; const el=document.getElementById('ai-status'); if(el) el.textContent=t;}
 async function aiRun(){
-  const key=(document.getElementById('ai-key').value||'').trim(); const model=(document.getElementById('ai-model').value||'').trim()||'claude-sonnet-5-5';
-  const files=[...(document.getElementById('ai-file').files||[])]; const withPts=document.getElementById('ai-pts').checked;
-  const say=t=>{const el=document.getElementById('ai-status'); if(el) el.textContent=t;};
-  if(!key){toast('API 키를 넣어 주세요'); return;} if(!files.length){toast('시험지 파일을 골라 주세요'); return;}
-  lset('mock-lab-key',key); lset('mock-lab-model',model);
-  const eid=ui.eid,k=ui.cur; const e=STORE.exams[eid];
-  say('시험지를 읽는 중이에요…');
-  const content=[]; for(const f of files){const b=await fileB64(f); if(f.type==='application/pdf') content.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:b}}); else content.push({type:'image',source:{type:'base64',media_type:f.type||'image/jpeg',data:b}});}
-  content.push({type:'text',text:aiPrompt(e,k)});
-  say('AI가 문항을 분석하는 중이에요 (1~3분 걸려요)…');
+  if(ui.aiBusy) return; const conf=aiConf(); if(!conf){ui.aiSet=true; render(); toast('먼저 AI 연결(API 키)을 설정해 주세요'); return;}
+  if(!(ui.upFiles||[]).length){toast('시험지 PDF나 사진을 먼저 올려 주세요'); return;}
+  const eid=ui.eid,k=ui.cur; const e=STORE.exams[eid]; const withPts=!!(document.getElementById('ai-pts')||{}).checked; const split=!!(document.getElementById('ai-split')||{}).checked;
+  ui.aiBusy=true; keep(render);
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model,max_tokens:16000,messages:[{role:'user',content}]})});
-    const j=await res.json(); if(!res.ok) throw new Error((j.error&&j.error.message)||('HTTP '+res.status));
-    const txt=(j.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
-    const o=parseAI(txt); if(!o){const ta=document.getElementById('ai-json'); if(ta) ta.value=txt; say('결과를 읽지 못했어요. 원문을 붙여넣기 칸에 넣어 두었어요.'); return;}
-    const sm=applyAI(eid,k,o,withPts); ui.qmOpen=true; render(); toast(aiMsg(sm,withPts));
-  }catch(err){ say('분석하지 못했어요: '+(err&&err.message||err)+' (키·모델 이름·인터넷 연결을 확인해 주세요. 이 방법이 막히면 위의 붙여넣기 방법을 쓰면 돼요)'); }
+    aiSay('시험지를 정리하는 중이에요…');
+    const {pdfs,imgs}=await prepUploads(split);
+    const chunks=[]; if(pdfs.length) chunks.push({docs:pdfs,imgs:[],labels:pdfs.map(x=>x.label)});
+    for(let i=0;i<imgs.length;i+=8){const part=imgs.slice(i,i+8); chunks.push({docs:[],imgs:part,labels:part.map(x=>x.label)});}
+    const byQ=new Map();
+    for(let c=0;c<chunks.length;c++){const ch=chunks[c];
+      aiSay(`AI가 문항을 분석하는 중이에요 (${c+1}/${chunks.length}묶음 · 묶음당 1~3분)…`);
+      const content=[...ch.docs.map(d=>({type:'document',source:{type:'base64',media_type:'application/pdf',data:d.b64}})),...ch.imgs.map(x=>({type:'image',source:{type:'base64',media_type:'image/jpeg',data:x.b64}}))];
+      content.push({type:'text',text:aiPrompt(e,k,{idx:c+1,total:chunks.length,labels:ch.labels})});
+      const txt=await callClaude(conf,content); const o=parseAI(txt);
+      if(!o){const ta=document.getElementById('ai-json'); if(ta) ta.value=txt; throw new Error('AI 결과를 읽지 못했어요. 원문을 아래 붙여넣기 칸에 넣어 두었어요');}
+      o.items.forEach(it=>{const q=parseInt(it.q??it.n); if(!q) return; const pv=byQ.get(q); if(!pv||(!pv.elem&&it.elem)||(!(pv.traps||[]).length&&(it.traps||[]).length)) byQ.set(q,it);});
+    }
+    const sm=applyAI(eid,k,{items:[...byQ.values()]},withPts); ui.qmOpen=true; ui.upFiles=[]; aiSay(aiMsg(sm,withPts)); toast(aiMsg(sm,withPts));
+  }catch(err){ aiSay('분석하지 못했어요: '+(err&&err.message||err)); }
+  finally{ ui.aiBusy=false; render(); }
 }
 function aiPanel(eid,k){
   const e=STORE.exams[eid]; const es=e.subj[k]; const M=es.meta||{}; const nMeta=Object.keys(M).filter(q=>M[q]&&(M[q].elem||M[q].std||M[q].stdText||M[q].diff)).length;
-  return `<div class="panel aibox"><div class="secthead"><h3>${k} AI 문항 분석</h3><span class="hint">${esc(currLabel(e))} 기준 · 분석된 문항 ${nMeta}/${es.n}</span></div>
-  <div class="steps3"><div><b class="no">1</b><b>요청문 복사</b><p class="hint" style="margin:4px 0 8px">이 시험·과목·교육과정에 맞춘 분석 요청문이에요.</p><button class="btn small primary" data-act="ai-copy">요청문 복사</button></div>
-  <div><b class="no">2</b><b>클로드에 시험지와 함께 보내기</b><p class="hint" style="margin:4px 0 0">claude.ai 새 대화에 ${k} 시험지 PDF(또는 사진)를 올리고 요청문을 붙여넣어 보내요. 나온 결과(JSON)를 전부 복사해요.</p></div>
-  <div><b class="no">3</b><b>결과 붙여넣고 적용</b><p class="hint" style="margin:4px 0 0">아래 칸에 붙여넣고 [적용]을 누르면 단원·성취기준·평가요소·난이도가 문항표에 들어가요. 담당자가 아래 문항 분석표에서 확인·수정해요.</p></div></div>
-  <details><summary>요청문 내용 보기 (복사 버튼이 안 될 때 직접 선택해서 복사)</summary><textarea id="ai-prompt" readonly style="margin-top:8px;min-height:200px">${esc(aiPrompt(e,k))}</textarea></details>
-  <label class="f">클로드 분석 결과 붙여넣기<textarea id="ai-json" placeholder='{"subject":"${k}","items":[{"q":1, ...}]}'></textarea></label>
-  <div class="row"><button class="btn primary" data-act="ai-apply">적용</button><label class="hint" style="display:flex;gap:4px;align-items:center"><input type="checkbox" id="ai-pts" style="width:auto" checked>배점도 함께 적용 (합계가 만점과 맞을 때만)</label></div>
-  <details><summary>이 기기에서 바로 분석하기 (Claude API 키가 있을 때 · 선택)</summary>
-   <div class="stack" style="margin-top:8px"><p class="hint" style="margin:0">API 키는 이 브라우저에만 저장되고 팀 저장소(Firebase)에는 올라가지 않아요. 분석할 때마다 API 사용료가 나가요. 여러 사람이 쓰는 PC에는 키를 저장하지 마세요.</p>
-   <div class="grid2"><label class="f">API 키<input id="ai-key" type="password" autocomplete="off" value="${esc(lget('mock-lab-key'))}" placeholder="sk-ant-..."></label><label class="f">모델<input id="ai-model" value="${esc(lget('mock-lab-model')||'claude-sonnet-5-5')}"></label></div>
-   <label class="f">시험지 파일 (PDF 1개 또는 사진 여러 장)<input id="ai-file" type="file" accept="application/pdf,image/*" multiple></label>
-   <div class="row"><button class="btn primary" data-act="ai-run">분석 시작</button><span class="hint" id="ai-status"></span></div></div></details></div>`;
+  const nTrap=Object.keys(M).filter(q=>M[q]&&Array.isArray(M[q].traps)&&M[q].traps.length).length;
+  const conf=aiConf(); const F=ui.upFiles||[];
+  const setBox=(!conf||ui.aiSet)?`<div class="panel" style="background:var(--surface2)"><div class="secthead"><h3 style="font-size:15px">AI 연결 설정 (원장님이 한 번만)</h3></div>
+    <p class="hint" style="margin:0 0 8px">Anthropic Console(console.anthropic.com)에서 만든 API 키를 넣어요. 분석할 때마다 사용료가 나가니, 키에 <b>월 사용 한도</b>를 꼭 걸어 두세요.</p>
+    <div class="grid2"><label class="f">API 키<input id="ai-key" type="password" autocomplete="off" placeholder="sk-ant-..." value=""></label><label class="f">모델<input id="ai-model" value="${esc((conf&&conf.model)||'claude-sonnet-5-5')}"></label></div>
+    <div class="row" style="margin-top:8px"><button class="btn small" data-act="ai-key-local">이 기기에만 저장</button>${MODE==='db'&&!DEMO?`<button class="btn small primary" data-act="ai-key-shared">지점 공용으로 저장 (로그인한 매니저 모두 사용)</button>`:''}${conf?`<button class="btn small ghost" data-act="ai-key-clear">이 기기 키 지우기</button><button class="btn small ghost" data-act="ai-set-close">닫기</button>`:''}</div>
+    <p class="hint" style="margin:8px 0 0">지점 공용으로 저장하면 로그인한 매니저는 키 입력 없이 분석할 수 있어요. 대신 로그인한 사람은 키를 볼 수 있으니, 이 프로그램 전용 키를 따로 만들어 쓰세요.</p></div>`:'';
+  return `<div class="panel aibox"><div class="secthead"><h3>${k} 시험지 올리고 AI 분석</h3><span class="hint">${esc(currLabel(e))} 기준 · 분석된 문항 ${nMeta}/${es.n} · 문항 맞춤 오답 문장 ${nTrap}문항</span>${conf?`<span class="pill on" style="margin-left:auto">AI 연결됨 · ${esc(conf.src)}</span><button class="reset" data-act="ai-set-open">설정</button>`:''}</div>
+  ${setBox}
+  <div class="drop" id="ai-drop"><b>${k} 시험지 PDF 또는 사진을 여기에 끌어다 놓거나</b><div class="row" style="justify-content:center;margin-top:8px"><label class="btn primary pickbtn">📄 파일 고르기<input type="file" id="ai-file" accept="application/pdf,image/*" multiple></label><label class="btn pickbtn">📷 촬영<input type="file" id="ai-cam" accept="image/*" capture="environment"></label></div><span class="hint">PC에서는 캡처한 화면을 Ctrl+V로 붙여넣어도 돼요 · 사진은 1쪽부터 순서대로</span></div>
+  ${F.length?`<div class="upl">${F.map((f,i)=>`<div class="t">${f.img?`<img src="${f.url}" alt="">`:`<div class="pdf">PDF<br><small>${esc(f.file.name.slice(0,14))}</small></div>`}<span>${i+1}</span><button data-act="up-del" data-i="${i}" aria-label="빼기">✕</button></div>`).join('')}</div>`:''}
+  <div class="row"><label class="hint" style="display:flex;gap:4px;align-items:center"><input type="checkbox" id="ai-split" style="width:auto" checked>2단 시험지 사진은 좌·우로 나눠 읽기</label><label class="hint" style="display:flex;gap:4px;align-items:center"><input type="checkbox" id="ai-pts" style="width:auto" checked>배점도 함께 적용 (합계가 만점과 맞을 때만)</label></div>
+  <div class="row"><button class="btn primary" data-act="ai-run" ${ui.aiBusy?'disabled':''}>${ui.aiBusy?'분석 중…':'AI 분석 시작'}</button><span class="hint" id="ai-status">${esc(ui.aiMsg||'')}</span></div>
+  <p class="hint" style="margin:0">분석이 끝나면 문항마다 단원·성취기준·평가요소·난이도와 <b>이 문항에서 학생들이 자주 하는 실수 2~3개</b>가 붙어요. 학생은 오답 체크에서 그 문장을 바로 고를 수 있고, 고른 문장에 맞는 상담 회기가 추천돼요.</p>
+  <details><summary>API 키 없이 하기: 클로드 대화로 분석해서 결과 붙여넣기</summary>
+   <div class="stack" style="margin-top:8px"><div class="row"><button class="btn small" data-act="ai-copy">요청문 복사</button><span class="hint">claude.ai 새 대화에 시험지와 요청문을 보내고, 받은 결과(JSON)를 아래에 붙여넣어요</span></div>
+   <textarea id="ai-prompt" readonly style="min-height:120px">${esc(aiPrompt(e,k))}</textarea>
+   <label class="f">클로드 분석 결과 붙여넣기<textarea id="ai-json" placeholder='{"subject":"${k}","items":[{"q":1, ...}]}'></textarea></label>
+   <div class="row"><button class="btn primary small" data-act="ai-apply">붙여넣은 결과 적용</button></div></div></details></div>`;
 }
 function qmTable(eid,k){
   const e=STORE.exams[eid]; const es=e.subj[k]; const M=es.meta||{}; const els=ELEMS[k]||[];
@@ -1244,12 +1365,19 @@ function qmTable(eid,k){
     <td><select data-qm="${q}.elem"><option value="">—</option>${els.map(x=>`<option ${x===m.elem?'selected':''}>${esc(x)}</option>`).join('')}</select></td>
     <td><select data-qm="${q}.diff"><option value="">—</option>${DIFFS.map(x=>`<option ${x===m.diff?'selected':''}>${x}</option>`).join('')}</select></td>
     <td><input data-qm="${q}.rate" inputmode="numeric" value="${esc(m.rate??'')}" placeholder="%" style="width:54px"></td>
-    <td class="hint" style="font-size:12px">${esc(m.why||'')}</td></tr>`;}).join('');
+    <td class="hint" style="font-size:12px">${esc(m.why||'')}${Array.isArray(m.traps)&&m.traps.length?`<div style="margin-top:4px;color:var(--ink)">${m.traps.map(t=>`· ${esc(t.t)} <span class="tag">${esc(t.c)}</span>`).join('<br>')}</div>`:''}</td></tr>`;}).join('');
   return `<div class="panel"><div class="secthead"><h3>${k} 문항 분석표</h3><span class="hint">AI 결과를 과목 담당자가 확인·수정해요. EBSi 정답률을 넣으면 난이도 칸이 비었을 때 자동 판정(70% 이상 하 · 40~69% 중 · 40% 미만 상)</span></div>
   <div class="dist">${els.map(x=>`<span class="pill ${cntE[x]?'acc':''}">${esc(x)} ${cntE[x]||0}</span>`).join('')}${DIFFS.map(d=>`<span class="dg d${d}">난이도 ${d} ${cntD[d]||0}</span>`).join('')}</div>
-  <details id="qm-det" ${ui.qmOpen?'open':''}><summary>문항별로 보기·고치기 (${es.n}문항)</summary><div class="tw" style="margin-top:8px;max-height:560px;overflow:auto"><table class="qm"><thead><tr><th>번호</th><th>배점</th><th>단원</th><th>성취기준 코드</th><th>성취기준 내용</th><th>평가요소</th><th>난이도</th><th>정답률</th><th>AI 판단 근거</th></tr></thead><tbody>${rows}</tbody></table></div></details></div>`;
+  <details id="qm-det" ${ui.qmOpen?'open':''}><summary>문항별로 보기·고치기 (${es.n}문항)</summary><div class="tw" style="margin-top:8px;max-height:560px;overflow:auto"><table class="qm"><thead><tr><th>번호</th><th>배점</th><th>단원</th><th>성취기준 코드</th><th>성취기준 내용</th><th>평가요소</th><th>난이도</th><th>정답률</th><th>AI 판단 근거 · 문항 맞춤 오답 문장</th></tr></thead><tbody>${rows}</tbody></table></div></details></div>`;
 }
 document.addEventListener('toggle',e=>{if(e.target&&e.target.id==='qm-det') ui.qmOpen=e.target.open;},true);
+
+function addUploads(list){ui.upFiles=ui.upFiles||[]; for(const f of list){const isPdf=f.type==='application/pdf'||/\.pdf$/i.test(f.name||''); const isImg=(f.type||'').startsWith('image/')||/\.(jpe?g|png|webp|heic|heif|gif)$/i.test(f.name||''); if(!isPdf&&!isImg) continue; ui.upFiles.push({file:f,img:isImg,url:isImg?URL.createObjectURL(f):''});} keep(render);}
+document.addEventListener('change',e=>{const t=e.target; if(t&&(t.id==='ai-file'||t.id==='ai-cam')){addUploads([...t.files]); t.value='';}});
+document.addEventListener('dragover',e=>{const d=e.target.closest&&e.target.closest('#ai-drop'); if(d){e.preventDefault(); d.classList.add('over');}});
+document.addEventListener('dragleave',e=>{const d=e.target.closest&&e.target.closest('#ai-drop'); if(d) d.classList.remove('over');});
+document.addEventListener('drop',e=>{const d=e.target.closest&&e.target.closest('#ai-drop'); if(d){e.preventDefault(); d.classList.remove('over'); addUploads([...e.dataTransfer.files]);}});
+document.addEventListener('paste',e=>{if(ui.view!=='exams'||!ui.eid) return; const f=[...(e.clipboardData&&e.clipboardData.files||[])].filter(x=>(x.type||'').startsWith('image/')); if(f.length){e.preventDefault(); addUploads(f);}});
 
 /* ================= 지점 현황 (5번) ================= */
 function vDash(){
@@ -1311,14 +1439,15 @@ document.addEventListener('click',e=>{
     case 'rec': ui.rid=ds.id||null; ui.step=ds.id?(ui.step||0):0; render(); break;
     case 'new-rec': {const eid=document.getElementById('newrec-eid').value; const id=ui.sid+'__'+eid; put('records',id,newRecord(ui.sid,eid)); ui.rid=id; ui.step=0; render(); break;}
     case 'step': ui.step=+ds.i; render(); window.scrollTo({top:0}); break;
-    case 'cur': ui.cur=ds.k; keep(render); break;
+    case 'cur': if(ui.view==='exams'&&ui.cur!==ds.k){ui.upFiles=[]; ui.aiMsg='';} ui.cur=ds.k; keep(render); break;
     case 'cur-top': ui.cur=ds.k; render(); window.scrollTo({top:0}); break;
     case 'subj-toggle': {const k=ds.k; const i=r.subjects.indexOf(k); i>=0?r.subjects.splice(i,1):r.subjects.push(k); r.subjects.sort((x,y)=>KEYS.indexOf(x)-KEYS.indexOf(y)); saveRec(); keep(render); break;}
     case 'tog': {const q=ds.q; r.wrong=r.wrong||{}; const W=r.wrong[ui.cur]=r.wrong[ui.cur]||{}; if(W[q]) delete W[q]; else W[q]={cat:'',sent:null}; saveRec(); keep(render); break;}
-    case 'cat': {const w=r.wrong[ui.cur][ds.q]; if(w.cat!==ds.c){w.cat=ds.c; w.sent=null;} ui.open=ui.open||{}; ui.open[ui.cur+ds.q]=true; saveRec(); keep(render); break;}
-    case 'sent-custom': {const w=r.wrong[ui.cur][ds.q]; if(!w.custom){w.custom=true; w.sent='';} saveRec(); keep(render); setTimeout(()=>{const el=document.querySelector(`textarea[data-wsent="${ds.q}"]`); el&&el.focus();},0); break;}
+    case 'cat': {const w=r.wrong[ui.cur][ds.q]; if(w.cat!==ds.c){w.cat=ds.c; w.sent=null; delete w.trap; delete w.p;} ui.open=ui.open||{}; ui.open[ui.cur+ds.q]=true; saveRec(); keep(render); break;}
+    case 'sent-custom': {const w=r.wrong[ui.cur][ds.q]; delete w.trap; delete w.p; if(!w.custom){w.custom=true; w.sent='';} saveRec(); keep(render); setTimeout(()=>{const el=document.querySelector(`textarea[data-wsent="${ds.q}"]`); el&&el.focus();},0); break;}
     case 'sent-done': {const w=r.wrong[ui.cur][ds.q]; if(!(w.sent||'').trim()){toast('문장을 적어 주세요'); break;} ui.open=ui.open||{}; ui.open[ui.cur+ds.q]=false; saveRec(); keep(render); break;}
-    case 'sent': {const w=r.wrong[ui.cur][ds.q]; w.sent=ds.t; w.custom=false; ui.open=ui.open||{}; ui.open[ui.cur+ds.q]=false; saveRec(); keep(render); break;}
+    case 'sent': {const w=r.wrong[ui.cur][ds.q]; w.sent=ds.t; w.custom=false; delete w.trap; delete w.p; ui.open=ui.open||{}; ui.open[ui.cur+ds.q]=false; saveRec(); keep(render); break;}
+    case 'trap': {const ex=recExam(r); const t=(metaOf(ex,ui.cur,ds.q).traps||[])[+ds.i]; if(!t) break; const w=r.wrong[ui.cur][ds.q]; w.cat=t.c; w.sent=t.t; w.custom=false; w.trap=true; if(t.p) w.p=t.p; else delete w.p; ui.open=ui.open||{}; ui.open[ui.cur+ds.q]=false; saveRec(); keep(render); break;}
     case 'reopen': ui.open=ui.open||{}; ui.open[ui.cur+ds.q]=true; keep(render); break;
     case 'weak': {const d=D(r,ui.cur); if(!d.weak) d.weak=weakOf(r,ui.cur).slice(); const i=d.weak.indexOf(ds.u); i>=0?d.weak.splice(i,1):d.weak.push(ds.u); saveRec(); keep(render); break;}
     case 'reset-diag': {const d=D(r,ui.cur); delete d.one; delete d.plan; saveRec(); keep(render); break;}
@@ -1335,7 +1464,16 @@ document.addEventListener('click',e=>{
     case 'ai-copy': {const e2=STORE.exams[ui.eid]; const t=aiPrompt(e2,ui.cur); (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('요청문을 복사했어요. 클로드 새 대화에 시험지와 함께 붙여넣어 주세요')).catch(()=>{const d=document.querySelector('.aibox details'); if(d) d.open=true; const ta=document.getElementById('ai-prompt'); if(ta){ta.focus(); ta.select();} toast('자동 복사가 막혀 있어요. 열린 칸에서 직접 복사해 주세요');}); break;}
     case 'ai-apply': {const o=parseAI(document.getElementById('ai-json').value); if(!o){toast('결과를 읽지 못했어요. 클로드 답변의 { 부터 } 까지 전부 붙여넣어 주세요'); break;} const wp=document.getElementById('ai-pts').checked; const sm=applyAI(ui.eid,ui.cur,o,wp); ui.qmOpen=true; render(); toast(aiMsg(sm,wp)); break;}
     case 'ai-run': aiRun(); break;
-    case 'open-exam': ui.eid=ds.id; ui.cur=KEYS[0]; render(); window.scrollTo({top:0}); break;
+    case 'up-del': {const F=ui.upFiles||[]; const f=F[+ds.i]; if(f&&f.url) URL.revokeObjectURL(f.url); F.splice(+ds.i,1); keep(render); break;}
+    case 'ai-set-open': ui.aiSet=true; keep(render); break;
+    case 'ai-set-close': ui.aiSet=false; keep(render); break;
+    case 'ai-key-clear': lset('mock-lab-key',''); toast('이 기기에 저장한 키를 지웠어요'); keep(render); break;
+    case 'ai-key-local': case 'ai-key-shared': {const key=(document.getElementById('ai-key').value||'').trim(); const model=(document.getElementById('ai-model').value||'').trim()||'claude-sonnet-5-5';
+      if(!/^sk-ant-/.test(key)){toast('API 키는 sk-ant- 로 시작해요. 다시 확인해 주세요'); break;}
+      if(a==='ai-key-local'){lset('mock-lab-key',key); lset('mock-lab-model',model); ui.aiSet=false; toast('이 기기에 저장했어요'); keep(render); break;}
+      firebase.database().ref(RT_ROOT+'settings/ai').set({key,model,by:(USER&&USER.email)||'',at:today()}).then(()=>{SHARED_AI={key,model}; ui.aiSet=false; toast('지점 공용으로 저장했어요. 로그인한 매니저 모두 분석할 수 있어요'); render();}).catch(()=>toast('공용 저장 권한이 없어요. 우선 이 기기에만 저장해 주세요'));
+      break;}
+    case 'open-exam': ui.eid=ds.id; ui.cur=KEYS[0]; ui.upFiles=[]; ui.aiMsg=''; render(); window.scrollTo({top:0}); break;
     case 'close-exam': ui.eid=null; render(); break;
     case 'mode': ui.mode=ds.v; keep(render); break;
     case 'cell': {const e2=STORE.exams[ui.eid]; const es=e2.subj[ui.cur]; const q=+ds.q;
@@ -1449,6 +1587,13 @@ function buildDemo(){
   ['demo-e6','demo-e9','demo-e10','demo-e11'].forEach(eid=>{const E=STORE.exams[eid]; KEYS.forEach(k=>{const es=E.subj[k]; const ul=unitsFor(k,E); es.meta={};
     for(let q=1;q<=es.n;q++){const u=es.units[q]||ul[(q*3)%ul.length]; const su=shortUnit(u); const code=k==='수학'?(MCODE[su.replace(/^공통수학\d – /,'')]||''):'';
       es.meta[q]={elem:demoElem(k,q,u),diff:demoDiff(k,q,es.n),stdText:`(예시) ${su.replace(/^공통수학\d – /,'')} 관련 성취기준`,why:'예시 값이에요'}; if(code) es.meta[q].std=code;}});});
+  const DT={'국어':{7:[['발표자가 청중 반응을 확인한 부분을 내용 요약으로 읽었어요.','풀이 적용',''],["선지의 '자료를 활용하여'가 실제 발표에 있었는지 확인하지 않았어요.",'읽기 실수','']],
+    12:[["2문단 '반면' 뒤 내용을 앞 대상의 특징으로 읽었어요.",'풀이 적용','k1'],['두 이론의 차이를 표로 정리하지 않고 기억으로만 풀었어요.','풀이 적용','k1']],
+    20:[['1연과 2연 사이 화자의 정서 변화를 정리하지 않았어요.','풀이 적용','k2'],["'겨울'을 무조건 시련의 의미로 짐작했어요.",'풀이 적용','k2'],["〈보기〉의 '공동체' 관점을 작품에 대응시키지 못했어요.",'풀이 적용','k2']],
+    27:[["'반어'와 '역설'의 차이를 정확히 몰랐어요.",'개념 부족','k3'],['선지의 표현법이 작품 어느 행에 있는지 확인하지 않았어요.','읽기 실수','']]},
+   '수학':{15:[["(나) 조건의 'x>0'을 빼고 경우를 나눴어요.",'읽기 실수','m2'],['귀납적으로 정의된 수열을 n=1부터 직접 나열해 보지 않았어요.','풀이 적용','m2']],
+    21:[['그래프 개형을 그려 보지 않고 식으로만 풀었어요.','풀이 적용','m2'],["극값을 갖는 조건(f'(x)=0이고 부호가 바뀜)을 헷갈렸어요.",'개념 부족','m1']]}};
+  ['demo-e9','demo-e10','demo-e11'].forEach(eid=>Object.entries(DT).forEach(([k,o])=>Object.entries(o).forEach(([q,a])=>{const m=STORE.exams[eid].subj[k].meta[q]; if(m) m.traps=a.map(([t,c,p])=>({t:'(예시) '+t,c,p}));})));
   // 9월 상담에서 확정한 처방 → 10월 상담에서 재발 비교 / 10월 처방은 지금 트래킹 중
   const confirm=(id,k,i,status,at)=>{const x=R[id]; const g=rxGroups(x,k)[i]; if(!g) return null; x.rx=x.rx||{}; x.rx[k]=x.rx[k]||{}; x.rx[k][g.key]={cat:g.cat,elem:g.elem,title:g.title,target:g.target,counsel:g.counsel,counselBy:g.counselBy,method:g.method,check:g.check,qs:g.qs.slice(),status,at}; return keySafe(k+'~'+g.key);};
   const applyFill=(id,ak,pattern,asOf)=>{const x=R[id]; weeksOf(x).filter(w=>w.start<=asOf).forEach((w,i)=>{x.checks[w.i]=x.checks[w.i]||{done:{},note:''}; x.checks[w.i].apply=x.checks[w.i].apply||{}; x.checks[w.i].apply[ak]=pattern[i%pattern.length];});};
